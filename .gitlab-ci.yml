@@ -1,0 +1,5 @@
+build:
+  image: jimmycuadra/rust
+  script:
+    - cargo build --release
+    - time cargo run --release
