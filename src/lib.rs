@@ -15,6 +15,17 @@ pub fn lorenz63(p: f64, b: f64, r: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix>
     v
 }
 
+#[inline(always)]
+pub fn roessler(a: f64, b: f64, c: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix> {
+    let x = v[0];
+    let y = v[1];
+    let z = v[2];
+    v[0] = -y - z;
+    v[1] = x + a * y;
+    v[2] = b + x * z - c * z;
+    v
+}
+
 pub fn euler<TEO, D: Dimension>(u: &TEO, dt: f64, x: Array<f64, D>) -> Array<f64, D>
     where TEO: Fn(Array<f64, D>) -> Array<f64, D>
 {
