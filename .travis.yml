@@ -6,4 +6,4 @@ rust:
 sudo: false
 script:
   - rustc --version
-  - cargo test
+  - cargo run --release
