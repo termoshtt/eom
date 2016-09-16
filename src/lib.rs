@@ -49,3 +49,21 @@ pub fn rk4<TEO, D: Dimension>(u: &TEO, dt: f64, x: Array<f64, D>) -> Array<f64, 
     l = u(l);
     x + dt * (k1 + 2.0 * (k2 + k3) + l) / 6.0
 }
+
+pub struct TimeSeries<T, D: Dimension>
+    where T: Fn(Array<f64, D>) -> Array<f64, D>
+{
+    pub teo: T,
+    pub state: Array<f64, D>,
+}
+
+impl<T, D: Dimension> Iterator for TimeSeries<T, D>
+    where T: Fn(Array<f64, D>) -> Array<f64, D>
+{
+    type Item = Array<f64, D>;
+    fn next(&mut self) -> Option<Array<f64, D>> {
+        let v = self.state.clone();
+        self.state = (self.teo)(self.state.clone());
+        Some(v)
+    }
+}
