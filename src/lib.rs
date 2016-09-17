@@ -5,7 +5,7 @@ extern crate num;
 use ndarray::prelude::*;
 
 #[inline(always)]
-pub fn lorenz63(p: f64, b: f64, r: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix> {
+pub fn lorenz63(p: f64, r: f64, b: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix> {
     let x = v[0];
     let y = v[1];
     let z = v[2];
@@ -47,7 +47,7 @@ pub fn rk4<TEO, D: Dimension>(u: &TEO, dt: f64, x: Array<f64, D>) -> Array<f64, 
     let k3 = l.clone();
     l = dt * l + &x;
     l = u(l);
-    x + dt * (k1 + 2.0 * (k2 + k3) + l) / 6.0
+    x + (dt / 6.0) * (k1 + 2.0 * (k2 + k3) + l)
 }
 
 pub struct TimeSeries<T, D: Dimension>
