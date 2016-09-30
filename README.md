@@ -18,7 +18,7 @@ for v in ts.take(end_time) {
 }
 ```
 
-You can find complete code at src/main.rs
+You can find complete code at [src/main.rs](src/main.rs)
 
 ![Lorenz63 Attractor](lorenz63.png)
 
