@@ -1,9 +1,10 @@
-# ndarray-odeint
-[![Build Status](https://travis-ci.org/termoshtt/ndarray-odeint.svg?branch=master)](https://travis-ci.org/termoshtt/ndarray-odeint)
+ndarray-odeint [![Build Status](https://travis-ci.org/termoshtt/ndarray-odeint.svg?branch=master)](https://travis-ci.org/termoshtt/ndarray-odeint)
+===============
 
 solve ODE with rust-ndarray
 
-## Example
+Example
+--------
 
 ```rust
 let l = |y| odeint::lorenz63(10.0, 28.0, 8.0 / 3.0, y);
@@ -16,6 +17,8 @@ for v in ts.take(end_time) {
     println!("{} {} {}", v[0], v[1], v[2]); // output as ASCII
 }
 ```
+
+You can find complete code at src/main.rs
 
 ![Lorenz63 Attractor](lorenz63.png)
 
