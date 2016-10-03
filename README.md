@@ -35,7 +35,7 @@ Developement status
 
 - implicit scheme
   - [ ] backward Euler (beuler)
-  - [ ] diagonalized implicit runge-kutta (dirk)
+  - [ ] [diagonally implicit runge-kutta (dirk)](http://epubs.siam.org/doi/abs/10.1137/0714068)
 
   These needs linear algebra library for [rust-ndarray](https://github.com/bluss/rust-ndarray)
 
