@@ -43,3 +43,7 @@ Developement status
   - to be done
 
 [gnuplot]: http://www.gnuplot.info
+
+License
+-------
+MIT-License, see [LICENSE](LICENSE) file.
