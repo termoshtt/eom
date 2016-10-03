@@ -37,10 +37,9 @@ Developement status
   - [ ] backward Euler (beuler)
   - [ ] diagonalized implicit runge-kutta (dirk)
 
-  These needs linear algebra library for [rust-ndarray]()
+  These needs linear algebra library for [rust-ndarray](https://github.com/bluss/rust-ndarray)
 
 - semi-implicit scheme (for stiff equations)
   - to be done
 
 [gnuplot]: http://www.gnuplot.info
-[rust-ndarray]: https://github.com/bluss/rust-ndarray
