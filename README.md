@@ -23,3 +23,24 @@ You can find complete code at [src/main.rs](src/main.rs)
 ![Lorenz63 Attractor](lorenz63.png)
 
 This figure is plotted by [gnuplot](http://www.gnuplot.info/)
+
+Developement status
+--------------------
+
+- explicit scheme
+  - [x] forward Euler (euler)
+  - [ ] refined Euler (reuler)
+  - [ ] Heun (heun)
+  - [x] classical Runge-Kutta (rk4)
+
+- implicit scheme
+  - [ ] backward Euler (beuler)
+  - [ ] diagonalized implicit runge-kutta (dirk)
+
+  These needs linear algebra library for [rust-ndarray]()
+
+- semi-implicit scheme (for stiff equations)
+  - to be done
+
+[gnuplot]: http://www.gnuplot.info
+[rust-ndarray]: https://github.com/bluss/rust-ndarray
