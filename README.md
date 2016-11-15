@@ -7,18 +7,27 @@ Example
 --------
 
 ```rust
-let l = |y| odeint::lorenz63(10.0, 28.0, 8.0 / 3.0, y);
-let ts = odeint::TimeSeries {
-    teo: |y| odeint::rk4(&l, 0.01, y), // Time-Evolution Operator
-    state: arr1(&[1.0, 0.0, 0.0]), // inital state
-};
-let end_time = 10000;
-for v in ts.take(end_time) {
-    println!("{} {} {}", v[0], v[1], v[2]); // output as ASCII
+extern crate ndarray;
+extern crate ndarray_odeint;
+
+use ndarray::prelude::*;
+
+fn main() {
+    let dt = 0.01;
+    let l = |y| ndarray_odeint::lorenz63(10.0, 28.0, 8.0 / 3.0, y);
+    let ts = ndarray_odeint::TimeSeries {
+        teo: |y| ndarray_odeint::rk4(&l, dt, y),
+        state: arr1(&[1.0, 0.0, 0.0]),
+    };
+    let end_time = 10000;
+    println!("time,x,y,z");
+    for (t, v) in ts.take(end_time).enumerate() {
+        println!("{},{},{},{}", t as f64 * dt, v[0], v[1], v[2]);
+    }
 }
 ```
 
-You can find complete code at [src/main.rs](src/main.rs)
+You can find complete code at [src/bin/main.rs](src/bin/main.rs)
 
 ![Lorenz63 Attractor](lorenz63.png)
 
