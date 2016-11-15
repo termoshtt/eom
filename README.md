@@ -22,7 +22,7 @@ You can find complete code at [src/main.rs](src/main.rs)
 
 ![Lorenz63 Attractor](lorenz63.png)
 
-This figure is plotted by [gnuplot](http://www.gnuplot.info/)
+This figure is plotted by matplotlib
 
 Developement status
 --------------------
