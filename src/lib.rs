@@ -4,7 +4,7 @@ extern crate ndarray;
 use ndarray::prelude::*;
 
 #[inline(always)]
-pub fn lorenz63(p: f64, r: f64, b: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix> {
+pub fn lorenz63(p: f64, r: f64, b: f64, mut v: Array<f64, Ix1>) -> Array<f64, Ix1> {
     let x = v[0];
     let y = v[1];
     let z = v[2];
@@ -15,7 +15,7 @@ pub fn lorenz63(p: f64, r: f64, b: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix>
 }
 
 #[inline(always)]
-pub fn roessler(a: f64, b: f64, c: f64, mut v: Array<f64, Ix>) -> Array<f64, Ix> {
+pub fn roessler(a: f64, b: f64, c: f64, mut v: Array<f64, Ix1>) -> Array<f64, Ix1> {
     let x = v[0];
     let y = v[1];
     let z = v[2];
