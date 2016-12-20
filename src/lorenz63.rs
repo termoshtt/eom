@@ -8,12 +8,19 @@ pub struct Parameter {
     pub b: f64,
 }
 
-/// famous parameter for strange attractor
-pub fn default_parameter() -> Parameter {
-    Parameter {
-        p: 10.0,
-        r: 28.0,
-        b: 8.0 / 3.0,
+impl Default for Parameter {
+    fn default() -> Self {
+        Parameter {
+            p: 10.0,
+            r: 28.0,
+            b: 8.0 / 3.0,
+        }
+    }
+}
+
+impl Parameter {
+    pub fn new(p: f64, r: f64, b: f64) -> Self {
+        Parameter { p: p, r: r, b: b }
     }
 }
 

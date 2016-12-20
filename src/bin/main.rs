@@ -9,7 +9,7 @@ use ndarray_odeint::lorenz63 as l63;
 
 fn main() {
     let dt = 0.01;
-    let p = l63::default_parameter();
+    let p = l63::Parameter::default();
     let l = |y| l63::f(p, y);
     let ts = iterate(arr1(&[1.0, 0.0, 0.0]),
                      |y| ndarray_odeint::explicit::rk4(&l, dt, y.clone()));
