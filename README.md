@@ -30,18 +30,10 @@ This figure is plotted by matplotlib (see [plot script](figure.py)).
 Developement status
 --------------------
 
-- explicit scheme
-  - [x] forward Euler (euler)
-  - [ ] refined Euler (reuler)
-  - [ ] Heun (heun)
-  - [x] classical Runge-Kutta (rk4)
+See issues
 
-- implicit scheme
-  - [ ] backward Euler (beuler)
-  - [ ] [diagonally implicit runge-kutta (dirk)](http://epubs.siam.org/doi/abs/10.1137/0714068)
-
-- semi-implicit scheme (for stiff equations)
-  - to be done
+- Explicit Schemes #3
+- Implicit Schemes #4
 
 License
 -------
