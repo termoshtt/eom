@@ -5,12 +5,14 @@ extern crate itertools;
 
 use ndarray::prelude::*;
 use itertools::iterate;
+use ndarray_odeint::lorenz63 as l63;
 
 fn main() {
     let dt = 0.01;
-    let l = |y| ndarray_odeint::lorenz63(10.0, 28.0, 8.0 / 3.0, y);
+    let p = l63::default_parameter();
+    let l = |y| l63::f(p, y);
     let ts = iterate(arr1(&[1.0, 0.0, 0.0]),
-                     |y| ndarray_odeint::rk4(&l, dt, y.clone()));
+                     |y| ndarray_odeint::explicit::rk4(&l, dt, y.clone()));
     let end_time = 10000;
     println!("time,x,y,z");
     for (t, v) in ts.take(end_time).enumerate() {
