@@ -21,10 +21,10 @@ macro_rules! impl_precision_test {
 fn $name() {
     let p = l63::default_parameter();
     let l = |y| l63::f(p, y);
-    let data: Vec<_> = (0..8)
+    let data: Vec<_> = (0..12)
         .map(|n| {
-            let dt = 0.01 / 2.pow(n) as f64;
-            let t = 1000 * 2.pow(n);
+            let dt = 0.1 / 2.pow(n) as f64;
+            let t = 100 * 2.pow(n);
             let ts = iterate(arr1(&[1.0, 0.0, 0.0]), |y| $method(&l, dt, y.clone()));
             (dt, ts.take(t+1).last().unwrap())
         })
