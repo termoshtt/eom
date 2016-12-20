@@ -3,6 +3,12 @@ name = "ndarray-odeint"
 version = "0.1.0"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 
+description = "solve ODE using rust-ndarray"
+documentation = "https://docs.rs/ndarray-odeint/"
+repository = "https://github.com/termoshtt/ndarray-odeint"
+keywords = ["ndarray", "ode"]
+license = "MIT"
+
 [dependencies]
 ndarray = "0.7"
 itertools = "0.5.7"
