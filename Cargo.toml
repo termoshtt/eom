@@ -5,8 +5,8 @@ authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 
 [dependencies]
 ndarray = "0.7"
-itertools = "*"
+itertools = "0.5.7"
 
 [dev-dependencies]
-num-traits = "*"
-ndarray-linalg = "*"
+num-traits = "0.1.35"
+ndarray-linalg = "0.1.5"
