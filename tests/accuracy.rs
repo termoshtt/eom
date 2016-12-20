@@ -19,7 +19,7 @@ macro_rules! impl_accuracy_test {
     ($name:ident, $method:path, $filename:expr) => {
 #[test]
 fn $name() {
-    let p = l63::default_parameter();
+    let p = l63::Parameter::default();
     let l = |y| l63::f(p, y);
     let data: Vec<_> = (0..12)
         .map(|n| {
