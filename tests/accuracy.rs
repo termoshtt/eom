@@ -15,7 +15,7 @@ use num_traits::int::PrimInt;
 
 type V = Array<f64, Ix1>;
 
-macro_rules! impl_precision_test {
+macro_rules! impl_accuracy_test {
     ($name:ident, $method:path, $filename:expr) => {
 #[test]
 fn $name() {
@@ -38,7 +38,7 @@ fn $name() {
         write!(&mut f, "{},{}\n", dt, dev).unwrap();
     }
 }
-}} // impl_precision_test
+}} // impl_accuracy_test
 
-impl_precision_test!(euler, ndarray_odeint::explicit::euler, "euler.csv");
-impl_precision_test!(rk4, ndarray_odeint::explicit::rk4, "rk4.csv");
+impl_accuracy_test!(euler, ndarray_odeint::explicit::euler, "euler.csv");
+impl_accuracy_test!(rk4, ndarray_odeint::explicit::rk4, "rk4.csv");
