@@ -32,8 +32,8 @@ Developement status
 
 See issues
 
-- Explicit Schemes #3
-- Implicit Schemes #4
+- [Explicit Schemes](/../../issues/2)
+- [Implicit Schemes](/../../issues/3)
 
 License
 -------
