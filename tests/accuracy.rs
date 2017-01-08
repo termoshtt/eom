@@ -9,12 +9,9 @@ use std::fs::*;
 use std::io::Write;
 use ndarray::*;
 use ndarray_linalg::prelude::*;
+use ndarray_odeint::prelude::*;
 use itertools::iterate;
-use ndarray_odeint::{explicit, lorenz63};
-use ndarray_odeint::traits::*;
 use num_traits::int::PrimInt;
-
-type V = Array<f64, Ix1>;
 
 macro_rules! impl_accuracy_test {
     ($name:ident, $method:path, $filename:expr) => {
@@ -23,7 +20,7 @@ fn $name() {
     let data: Vec<_> = (0..12)
         .map(|n| {
             let dt = 0.1 / 2.pow(n) as f64;
-            let eom = lorenz63::Lorenz63::default();
+            let eom = Lorenz63::default();
             let teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
             let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));

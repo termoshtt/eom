@@ -5,13 +5,11 @@ extern crate itertools;
 
 use ndarray::rcarr1;
 use itertools::iterate;
-use ndarray_odeint::lorenz63 as l63;
-use ndarray_odeint::explicit;
-use ndarray_odeint::traits::*;
+use ndarray_odeint::prelude::*;
 
 fn main() {
     let dt = 0.01;
-    let eom = l63::Lorenz63::default();
+    let eom = Lorenz63::default();
     let teo = explicit::rk4(eom, dt);
     let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));
     let end_time = 10000;
