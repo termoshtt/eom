@@ -1,26 +1,61 @@
 
+use std::marker::PhantomData;
 use ndarray::prelude::*;
+use super::traits::{EOM, TimeEvolution};
 
-pub fn euler<TEO, D: Dimension>(u: &TEO, dt: f64, x: Array<f64, D>) -> Array<f64, D>
-    where TEO: Fn(Array<f64, D>) -> Array<f64, D>
-{
-    let y = x.clone();
-    x + dt * u(y)
+pub mod markers {
+    pub struct EulerMarker {}
+    pub struct RK4Marker {}
 }
 
-pub fn rk4<TEO, D: Dimension>(u: &TEO, dt: f64, x: Array<f64, D>) -> Array<f64, D>
-    where TEO: Fn(Array<f64, D>) -> Array<f64, D>
-{
-    let mut l = x.clone();
-    l = u(l);
-    let k1 = l.clone();
-    l = (0.5 * dt) * l + &x;
-    l = u(l);
-    let k2 = l.clone();
-    l = (0.5 * dt) * l + &x;
-    l = u(l);
-    let k3 = l.clone();
-    l = dt * l + &x;
-    l = u(l);
-    x + (dt / 6.0) * (k1 + 2.0 * (k2 + k3) + l)
+pub struct Explicit<F: EOM<D>, D: Dimension, Marker> {
+    f: F,
+    dt: f64,
+    phantom_dim: PhantomData<D>,
+    phantom_marker: PhantomData<Marker>,
+}
+
+impl<F: EOM<D>, D: Dimension, Marker> Explicit<F, D, Marker> {
+    pub fn new(f: F, dt: f64) -> Self {
+        Explicit {
+            f: f,
+            dt: dt,
+            phantom_dim: PhantomData,
+            phantom_marker: PhantomData,
+        }
+    }
+}
+
+impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::EulerMarker> {
+    #[inline(always)]
+    fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
+        let fx = self.f.rhs(x.clone());
+        x + fx * self.dt
+    }
+}
+
+impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::RK4Marker> {
+    #[inline(always)]
+    fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
+        let mut l = x.clone();
+        l = self.f.rhs(l);
+        let k1 = l.clone();
+        l = (0.5 * self.dt) * l + &x;
+        l = self.f.rhs(l);
+        let k2 = l.clone();
+        l = (0.5 * self.dt) * l + &x;
+        l = self.f.rhs(l);
+        let k3 = l.clone();
+        l = self.dt * l + &x;
+        l = self.f.rhs(l);
+        x + (self.dt / 6.0) * (k1 + 2.0 * (k2 + k3) + l)
+    }
+}
+
+pub fn euler<F: EOM<D>, D: Dimension>(f: F, dt: f64) -> Explicit<F, D, markers::EulerMarker> {
+    Explicit::new(f, dt)
+}
+
+pub fn rk4<F: EOM<D>, D: Dimension>(f: F, dt: f64) -> Explicit<F, D, markers::RK4Marker> {
+    Explicit::new(f, dt)
 }
