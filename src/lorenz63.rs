@@ -1,16 +1,17 @@
 
 use ndarray::prelude::*;
+use super::traits::EOM;
 
 #[derive(Clone,Copy,Debug)]
-pub struct Parameter {
+pub struct Lorenz63 {
     pub p: f64,
     pub r: f64,
     pub b: f64,
 }
 
-impl Default for Parameter {
+impl Default for Lorenz63 {
     fn default() -> Self {
-        Parameter {
+        Lorenz63 {
             p: 10.0,
             r: 28.0,
             b: 8.0 / 3.0,
@@ -18,19 +19,24 @@ impl Default for Parameter {
     }
 }
 
-impl Parameter {
+impl Lorenz63 {
     pub fn new(p: f64, r: f64, b: f64) -> Self {
-        Parameter { p: p, r: r, b: b }
+        Lorenz63 { p: p, r: r, b: b }
     }
 }
 
-#[inline(always)]
-pub fn f(p: Parameter, mut v: Array<f64, Ix1>) -> Array<f64, Ix1> {
-    let x = v[0];
-    let y = v[1];
-    let z = v[2];
-    v[0] = p.p * (y - x);
-    v[1] = x * (p.r - z) - y;
-    v[2] = x * y - p.b * z;
-    v
+impl EOM<Ix1> for Lorenz63 {
+    #[inline(always)]
+    fn rhs(&self, mut state: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
+        {
+            let mut v = state.view_mut();
+            let x = v[0];
+            let y = v[1];
+            let z = v[2];
+            v[0] = self.p * (y - x);
+            v[1] = x * (self.r - z) - y;
+            v[2] = x * y - self.b * z;
+        }
+        state
+    }
 }

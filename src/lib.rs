@@ -1,7 +1,5 @@
-
 extern crate ndarray;
-
-// methods
+pub mod traits;
+pub mod prelude;
 pub mod explicit;
-// models
 pub mod lorenz63;
