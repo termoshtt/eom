@@ -7,8 +7,9 @@ Example
 --------
 
 ```rust
+use ndarray::rcarr1;
 use itertools::iterate;
-use ndarray_odeint::lorenz63 as l63;
+use ndarray_odeint::prelude::*;
 
 let dt = 0.01;
 let eom = Lorenz63::default();
