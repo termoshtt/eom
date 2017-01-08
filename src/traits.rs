@@ -9,5 +9,4 @@ pub trait EOM<D: Dimension> {
 /// calculate next step by integrating the equation of motion
 pub trait TimeEvolution<D: Dimension> {
     fn iterate(&self, RcArray<f64, D>) -> RcArray<f64, D>;
-    fn get_dt(&self) -> f64;
 }

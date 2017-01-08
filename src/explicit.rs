@@ -3,30 +3,59 @@ use std::marker::PhantomData;
 use ndarray::prelude::*;
 use super::traits::{EOM, TimeEvolution};
 
-pub struct Euler<F: EOM<D>, D: Dimension> {
-    f: F,
-    dt: f64,
-    phantom: PhantomData<D>,
+pub mod markers {
+    pub struct EulerMarker {}
+    pub struct RK4Marker {}
 }
 
-impl<F: EOM<D>, D: Dimension> Euler<F, D> {
+pub struct Explicit<F: EOM<D>, D: Dimension, Marker> {
+    f: F,
+    dt: f64,
+    phantom_dim: PhantomData<D>,
+    phantom_marker: PhantomData<Marker>,
+}
+
+impl<F: EOM<D>, D: Dimension, Marker> Explicit<F, D, Marker> {
     pub fn new(f: F, dt: f64) -> Self {
-        Euler {
+        Explicit {
             f: f,
             dt: dt,
-            phantom: PhantomData,
+            phantom_dim: PhantomData,
+            phantom_marker: PhantomData,
         }
     }
 }
 
-impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Euler<F, D> {
+impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::EulerMarker> {
     #[inline(always)]
     fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
         let fx = self.f.rhs(x.clone());
         x + fx * self.dt
     }
+}
+
+impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::RK4Marker> {
     #[inline(always)]
-    fn get_dt(&self) -> f64 {
-        self.dt
+    fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
+        let mut l = x.clone();
+        l = self.f.rhs(l);
+        let k1 = l.clone();
+        l = (0.5 * self.dt) * l + &x;
+        l = self.f.rhs(l);
+        let k2 = l.clone();
+        l = (0.5 * self.dt) * l + &x;
+        l = self.f.rhs(l);
+        let k3 = l.clone();
+        l = self.dt * l + &x;
+        l = self.f.rhs(l);
+        x + (self.dt / 6.0) * (k1 + 2.0 * (k2 + k3) + l)
     }
+}
+
+pub fn euler<F: EOM<D>, D: Dimension>(f: F, dt: f64) -> Explicit<F, D, markers::EulerMarker> {
+    Explicit::new(f, dt)
+}
+
+pub fn rk4<F: EOM<D>, D: Dimension>(f: F, dt: f64) -> Explicit<F, D, markers::RK4Marker> {
+    Explicit::new(f, dt)
 }
