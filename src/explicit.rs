@@ -5,6 +5,7 @@ use super::traits::{EOM, TimeEvolution};
 
 pub mod markers {
     pub struct EulerMarker {}
+    pub struct HeunMarker {}
     pub struct RK4Marker {}
 }
 
@@ -34,6 +35,15 @@ impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::Euler
     }
 }
 
+impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::HeunMarker> {
+    #[inline(always)]
+    fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
+        let k1 = self.dt * self.f.rhs(x.clone());
+        let k2 = self.dt * self.f.rhs(x.clone() + k1.clone());
+        x + 0.5 * (k1 + k2)
+    }
+}
+
 impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::RK4Marker> {
     #[inline(always)]
     fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
@@ -53,6 +63,10 @@ impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::RK4Ma
 }
 
 pub fn euler<F: EOM<D>, D: Dimension>(f: F, dt: f64) -> Explicit<F, D, markers::EulerMarker> {
+    Explicit::new(f, dt)
+}
+
+pub fn heun<F: EOM<D>, D: Dimension>(f: F, dt: f64) -> Explicit<F, D, markers::HeunMarker> {
     Explicit::new(f, dt)
 }
 
