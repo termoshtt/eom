@@ -47,18 +47,14 @@ impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::HeunM
 impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::RK4Marker> {
     #[inline(always)]
     fn iterate(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
-        let mut l = x.clone();
-        l = self.f.rhs(l);
-        let k1 = l.clone();
-        l = (0.5 * self.dt) * l + &x;
-        l = self.f.rhs(l);
-        let k2 = l.clone();
-        l = (0.5 * self.dt) * l + &x;
-        l = self.f.rhs(l);
-        let k3 = l.clone();
-        l = self.dt * l + &x;
-        l = self.f.rhs(l);
-        x + (self.dt / 6.0) * (k1 + 2.0 * (k2 + k3) + l)
+        let k1 = self.f.rhs(x.clone());
+        let l1 = (0.5 * self.dt) * k1.clone() + &x;
+        let k2 = self.f.rhs(l1);
+        let l2 = (0.5 * self.dt) * k2.clone() + &x;
+        let k3 = self.f.rhs(l2);
+        let l3 = self.dt * k3.clone() + &x;
+        let k4 = self.f.rhs(l3);
+        x + (self.dt / 6.0) * (k1 + 2.0 * (k2 + k3) + k4)
     }
 }
 

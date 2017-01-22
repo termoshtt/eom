@@ -27,16 +27,13 @@ impl Lorenz63 {
 
 impl EOM<Ix1> for Lorenz63 {
     #[inline(always)]
-    fn rhs(&self, mut state: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
-        {
-            let mut v = state.view_mut();
-            let x = v[0];
-            let y = v[1];
-            let z = v[2];
-            v[0] = self.p * (y - x);
-            v[1] = x * (self.r - z) - y;
-            v[2] = x * y - self.b * z;
-        }
-        state
+    fn rhs(&self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
+        let x = v[0];
+        let y = v[1];
+        let z = v[2];
+        v[0] = self.p * (y - x);
+        v[1] = x * (self.r - z) - y;
+        v[2] = x * y - self.b * z;
+        v
     }
 }
