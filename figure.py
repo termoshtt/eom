@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def main():
-    result_fn = "result.csv"
+def main(name):
+    result_fn = name + ".csv"
     with open(result_fn, "w") as f:
-        check_call(["cargo", "run", "--release"], stdout=f)
+        check_call(["cargo", "run", "--release", "--bin", name], stdout=f)
     data = pd.read_csv(result_fn).set_index("time")[1:]
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
@@ -21,8 +21,9 @@ def main():
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
-    plt.savefig("lorenz63.png")
+    plt.savefig(name + ".png")
 
 
 if __name__ == '__main__':
-    main()
+    main("lorenz63")
+    main("roessler")
