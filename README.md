@@ -21,9 +21,8 @@ for v in ts.take(end_time) {
 }
 ```
 
-You can find complete code at [src/bin/main.rs](src/bin/main.rs)
-
 ![Lorenz63 Attractor](lorenz63.png)
+![Roessler Attractor](roessler.png)
 
 This figure is plotted by matplotlib (see [plot script](figure.py)).
 
@@ -32,8 +31,8 @@ Developement status
 
 See issues
 
-- [Explicit Schemes](/../../issues/2)
-- [Implicit Schemes](/../../issues/3)
+- [x] [Explicit Schemes](/../../issues/2)
+- [ ] [Implicit Schemes](/../../issues/3)
 
 License
 -------
