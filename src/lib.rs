@@ -10,3 +10,4 @@ pub mod explicit;
 // models
 pub mod lorenz63;
 pub mod lorenz96;
+pub mod roessler;
