@@ -1,3 +1,5 @@
+//! Lorenz three-variables system
+//! https://en.wikipedia.org/wiki/Lorenz_system
 
 use ndarray::prelude::*;
 use super::traits::EOM;
