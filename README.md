@@ -24,7 +24,7 @@ for v in ts.take(end_time) {
 ![Lorenz63 Attractor](lorenz63.png)
 ![Roessler Attractor](roessler.png)
 
-This figure is plotted by matplotlib (see [plot script](figure.py)).
+Figures are plotted by matplotlib (see [plot script](figure.py)).
 
 Developement status
 --------------------
