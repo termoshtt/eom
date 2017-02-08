@@ -3,6 +3,7 @@
 use ndarray::*;
 use ndarray_linalg::prelude::*;
 use itertools::iterate;
+use std::mem::replace;
 
 use super::traits::TimeEvolution;
 
@@ -90,4 +91,33 @@ pub fn exponents<TEO>(teo: &TEO, x0: RcArray1<f64>, alpha: f64, duration: usize)
         .skip(duration / 10)
         .take(duration)
         .fold(Array::zeros(n), |x, y| x + y) / (teo.get_dt() * duration as f64)
+}
+
+pub fn clv<TEO>(teo: &TEO,
+                x0: RcArray1<f64>,
+                alpha: f64,
+                duration: usize)
+                -> Vec<(Array1<f64>, Array2<f64>, Array1<f64>)>
+    where TEO: NumDifferentiable
+{
+    let n = x0.len();
+    let ts = iterate(x0, |y| teo.iterate(y.clone()));
+    let qr_series = ts.scan(Array::eye(n), |q, x| {
+            let (q_next, r) = teo.jacobian(x.clone(), alpha).clv_forward(q);
+            let q = replace(q, q_next);
+            Some((x, q, r))
+        })
+        .skip(duration / 10)
+        .take(duration)
+        .collect::<Vec<_>>();
+    let clv_rev = qr_series.into_iter()
+        .rev()
+        .scan(Array::eye(3), |c, (x, q, r)| {
+            let (c_now, f) = clv_backward(c, &r);
+            let v = q.dot(&c_now);
+            *c = c_now;
+            Some((x.into_owned(), v, f))
+        })
+        .collect::<Vec<_>>();
+    clv_rev.into_iter().rev().collect()
 }
