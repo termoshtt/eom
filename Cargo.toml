@@ -16,3 +16,4 @@ itertools = "0.5.7"
 
 [dev-dependencies]
 num-traits = "0.1.35"
+ndarray-numtest = "0.1.4"

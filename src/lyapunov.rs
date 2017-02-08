@@ -1,3 +1,4 @@
+//! Jacobi matrix for time-evolution function
 
 use ndarray::*;
 use ndarray_linalg::prelude::*;
