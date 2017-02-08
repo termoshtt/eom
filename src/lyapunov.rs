@@ -2,6 +2,7 @@
 
 use ndarray::*;
 use ndarray_linalg::prelude::*;
+use itertools::iterate;
 
 use super::traits::TimeEvolution;
 
@@ -73,4 +74,20 @@ pub fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f6
     let (c, d) = normalize(cd, NormalizeAxis::Column);
     let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
     (c, f)
+}
+
+pub fn exponents<TEO>(teo: &TEO, x0: RcArray1<f64>, alpha: f64, duration: usize) -> Array1<f64>
+    where TEO: NumDifferentiable
+{
+    let n = x0.len();
+    let ts = iterate(x0, |y| teo.iterate(y.clone()));
+    ts.scan(Array::eye(n), |q, x| {
+            let (q_next, r) = teo.jacobian(x.clone(), alpha).clv_forward(q);
+            *q = q_next;
+            let d = r.diag().map(|x| x.abs().ln());
+            Some(d)
+        })
+        .skip(duration / 10)
+        .take(duration)
+        .fold(Array::zeros(n), |x, y| x + y) / (teo.get_dt() * duration as f64)
 }

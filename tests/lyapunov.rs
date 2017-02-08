@@ -32,3 +32,13 @@ fn jacobian_matrix_shape() {
     let jv = j.dot(&v);
     assert!(jv.shape() == v.shape());
 }
+
+#[test]
+fn exponents_l63() {
+    let dt = 0.01;
+    let eom = Lorenz63::default();
+    let teo = explicit::rk4(eom, dt);
+    let l = exponents(&teo, rcarr1(&[1.0, 0.0, 0.0]), 1e-7, 100000);
+    all_close_max(&l, &arr1(&[0.906, 0.0, -14.572]), 1e-3).unwrap();
+    // value from http://sprott.physics.wisc.edu/chaos/lorenzle.htm
+}
