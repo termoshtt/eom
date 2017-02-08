@@ -33,6 +33,9 @@ impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::Euler
         let fx = self.f.rhs(x.clone());
         x + fx * self.dt
     }
+    fn get_dt(&self) -> f64 {
+        self.dt
+    }
 }
 
 impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::HeunMarker> {
@@ -41,6 +44,9 @@ impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::HeunM
         let k1 = self.dt * self.f.rhs(x.clone());
         let k2 = self.dt * self.f.rhs(x.clone() + k1.clone());
         x + 0.5 * (k1 + k2)
+    }
+    fn get_dt(&self) -> f64 {
+        self.dt
     }
 }
 
@@ -55,6 +61,9 @@ impl<F: EOM<D>, D: Dimension> TimeEvolution<D> for Explicit<F, D, markers::RK4Ma
         let l3 = self.dt * k3.clone() + &x;
         let k4 = self.f.rhs(l3);
         x + (self.dt / 6.0) * (k1 + 2.0 * (k2 + k3) + k4)
+    }
+    fn get_dt(&self) -> f64 {
+        self.dt
     }
 }
 
