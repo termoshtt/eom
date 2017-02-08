@@ -22,9 +22,9 @@ fn main() {
         Some((q, r))
     });
     let duration = 100000;
-    let mut l = arr1(&[0.0, 0.0, 0.0]);
-    for (_, r) in qr_series.skip(duration / 10).take(duration) {
-        l = l + r.diag().map(|x| x.abs().ln());
-    }
-    println!("{:?}", l / (dt * duration as f64));
+    let exponents = qr_series.map(|(_, r)| r.diag().map(|x| x.abs().ln()))
+        .skip(duration / 10)
+        .take(duration)
+        .fold(Array::zeros(3), |x, y| x + y) / (dt * duration as f64);
+    println!("{:?}", exponents);
 }
