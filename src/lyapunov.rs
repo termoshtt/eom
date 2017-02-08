@@ -9,6 +9,7 @@ use super::traits::TimeEvolution;
 
 pub use ndarray::linalg::Dot;
 
+/// Jacobian operator using numerical-differentiation
 pub struct Jacobian<'a, TEO>
     where TEO: 'a + TimeEvolution<Ix1>
 {
@@ -18,6 +19,7 @@ pub struct Jacobian<'a, TEO>
     alpha: f64,
 }
 
+/// Trait for Jacobian using numerical-differentiation
 pub trait NumDifferentiable: Sized + TimeEvolution<Ix1> {
     fn jacobian<'a>(&'a self, x: RcArray1<f64>, alpha: f64) -> Jacobian<'a, Self>;
 }
@@ -62,28 +64,21 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix2>> for Jacobian<'a, TEO>
     }
 }
 
-impl<'a, TEO> Jacobian<'a, TEO>
-    where TEO: 'a + TimeEvolution<Ix1>
-{
-    pub fn clv_forward(&self, q: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
-        self.dot(q).qr().unwrap()
-    }
-}
-
-pub fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f64>) {
+fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f64>) {
     let cd = r.solve_upper(c).expect("Failed to solve R");
     let (c, d) = normalize(cd, NormalizeAxis::Column);
     let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
     (c, f)
 }
 
+/// Calculate all Lyapunov exponents
 pub fn exponents<TEO>(teo: &TEO, x0: RcArray1<f64>, alpha: f64, duration: usize) -> Array1<f64>
     where TEO: NumDifferentiable
 {
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
     ts.scan(Array::eye(n), |q, x| {
-            let (q_next, r) = teo.jacobian(x.clone(), alpha).clv_forward(q);
+            let (q_next, r) = teo.jacobian(x.clone(), alpha).dot(q).qr().unwrap();
             *q = q_next;
             let d = r.diag().map(|x| x.abs().ln());
             Some(d)
@@ -93,6 +88,10 @@ pub fn exponents<TEO>(teo: &TEO, x0: RcArray1<f64>, alpha: f64, duration: usize)
         .fold(Array::zeros(n), |x, y| x + y) / (teo.get_dt() * duration as f64)
 }
 
+/// Calculate Covariant Lyapunov Vector
+///
+/// **CAUTION**
+/// This function consumes much memory since this saves matrices duraing the time evolution.
 pub fn clv<TEO>(teo: &TEO,
                 x0: RcArray1<f64>,
                 alpha: f64,
@@ -103,7 +102,7 @@ pub fn clv<TEO>(teo: &TEO,
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
     let qr_series = ts.scan(Array::eye(n), |q, x| {
-            let (q_next, r) = teo.jacobian(x.clone(), alpha).clv_forward(q);
+            let (q_next, r) = teo.jacobian(x.clone(), alpha).dot(q).qr().unwrap();
             let q = replace(q, q_next);
             Some((x, q, r))
         })
