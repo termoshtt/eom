@@ -7,7 +7,6 @@ extern crate itertools;
 
 use std::io::Write;
 use ndarray::*;
-use ndarray_linalg::prelude::*;
 use ndarray_odeint::prelude::*;
 use ndarray_odeint::lyapunov::*;
 use itertools::iterate;
@@ -18,10 +17,9 @@ fn main() {
     let teo = explicit::rk4(eom, dt);
     let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));
     let duration = 100000;
-    let qr_series = ts.scan(Array::eye(3), |st, x| {
-            let j = teo.jacobian(x.clone(), 1e-7);
-            let (q_next, r) = j.dot(st).qr().unwrap();
-            let q = std::mem::replace(st, q_next);
+    let qr_series = ts.scan(Array::eye(3), |q, x| {
+            let (q_next, r) = teo.jacobian(x.clone(), 1e-7).clv_forward(q);
+            let q = std::mem::replace(q, q_next);
             Some((q, r))
         })
         .skip(duration / 10)
@@ -29,12 +27,10 @@ fn main() {
         .collect::<Vec<_>>();
     let clv = qr_series.iter()
         .rev()
-        .scan(Array::eye(3), |st, &(ref q, ref r)| {
-            let cd = r.solve_upper(&*st).expect("Failed to solve R");
-            let (c, d) = normalize(cd, NormalizeAxis::Column);
-            let v = q.dot(&c);
-            let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
-            *st = c;
+        .scan(Array::eye(3), |c, &(ref q, ref r)| {
+            let (c_now, f) = clv_backward(c, r);
+            let v = q.dot(&c_now);
+            *c = c_now;
             Some((v, f))
         })
         .collect::<Vec<_>>();

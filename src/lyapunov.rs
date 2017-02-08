@@ -59,3 +59,18 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix2>> for Jacobian<'a, TEO>
             .unwrap()
     }
 }
+
+impl<'a, TEO> Jacobian<'a, TEO>
+    where TEO: 'a + TimeEvolution<Ix1>
+{
+    pub fn clv_forward(&self, q: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
+        self.dot(q).qr().unwrap()
+    }
+}
+
+pub fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f64>) {
+    let cd = r.solve_upper(c).expect("Failed to solve R");
+    let (c, d) = normalize(cd, NormalizeAxis::Column);
+    let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
+    (c, f)
+}
