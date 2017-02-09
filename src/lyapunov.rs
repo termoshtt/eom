@@ -107,16 +107,16 @@ pub fn clv<TEO>(teo: &TEO,
             Some((x, q, r))
         })
         .skip(duration / 10)
-        .take(duration)
+        .take(duration + duration / 10)
         .collect::<Vec<_>>();
     let clv_rev = qr_series.into_iter()
         .rev()
-        .scan(Array::eye(3), |c, (x, q, r)| {
+        .scan(Array::eye(n), |c, (x, q, r)| {
             let (c_now, f) = clv_backward(c, &r);
             let v = q.dot(&c_now);
             *c = c_now;
             Some((x.into_owned(), v, f))
         })
         .collect::<Vec<_>>();
-    clv_rev.into_iter().rev().collect()
+    clv_rev.into_iter().skip(duration / 10).rev().collect()
 }
