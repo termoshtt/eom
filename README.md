@@ -26,6 +26,14 @@ for v in ts.take(end_time) {
 
 Figures are plotted by matplotlib (see [plot script](figure.py)).
 
+Lyapunov Analysis
+------------------
+See [Notebook](CLV.ipynb)
+
+Accuracy Check
+---------------
+See [Notebook](accuracy.ipynb)
+
 Developement status
 --------------------
 
