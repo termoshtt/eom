@@ -41,3 +41,4 @@ fn $name() {
 impl_accuracy_test!(euler, explicit::euler, "euler.csv");
 impl_accuracy_test!(heun, explicit::heun, "heun.csv");
 impl_accuracy_test!(rk4, explicit::rk4, "rk4.csv");
+impl_accuracy_test!(diag_rk4, semi_implicit::diag_rk4, "diag_rk4.csv");
