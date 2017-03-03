@@ -1,8 +1,8 @@
 //! Lorenz three-variables system
 //! https://en.wikipedia.org/wiki/Lorenz_system
 
-use ndarray::prelude::*;
-use super::traits::EOM;
+use ndarray::*;
+use super::traits::{EOM, StiffDiag};
 
 #[derive(Clone,Copy,Debug)]
 pub struct Lorenz63 {
@@ -37,5 +37,21 @@ impl EOM<Ix1> for Lorenz63 {
         v[1] = x * (self.r - z) - y;
         v[2] = x * y - self.b * z;
         v
+    }
+}
+
+impl StiffDiag<Ix1> for Lorenz63 {
+    fn nonlinear(&self, mut v: RcArray1<f64>) -> RcArray1<f64> {
+        let x = v[0];
+        let y = v[1];
+        let z = v[2];
+        v[0] = self.p * y;
+        v[1] = x * (self.r - z);
+        v[2] = x * y;
+        v
+
+    }
+    fn linear_diagonal(&self) -> RcArray1<f64> {
+        rcarr1(&[-self.p, -1.0, -self.b])
     }
 }

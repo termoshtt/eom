@@ -9,6 +9,8 @@ pub mod lyapunov;
 
 // solvers
 pub mod explicit;
+pub mod diag;
+pub mod semi_implicit;
 
 // models
 pub mod lorenz63;
