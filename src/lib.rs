@@ -2,10 +2,13 @@
 extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate itertools;
+extern crate num_complex;
+extern crate num_traits;
 
 pub mod traits;
 pub mod prelude;
 pub mod lyapunov;
+pub mod exponential;
 
 // solvers
 pub mod explicit;

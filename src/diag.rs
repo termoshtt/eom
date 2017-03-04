@@ -1,5 +1,6 @@
 
-use super::traits::{TimeEvolution, OdeScalar, Exponential};
+use super::traits::{TimeEvolution, OdeScalar};
+use super::exponential::Exponential;
 use ndarray::*;
 use std::marker::PhantomData;
 

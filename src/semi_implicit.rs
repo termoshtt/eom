@@ -1,6 +1,7 @@
 
 use ndarray::{RcArray, Dimension};
-use super::traits::{StiffDiag, TimeEvolution, OdeScalar, Exponential};
+use super::traits::{StiffDiag, TimeEvolution, OdeScalar};
+use super::exponential::Exponential;
 use super::diag::Diagonal;
 use std::marker::PhantomData;
 
