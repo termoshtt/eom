@@ -4,8 +4,7 @@ use std::ops::*;
 
 /// Equation of motion (EOM)
 pub trait EOM<A, D>
-    where A: LinalgScalar,
-          D: Dimension
+    where D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
     fn rhs(&self, RcArray<A, D>) -> RcArray<A, D>;
@@ -30,8 +29,7 @@ pub trait StiffDiag<A, D>: EOM<A, D>
 
 /// Time-evolution operator
 pub trait TimeEvolution<A, D>
-    where A: LinalgScalar,
-          D: Dimension
+    where D: Dimension
 {
     /// calculate next step
     fn iterate(&self, RcArray<A, D>) -> RcArray<A, D>;
@@ -49,6 +47,7 @@ where A: Add<Output=A> + Sub<Output=A> + Mul<Output=A>
 pub trait RMod<R: Ring>: Mul<R, Output = Self> + MulAssign<R> + Sized {}
 impl<A, R: Ring> RMod<R> for A where A: Mul<R, Output = A> + MulAssign<R> + Sized {}
 
+/// exponential function
 pub trait Exponential: Clone + Copy + Sized {
     fn exp(self) -> Self;
 }
@@ -59,5 +58,6 @@ impl Exponential for f64 {
     }
 }
 
-pub trait OdeScalar<R: Ring>: LinalgScalar + Ring + RMod<R> + Exponential {}
-impl<A, R: Ring> OdeScalar<R> for A where A: LinalgScalar + Ring + RMod<R> + Exponential {}
+/// utility trait for easy implementation
+pub trait OdeScalar<R: Ring>: LinalgScalar + Ring + RMod<R> {}
+impl<A, R: Ring> OdeScalar<R> for A where A: LinalgScalar + Ring + RMod<R> {}

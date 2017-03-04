@@ -1,10 +1,14 @@
 
 use ndarray::{RcArray, Dimension};
-use super::traits::{StiffDiag, TimeEvolution, OdeScalar};
+use super::traits::{StiffDiag, TimeEvolution, OdeScalar, Exponential};
 use super::diag::Diagonal;
 use std::marker::PhantomData;
 
-pub struct DiagRK4<A: OdeScalar<f64>, F: StiffDiag<A, D>, D: Dimension> {
+pub struct DiagRK4<A, F, D>
+    where A: OdeScalar<f64> + Exponential,
+          F: StiffDiag<A, D>,
+          D: Dimension
+{
     f: F,
     lin_half: Diagonal<A, D>,
     dt: f64,
@@ -12,14 +16,18 @@ pub struct DiagRK4<A: OdeScalar<f64>, F: StiffDiag<A, D>, D: Dimension> {
 }
 
 pub fn diag_rk4<A, F, D>(f: F, dt: f64) -> DiagRK4<A, F, D>
-    where A: OdeScalar<f64>,
+    where A: OdeScalar<f64> + Exponential,
           F: StiffDiag<A, D>,
           D: Dimension
 {
     DiagRK4::new(f, dt)
 }
 
-impl<A: OdeScalar<f64>, F: StiffDiag<A, D>, D: Dimension> DiagRK4<A, F, D> {
+impl<A, F, D> DiagRK4<A, F, D>
+    where A: OdeScalar<f64> + Exponential,
+          F: StiffDiag<A, D>,
+          D: Dimension
+{
     pub fn new(f: F, dt: f64) -> Self {
         let lin_half = Diagonal::new(f.linear_diagonal(), dt / 2.0);
         DiagRK4 {
@@ -32,7 +40,7 @@ impl<A: OdeScalar<f64>, F: StiffDiag<A, D>, D: Dimension> DiagRK4<A, F, D> {
 }
 
 impl<A, F, D> TimeEvolution<A, D> for DiagRK4<A, F, D>
-    where A: OdeScalar<f64>,
+    where A: OdeScalar<f64> + Exponential,
           F: StiffDiag<A, D>,
           D: Dimension
 {
