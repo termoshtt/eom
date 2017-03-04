@@ -50,12 +50,12 @@ pub trait RMod<R: Ring>: Mul<R, Output = Self> + MulAssign<R> + Sized {}
 impl<A, R: Ring> RMod<R> for A where A: Mul<R, Output = A> + MulAssign<R> + Sized {}
 
 pub trait Exponential: Clone + Copy + Sized {
-    fn exp_(&self) -> Self;
+    fn exp(self) -> Self;
 }
 
 impl Exponential for f64 {
-    fn exp_(&self) -> f64 {
-        self.exp()
+    fn exp(self) -> f64 {
+        <f64>::exp(self)
     }
 }
 

@@ -14,7 +14,7 @@ impl<A: OdeScalar<f64>, D: Dimension> Diagonal<A, D> {
     pub fn new(diag_of_matrix: RcArray<A, D>, dt: f64) -> Self {
         Diagonal {
             diag: diag_of_matrix.iter()
-                .map(|x| (*x * dt).exp_())
+                .map(|x| (*x * dt).exp())
                 .collect(),
             dt: dt,
             phantom: PhantomData,
