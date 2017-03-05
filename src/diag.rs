@@ -1,7 +1,7 @@
 
 use super::traits::{TimeEvolution, OdeScalar};
-use super::exponential::Exponential;
 use ndarray::*;
+use num_extra::Exponential;
 use std::marker::PhantomData;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
