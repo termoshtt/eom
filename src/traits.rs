@@ -1,20 +1,31 @@
 
-use ndarray::{RcArray, Dimension};
+use ndarray::{RcArray, Dimension, LinalgScalar};
+use std::ops::*;
 
 /// Equation of motion (EOM)
-pub trait EOM<D: Dimension> {
+pub trait EOM<A, D>
+    where D: Dimension
+{
     /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(&self, RcArray<f64, D>) -> RcArray<f64, D>;
+    fn rhs(&self, RcArray<A, D>) -> RcArray<A, D>;
 }
 
 /// Stiff equation with diagonalized linear part
-pub trait StiffDiag<D: Dimension>: EOM<D> {
+pub trait StiffDiag<A, D>
+    where D: Dimension
+{
     /// Non-Linear part of EOM
-    fn nonlinear(&self, RcArray<f64, D>) -> RcArray<f64, D>;
+    fn nonlinear(&self, RcArray<A, D>) -> RcArray<A, D>;
     /// Linear part of EOM (assume to be diagonalized)
-    fn linear_diagonal(&self) -> RcArray<f64, D>;
+    fn linear_diagonal(&self) -> RcArray<A, D>;
+}
 
-    fn rhs(&self, x: RcArray<f64, D>) -> RcArray<f64, D> {
+impl<A, D, F> EOM<A, D> for F
+    where F: StiffDiag<A, D>,
+          A: LinalgScalar,
+          D: Dimension
+{
+    fn rhs(&self, x: RcArray<A, D>) -> RcArray<A, D> {
         let nlin = self.nonlinear(x.clone());
         let a = self.linear_diagonal();
         nlin + a * x
@@ -22,8 +33,25 @@ pub trait StiffDiag<D: Dimension>: EOM<D> {
 }
 
 /// Time-evolution operator
-pub trait TimeEvolution<D: Dimension> {
+pub trait TimeEvolution<A, D>
+    where D: Dimension
+{
     /// calculate next step
-    fn iterate(&self, RcArray<f64, D>) -> RcArray<f64, D>;
+    fn iterate(&self, RcArray<A, D>) -> RcArray<A, D>;
     fn get_dt(&self) -> f64;
 }
+
+pub trait Ring:
+    Add<Output=Self> + Sub<Output=Self> + Mul<Output=Self>
+    + AddAssign + SubAssign + MulAssign + Sized {}
+impl <A> Ring for A
+where A: Add<Output=A> + Sub<Output=A> + Mul<Output=A>
+    + AddAssign + SubAssign + MulAssign + Sized {}
+
+/// R-module
+pub trait RMod<R: Ring>: Mul<R, Output = Self> + MulAssign<R> + Sized {}
+impl<A, R: Ring> RMod<R> for A where A: Mul<R, Output = A> + MulAssign<R> + Sized {}
+
+/// utility trait for easy implementation
+pub trait OdeScalar<R: Ring>: LinalgScalar + Ring + RMod<R> {}
+impl<A, R: Ring> OdeScalar<R> for A where A: LinalgScalar + Ring + RMod<R> {}

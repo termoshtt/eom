@@ -21,7 +21,7 @@ impl Lorenz96 {
     }
 }
 
-impl EOM<Ix1> for Lorenz96 {
+impl EOM<f64, Ix1> for Lorenz96 {
     #[inline(always)]
     fn rhs(&self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
         let n = v.len();

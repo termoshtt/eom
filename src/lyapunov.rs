@@ -11,7 +11,7 @@ pub use ndarray::linalg::Dot;
 
 /// Jacobian operator using numerical-differentiation
 pub struct Jacobian<'a, TEO>
-    where TEO: 'a + TimeEvolution<Ix1>
+    where TEO: 'a + TimeEvolution<f64, Ix1>
 {
     f: &'a TEO,
     x: RcArray1<f64>,
@@ -20,12 +20,12 @@ pub struct Jacobian<'a, TEO>
 }
 
 /// Trait for Jacobian using numerical-differentiation
-pub trait NumDifferentiable: Sized + TimeEvolution<Ix1> {
+pub trait NumDifferentiable: Sized + TimeEvolution<f64, Ix1> {
     fn jacobian<'a>(&'a self, x: RcArray1<f64>, alpha: f64) -> Jacobian<'a, Self>;
 }
 
 impl<TEO> NumDifferentiable for TEO
-    where TEO: TimeEvolution<Ix1>
+    where TEO: TimeEvolution<f64, Ix1>
 {
     fn jacobian<'a>(&'a self, x: RcArray1<f64>, alpha: f64) -> Jacobian<'a, Self> {
         let fx = self.iterate(x.clone());
@@ -39,7 +39,7 @@ impl<TEO> NumDifferentiable for TEO
 }
 
 impl<'a, S, TEO> Dot<ArrayBase<S, Ix1>> for Jacobian<'a, TEO>
-    where TEO: 'a + TimeEvolution<Ix1>,
+    where TEO: 'a + TimeEvolution<f64, Ix1>,
           S: Data<Elem = f64>
 {
     type Output = RcArray1<f64>;
@@ -52,7 +52,7 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix1>> for Jacobian<'a, TEO>
 }
 
 impl<'a, S, TEO> Dot<ArrayBase<S, Ix2>> for Jacobian<'a, TEO>
-    where TEO: 'a + TimeEvolution<Ix1>,
+    where TEO: 'a + TimeEvolution<f64, Ix1>,
           S: Data<Elem = f64>
 {
     type Output = Array2<f64>;
