@@ -15,6 +15,7 @@ ndarray-linalg = "0.2.1"
 itertools = "0.5.7"
 num-traits = "*"
 num-complex = "*"
+num-extra = { git = "http://github.com/termoshtt/num-extra", rev = "aefcd7ec18f31d9f70d6c807913d91ac2087b0bf" }
 
 [dev-dependencies]
 num-traits = "0.1.35"
