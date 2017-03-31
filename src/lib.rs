@@ -1,4 +1,6 @@
 
+#[macro_use]
+extern crate derive_new;
 extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate itertools;
@@ -19,3 +21,4 @@ pub mod semi_implicit;
 pub mod lorenz63;
 pub mod lorenz96;
 pub mod roessler;
+pub mod goy_shell;
