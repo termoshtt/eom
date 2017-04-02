@@ -1,8 +1,8 @@
 
-use super::traits::{TimeEvolution, OdeScalar};
 use ndarray::*;
-use num_extra::Exponential;
 use std::marker::PhantomData;
+use super::traits::{TimeEvolution, OdeScalar};
+use super::exponential::Exponential;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
 pub struct Diagonal<A, D>

@@ -7,10 +7,12 @@ extern crate itertools;
 extern crate num_complex;
 extern crate num_traits;
 extern crate num_extra;
+extern crate simple_complex;
 
 pub mod traits;
 pub mod prelude;
 pub mod lyapunov;
+pub mod exponential;
 
 // solvers
 pub mod explicit;

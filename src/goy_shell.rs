@@ -3,7 +3,7 @@
 use ndarray::*;
 use super::traits::StiffDiag;
 use num_traits::{PrimInt, Zero};
-use num_complex::Complex64 as c64;
+use simple_complex::c64;
 
 #[derive(Clone,Copy,Debug,new)]
 pub struct GoyShell {
@@ -17,6 +17,7 @@ pub struct GoyShell {
 
 impl GoyShell {
     fn k(&self, n: usize) -> c64 {
+
         c64::new(0.0, self.k0 * 2.pow(n as u32) as f64)
     }
 }
