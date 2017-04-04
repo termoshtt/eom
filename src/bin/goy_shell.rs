@@ -2,13 +2,13 @@
 extern crate ndarray;
 extern crate ndarray_odeint;
 extern crate itertools;
-extern crate simple_complex;
 extern crate num_traits;
+extern crate num_complex;
 
 use ndarray::rcarr1;
 use itertools::iterate;
 use ndarray_odeint::prelude::*;
-use simple_complex::c64;
+use num_complex::Complex64 as c64;
 use num_traits::Zero;
 
 fn main() {
@@ -35,7 +35,7 @@ fn main() {
         }
         print!("{:e}", dt * t as f64);
         for c in v.iter() {
-            print!(",{:e},{:e}", c.re(), c.im());
+            print!(",{:e},{:e}", c.re, c.im);
         }
         println!("");
     }
