@@ -1,9 +1,9 @@
 
 use super::traits::{StiffDiag, TimeEvolution, OdeScalar};
 use super::diag::Diagonal;
+use super::exponential::Exponential;
 
 use ndarray::{RcArray, Dimension};
-use num_extra::Exponential;
 use std::marker::PhantomData;
 
 pub struct DiagRK4<A, F, D>

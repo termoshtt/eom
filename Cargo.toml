@@ -16,6 +16,8 @@ itertools = "0.5.7"
 num-traits = "0.1.35"
 num-complex = "0.1.36"
 num-extra = { git = "http://github.com/termoshtt/num-extra", rev = "aefcd7ec18f31d9f70d6c807913d91ac2087b0bf" }
+simple-complex = { git = "http://github.com/termoshtt/simple-complex", rev = "2310b6855a4e3f5d9c163c89f1ad5e06bce5909b" }
+derive-new = "0.4"
 
 [dev-dependencies]
 num-traits = "0.1.35"
