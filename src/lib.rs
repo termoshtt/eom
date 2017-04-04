@@ -6,7 +6,6 @@ extern crate ndarray_linalg;
 extern crate itertools;
 extern crate num_complex;
 extern crate num_traits;
-extern crate num_extra;
 extern crate simple_complex;
 
 pub mod traits;
