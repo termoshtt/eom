@@ -17,7 +17,6 @@ pub struct GoyShell {
 
 impl GoyShell {
     fn k(&self, n: usize) -> c64 {
-
         c64::new(0.0, self.k0 * 2.pow(n as u32) as f64)
     }
 }

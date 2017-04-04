@@ -15,21 +15,27 @@ fn main() {
     let dt = 1e-5;
     let eom = GoyShell::default();
     let teo = semi_implicit::diag_rk4(eom, dt);
-    let x0 = rcarr1(&vec![c64::zero(); 27]);
+    let mut x0 = rcarr1(&vec![c64::zero(); 27]);
+    x0[2] = c64::new(1.0, 0.0);
+    x0[3] = c64::new(1.0, 0.0);
+    x0[4] = c64::new(1.0, 0.0);
+    x0[5] = c64::new(1.0, 0.0);
+    x0[6] = c64::new(1.0, 0.0);
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
-    let end_time = 100;
-    print!("r0,c0");
-    for i in 1..27 {
+    let end_time = 100_000_000;
+    let interval = 100;
+    print!("time");
+    for i in 0..27 {
         print!(",r{},c{}", i, i);
     }
     println!("");
-    for (_, v) in ts.take(end_time).enumerate() {
-        for (i, c) in v.iter().enumerate() {
-            if i == 0 {
-                print!("{},{}", c.re(), c.im());
-            } else {
-                print!(",{},{}", c.re(), c.im());
-            }
+    for (t, v) in ts.take(end_time).enumerate() {
+        if t % interval != 0 {
+            continue;
+        }
+        print!("{:e}", dt * t as f64);
+        for c in v.iter() {
+            print!(",{:e},{:e}", c.re(), c.im());
         }
         println!("");
     }
