@@ -1,7 +1,6 @@
 
 use num_complex::Complex;
 use num_traits::Float;
-use simple_complex::c64;
 
 /// exponential function
 pub trait Exponential: Clone + Copy + Sized {
@@ -25,11 +24,5 @@ impl<T> Exponential for Complex<T>
 {
     fn exp(self) -> Self {
         <Complex<T>>::exp(&self)
-    }
-}
-
-impl Exponential for c64 {
-    fn exp(self) -> Self {
-        <Self>::exp(self)
     }
 }

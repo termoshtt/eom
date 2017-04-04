@@ -1,6 +1,6 @@
 
-use num_extra::{Ring, RMod};
 use ndarray::{RcArray, Dimension, LinalgScalar};
+use std::ops::*;
 
 /// Equation of motion (EOM)
 pub trait EOM<A, D>
@@ -42,5 +42,15 @@ pub trait TimeEvolution<A, D>
 }
 
 /// utility trait for easy implementation
-pub trait OdeScalar<R: Ring>: LinalgScalar + Ring + RMod<R> {}
-impl<A, R: Ring> OdeScalar<R> for A where A: LinalgScalar + Ring + RMod<R> {}
+pub trait OdeScalar<R: Ring>: LinalgScalar + RMod<R> {}
+impl<A, R: Ring> OdeScalar<R> for A where A: LinalgScalar + RMod<R> {}
+
+/// Ring (math)
+pub trait Ring
+    : Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Sized {
+}
+impl<A> Ring for A where A: Add<Output = A> + Sub<Output = A> + Mul<Output = A> + Sized {}
+
+/// R-module
+pub trait RMod<R: Ring>: Mul<R, Output = Self> + Sized {}
+impl<A, R: Ring> RMod<R> for A where A: Mul<R, Output = A> + Sized {}

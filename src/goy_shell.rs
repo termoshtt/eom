@@ -3,7 +3,7 @@
 use ndarray::*;
 use super::traits::StiffDiag;
 use num_traits::{PrimInt, Zero};
-use simple_complex::c64;
+use num_complex::Complex64 as c64;
 
 #[derive(Clone,Copy,Debug,new)]
 pub struct GoyShell {
