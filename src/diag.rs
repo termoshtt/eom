@@ -35,7 +35,7 @@ impl<A, D> TimeEvolution<A, D> for Diagonal<A, D>
 {
     fn iterate(&self, mut x: RcArray<A, D>) -> RcArray<A, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
-            *val *= *d;
+            *val = *val * *d;
         }
         x
     }
