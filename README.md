@@ -3,6 +3,16 @@ ndarray-odeint [![Crate](http://meritbadge.herokuapp.com/ndarray-odeint)](https:
 
 solve ODE with rust-ndarray
 
+Algorithms
+-----------
+
+- explicit
+  - Euler
+  - Heun
+  - classical 4th order Runge-Kutta
+- semi-implicit
+  - stiff RK4
+
 Example
 --------
 
@@ -22,7 +32,6 @@ for v in ts.take(end_time) {
 ```
 
 ![Lorenz63 Attractor](lorenz63.png)
-![Roessler Attractor](roessler.png)
 
 Figures are plotted by matplotlib (see [plot script](figure.py)).
 
@@ -33,14 +42,6 @@ See [Notebook](CLV.ipynb)
 Accuracy Check
 ---------------
 See [Notebook](accuracy.ipynb)
-
-Developement status
---------------------
-
-See issues
-
-- [x] [Explicit Schemes](/../../issues/2)
-- [ ] [Implicit Schemes](/../../issues/3)
 
 License
 -------
