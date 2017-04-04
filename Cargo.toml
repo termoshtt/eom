@@ -1,6 +1,6 @@
 [package]
 name = "ndarray-odeint"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 
 description = "solve ODE using rust-ndarray"
@@ -12,9 +12,9 @@ license = "MIT"
 [dependencies]
 ndarray = "0.7.3"
 ndarray-linalg = "0.2.1"
-itertools = "0.5.7"
-num-traits = "0.1.35"
-num-complex = "0.1.36"
+itertools = "0.5"
+num-traits = "0.1"
+num-complex = "0.1"
 derive-new = "0.4"
 
 [dev-dependencies]
