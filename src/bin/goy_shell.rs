@@ -22,7 +22,7 @@ fn main() {
     x0[5] = c64::new(1.0, 0.0);
     x0[6] = c64::new(1.0, 0.0);
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
-    let end_time = 100_000_000;
+    let end_time = 10_000_000;
     let interval = 100;
     print!("time");
     for i in 0..27 {
