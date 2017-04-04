@@ -17,8 +17,20 @@ fn main() {
     let teo = semi_implicit::diag_rk4(eom, dt);
     let x0 = rcarr1(&vec![c64::zero(); 27]);
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
-    let end_time = 10000;
+    let end_time = 100;
+    print!("r0,c0");
+    for i in 1..27 {
+        print!(",r{},c{}", i, i);
+    }
+    println!("");
     for (_, v) in ts.take(end_time).enumerate() {
-        println!("{:?}", v);
+        for (i, c) in v.iter().enumerate() {
+            if i == 0 {
+                print!("{},{}", c.re(), c.im());
+            } else {
+                print!(",{},{}", c.re(), c.im());
+            }
+        }
+        println!("");
     }
 }
