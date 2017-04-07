@@ -12,11 +12,11 @@ os:
 cache: cargo
 
 matrix:
-  allow-failures:
+  allow_failures:
     - rust: nightly
 
 script:
-  - cargo test
+  - cargo test -vv
 
 addons:
   apt:
