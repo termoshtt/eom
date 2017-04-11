@@ -34,8 +34,8 @@ impl Default for GoyShell {
     }
 }
 
-impl StiffDiag<c64, Ix1> for GoyShell {
-    fn nonlinear(&self, mut v: RcArray1<c64>) -> RcArray1<c64> {
+impl<'a> StiffDiag<c64, Ix1> for &'a GoyShell {
+    fn nonlinear(self, mut v: RcArray1<c64>) -> RcArray1<c64> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
         let mut a_0 = v[0].conj();

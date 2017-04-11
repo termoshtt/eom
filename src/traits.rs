@@ -15,7 +15,7 @@ pub trait StiffDiag<A, D>
     where D: Dimension
 {
     /// Non-Linear part of EOM
-    fn nonlinear(&self, RcArray<A, D>) -> RcArray<A, D>;
+    fn nonlinear(self, RcArray<A, D>) -> RcArray<A, D>;
     /// Linear part of EOM (assume to be diagonalized)
     fn linear_diagonal(&self) -> RcArray<A, D>;
 }
@@ -26,8 +26,8 @@ impl<A, D, F> EOM<A, D> for F
           D: Dimension
 {
     fn rhs(self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let nlin = self.nonlinear(x.clone());
         let a = self.linear_diagonal();
+        let nlin = self.nonlinear(x.clone());
         nlin + a * x
     }
 }

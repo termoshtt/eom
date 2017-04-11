@@ -27,8 +27,8 @@ impl Lorenz63 {
     }
 }
 
-impl StiffDiag<f64, Ix1> for Lorenz63 {
-    fn nonlinear(&self, mut v: RcArray1<f64>) -> RcArray1<f64> {
+impl<'a> StiffDiag<f64, Ix1> for &'a Lorenz63 {
+    fn nonlinear(self, mut v: RcArray1<f64>) -> RcArray1<f64> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
