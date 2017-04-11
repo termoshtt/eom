@@ -7,7 +7,7 @@ pub trait EOM<A, D>
     where D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(&self, RcArray<A, D>) -> RcArray<A, D>;
+    fn rhs(self, RcArray<A, D>) -> RcArray<A, D>;
 }
 
 /// Stiff equation with diagonalized linear part
@@ -25,7 +25,7 @@ impl<A, D, F> EOM<A, D> for F
           A: LinalgScalar,
           D: Dimension
 {
-    fn rhs(&self, x: RcArray<A, D>) -> RcArray<A, D> {
+    fn rhs(self, x: RcArray<A, D>) -> RcArray<A, D> {
         let nlin = self.nonlinear(x.clone());
         let a = self.linear_diagonal();
         nlin + a * x

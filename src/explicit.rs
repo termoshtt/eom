@@ -25,11 +25,11 @@ impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> Explicit<A, F, D, Ma
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
+impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
     for Explicit<A, F, D, markers::EulerMarker> {
     #[inline(always)]
     fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let fx = self.f.rhs(x.clone());
+        let fx = self.f.clone().rhs(x.clone());
         x + fx * self.dt
     }
     fn get_dt(&self) -> f64 {
@@ -37,12 +37,12 @@ impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
+impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
     for Explicit<A, F, D, markers::HeunMarker> {
     #[inline(always)]
     fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let k1 = self.f.rhs(x.clone()) * self.dt;
-        let k2 = self.f.rhs(x.clone() + k1.clone()) * self.dt;
+        let k1 = self.f.clone().rhs(x.clone()) * self.dt;
+        let k2 = self.f.clone().rhs(x.clone() + k1.clone()) * self.dt;
         x + (k1 + k2) * 0.5
     }
     fn get_dt(&self) -> f64 {
@@ -50,19 +50,19 @@ impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
+impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
     for Explicit<A, F, D, markers::RK4Marker> {
     #[inline(always)]
     fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
         let dt_2 = 0.5 * self.dt;
         let dt_6 = self.dt / 6.0;
-        let k1 = self.f.rhs(x.clone());
+        let k1 = self.f.clone().rhs(x.clone());
         let l1 = k1.clone() * dt_2 + &x;
-        let k2 = self.f.rhs(l1);
+        let k2 = self.f.clone().rhs(l1);
         let l2 = k2.clone() * dt_2 + &x;
-        let k3 = self.f.rhs(l2);
+        let k3 = self.f.clone().rhs(l2);
         let l3 = k3.clone() * self.dt + &x;
-        let k4 = self.f.rhs(l3);
+        let k4 = self.f.clone().rhs(l3);
         x + (k1 + (k2 + k3) * 2.0 + k4) * dt_6
     }
     fn get_dt(&self) -> f64 {

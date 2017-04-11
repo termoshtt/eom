@@ -27,9 +27,9 @@ impl Roessler {
     }
 }
 
-impl EOM<f64, Ix1> for Roessler {
+impl<'a> EOM<f64, Ix1> for &'a Roessler {
     #[inline(always)]
-    fn rhs(&self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
+    fn rhs(self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
