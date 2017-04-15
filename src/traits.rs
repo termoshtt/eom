@@ -11,25 +11,11 @@ pub trait EOM<A, D>
 }
 
 /// Stiff equation with diagonalized linear part
-pub trait StiffDiag<A, D>
+pub trait Diag<A, D>
     where D: Dimension
 {
-    /// Non-Linear part of EOM
-    fn nonlinear(self, RcArray<A, D>) -> RcArray<A, D>;
     /// Linear part of EOM (assume to be diagonalized)
-    fn linear_diagonal(&self) -> RcArray<A, D>;
-}
-
-impl<A, D, F> EOM<A, D> for F
-    where F: StiffDiag<A, D>,
-          A: LinalgScalar,
-          D: Dimension
-{
-    fn rhs(self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let a = self.linear_diagonal();
-        let nlin = self.nonlinear(x.clone());
-        nlin + a * x
-    }
+    fn diagonal(&self) -> RcArray<A, D>;
 }
 
 /// Time-evolution operator
