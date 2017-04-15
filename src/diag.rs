@@ -29,11 +29,11 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, D> TimeEvolution<A, D> for Diagonal<A, D>
+impl<'a, A, D> TimeEvolution<A, D> for &'a Diagonal<A, D>
     where A: OdeScalar<f64> + Exponential,
           D: Dimension
 {
-    fn iterate(&self, mut x: RcArray<A, D>) -> RcArray<A, D> {
+    fn iterate(self, mut x: RcArray<A, D>) -> RcArray<A, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;
         }
