@@ -37,7 +37,7 @@ pub trait TimeEvolution<A, D>
     where D: Dimension
 {
     /// calculate next step
-    fn iterate(&self, RcArray<A, D>) -> RcArray<A, D>;
+    fn iterate(self, RcArray<A, D>) -> RcArray<A, D>;
     fn get_dt(&self) -> f64;
 }
 

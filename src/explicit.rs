@@ -9,13 +9,13 @@ pub mod markers {
     pub struct RK4Marker {}
 }
 
-pub struct Explicit<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> {
+pub struct Explicit<F, Marker> {
     f: F,
     dt: f64,
-    phantom: PhantomData<(A, D, Marker)>,
+    phantom: PhantomData<Marker>,
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> Explicit<A, F, D, Marker> {
+impl<F, Marker> Explicit<F, Marker> {
     pub fn new(f: F, dt: f64) -> Self {
         Explicit {
             f: f,
@@ -25,11 +25,14 @@ impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> Explicit<A, F, D, Ma
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
-    for Explicit<A, F, D, markers::EulerMarker> {
+impl<'a, A, D, F> TimeEvolution<A, D> for &'a Explicit<F, markers::EulerMarker>
+    where A: OdeScalar<f64>,
+          D: Dimension,
+          &'a F: EOM<A, D>
+{
     #[inline(always)]
-    fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let fx = self.f.clone().rhs(x.clone());
+    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
+        let fx = self.f.rhs(x.clone());
         x + fx * self.dt
     }
     fn get_dt(&self) -> f64 {
@@ -37,12 +40,15 @@ impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
-    for Explicit<A, F, D, markers::HeunMarker> {
+impl<'a, A, D, F> TimeEvolution<A, D> for &'a Explicit<F, markers::HeunMarker>
+    where A: OdeScalar<f64>,
+          D: Dimension,
+          &'a F: EOM<A, D>
+{
     #[inline(always)]
-    fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let k1 = self.f.clone().rhs(x.clone()) * self.dt;
-        let k2 = self.f.clone().rhs(x.clone() + k1.clone()) * self.dt;
+    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
+        let k1 = self.f.rhs(x.clone()) * self.dt;
+        let k2 = self.f.rhs(x.clone() + k1.clone()) * self.dt;
         x + (k1 + k2) * 0.5
     }
     fn get_dt(&self) -> f64 {
@@ -50,19 +56,22 @@ impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
-    for Explicit<A, F, D, markers::RK4Marker> {
+impl<'a, A, D, F> TimeEvolution<A, D> for &'a Explicit<F, markers::RK4Marker>
+    where A: OdeScalar<f64>,
+          D: Dimension,
+          &'a F: EOM<A, D>
+{
     #[inline(always)]
-    fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
+    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
         let dt_2 = 0.5 * self.dt;
         let dt_6 = self.dt / 6.0;
-        let k1 = self.f.clone().rhs(x.clone());
+        let k1 = self.f.rhs(x.clone());
         let l1 = k1.clone() * dt_2 + &x;
-        let k2 = self.f.clone().rhs(l1);
+        let k2 = self.f.rhs(l1);
         let l2 = k2.clone() * dt_2 + &x;
-        let k3 = self.f.clone().rhs(l2);
+        let k3 = self.f.rhs(l2);
         let l3 = k3.clone() * self.dt + &x;
-        let k4 = self.f.clone().rhs(l3);
+        let k4 = self.f.rhs(l3);
         x + (k1 + (k2 + k3) * 2.0 + k4) * dt_6
     }
     fn get_dt(&self) -> f64 {
@@ -70,26 +79,14 @@ impl<A: OdeScalar<f64>, F: EOM<A, D> + Clone, D: Dimension> TimeEvolution<A, D>
     }
 }
 
-pub fn euler<A, F, D>(f: F, dt: f64) -> Explicit<A, F, D, markers::EulerMarker>
-    where A: OdeScalar<f64>,
-          F: EOM<A, D>,
-          D: Dimension
-{
+pub fn euler<F>(f: F, dt: f64) -> Explicit<F, markers::EulerMarker> {
     Explicit::new(f, dt)
 }
 
-pub fn heun<A, F, D>(f: F, dt: f64) -> Explicit<A, F, D, markers::HeunMarker>
-    where A: OdeScalar<f64>,
-          F: EOM<A, D>,
-          D: Dimension
-{
+pub fn heun<F>(f: F, dt: f64) -> Explicit<F, markers::HeunMarker> {
     Explicit::new(f, dt)
 }
 
-pub fn rk4<A, F, D>(f: F, dt: f64) -> Explicit<A, F, D, markers::RK4Marker>
-    where A: OdeScalar<f64>,
-          F: EOM<A, D>,
-          D: Dimension
-{
+pub fn rk4<F>(f: F, dt: f64) -> Explicit<F, markers::RK4Marker> {
     Explicit::new(f, dt)
 }
