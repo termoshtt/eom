@@ -14,7 +14,7 @@ use num_traits::Zero;
 fn main() {
     let dt = 1e-5;
     let eom = GoyShell::default();
-    let teo = semi_implicit::diag_rk4(&eom, dt);
+    let teo = semi_implicit::diag_rk4(eom, dt);
     let mut x0 = rcarr1(&vec![c64::zero(); 27]);
     x0[2] = c64::new(1.0, 0.0);
     x0[3] = c64::new(1.0, 0.0);

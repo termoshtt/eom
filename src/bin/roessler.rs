@@ -10,7 +10,7 @@ use ndarray_odeint::prelude::*;
 fn main() {
     let dt = 0.01;
     let eom = Roessler::default();
-    let teo = explicit::rk4(&eom, dt);
+    let teo = explicit::rk4(eom, dt);
     let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));
     let end_time = 50000;
     println!("time,x,y,z");
