@@ -9,8 +9,8 @@ extern crate num_traits;
 
 pub mod traits;
 pub mod prelude;
-pub mod lyapunov;
 pub mod exponential;
+pub mod lyapunov;
 
 // solvers
 pub mod explicit;

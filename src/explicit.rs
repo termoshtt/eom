@@ -1,7 +1,7 @@
 
 use std::marker::PhantomData;
 use ndarray::{RcArray, Dimension};
-use super::traits::{EOM, TimeEvolution, OdeScalar};
+use super::traits::*;
 
 pub mod markers {
     pub struct EulerMarker {}
@@ -9,13 +9,13 @@ pub mod markers {
     pub struct RK4Marker {}
 }
 
-pub struct Explicit<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> {
+pub struct Explicit<F, Marker> {
     f: F,
     dt: f64,
-    phantom: PhantomData<(A, D, Marker)>,
+    phantom: PhantomData<Marker>,
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> Explicit<A, F, D, Marker> {
+impl<F, Marker> Explicit<F, Marker> {
     pub fn new(f: F, dt: f64) -> Self {
         Explicit {
             f: f,
@@ -25,35 +25,51 @@ impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension, Marker> Explicit<A, F, D, Ma
     }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
-    for Explicit<A, F, D, markers::EulerMarker> {
-    #[inline(always)]
-    fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let fx = self.f.rhs(x.clone());
-        x + fx * self.dt
-    }
+impl<F, Marker> TimeStep for Explicit<F, Marker> {
     fn get_dt(&self) -> f64 {
         self.dt
     }
+    fn set_dt(&mut self, dt: f64) {
+        self.dt = dt;
+    }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
-    for Explicit<A, F, D, markers::HeunMarker> {
+macro_rules! impl_time_evolution {
+    ( $($mut_:tt), * ) => {
+
+impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
+    where A: OdeScalar<f64>,
+          D: Dimension,
+          for<'b> &'b $($mut_),* F: EOM<A, D>
+{
     #[inline(always)]
-    fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
+    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
+        let fx = self.f.rhs(x.clone());
+        x + fx * self.dt
+    }
+}
+
+impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
+    where A: OdeScalar<f64>,
+          D: Dimension,
+          for<'b> &'b $($mut_),* F: EOM<A, D>
+{
+    #[inline(always)]
+    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
         let k1 = self.f.rhs(x.clone()) * self.dt;
         let k2 = self.f.rhs(x.clone() + k1.clone()) * self.dt;
         x + (k1 + k2) * 0.5
     }
-    fn get_dt(&self) -> f64 {
-        self.dt
-    }
 }
 
-impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
-    for Explicit<A, F, D, markers::RK4Marker> {
+
+impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
+    where A: OdeScalar<f64>,
+          D: Dimension,
+          for<'b> &'b $($mut_),* F: EOM<A, D>
+{
     #[inline(always)]
-    fn iterate(&self, x: RcArray<A, D>) -> RcArray<A, D> {
+    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
         let dt_2 = 0.5 * self.dt;
         let dt_6 = self.dt / 6.0;
         let k1 = self.f.rhs(x.clone());
@@ -65,31 +81,21 @@ impl<A: OdeScalar<f64>, F: EOM<A, D>, D: Dimension> TimeEvolution<A, D>
         let k4 = self.f.rhs(l3);
         x + (k1 + (k2 + k3) * 2.0 + k4) * dt_6
     }
-    fn get_dt(&self) -> f64 {
-        self.dt
-    }
 }
 
-pub fn euler<A, F, D>(f: F, dt: f64) -> Explicit<A, F, D, markers::EulerMarker>
-    where A: OdeScalar<f64>,
-          F: EOM<A, D>,
-          D: Dimension
-{
+}} // impl_time_evolution!
+
+impl_time_evolution!();
+impl_time_evolution!(mut);
+
+pub fn euler<F>(f: F, dt: f64) -> Explicit<F, markers::EulerMarker> {
     Explicit::new(f, dt)
 }
 
-pub fn heun<A, F, D>(f: F, dt: f64) -> Explicit<A, F, D, markers::HeunMarker>
-    where A: OdeScalar<f64>,
-          F: EOM<A, D>,
-          D: Dimension
-{
+pub fn heun<F>(f: F, dt: f64) -> Explicit<F, markers::HeunMarker> {
     Explicit::new(f, dt)
 }
 
-pub fn rk4<A, F, D>(f: F, dt: f64) -> Explicit<A, F, D, markers::RK4Marker>
-    where A: OdeScalar<f64>,
-          F: EOM<A, D>,
-          D: Dimension
-{
+pub fn rk4<F>(f: F, dt: f64) -> Explicit<F, markers::RK4Marker> {
     Explicit::new(f, dt)
 }

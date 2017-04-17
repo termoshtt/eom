@@ -21,9 +21,9 @@ impl Lorenz96 {
     }
 }
 
-impl EOM<f64, Ix1> for Lorenz96 {
+impl<'a> EOM<f64, Ix1> for &'a Lorenz96 {
     #[inline(always)]
-    fn rhs(&self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
+    fn rhs(self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
         let n = v.len();
         let v0 = v.clone();
         for i in 0..n {

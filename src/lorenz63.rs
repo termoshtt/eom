@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_system
 
 use ndarray::*;
-use super::traits::StiffDiag;
+use super::traits::EOM;
 
 #[derive(Clone,Copy,Debug)]
 pub struct Lorenz63 {
@@ -27,17 +27,14 @@ impl Lorenz63 {
     }
 }
 
-impl StiffDiag<f64, Ix1> for Lorenz63 {
-    fn nonlinear(&self, mut v: RcArray1<f64>) -> RcArray1<f64> {
+impl<'a> EOM<f64, Ix1> for &'a Lorenz63 {
+    fn rhs(self, mut v: RcArray1<f64>) -> RcArray1<f64> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
-        v[0] = self.p * y;
-        v[1] = x * (self.r - z);
-        v[2] = x * y;
+        v[0] = self.p * (y - x);
+        v[1] = x * (self.r - z) - y;
+        v[2] = x * y - self.b * z;
         v
-    }
-    fn linear_diagonal(&self) -> RcArray1<f64> {
-        rcarr1(&[-self.p, -1.0, -self.b])
     }
 }

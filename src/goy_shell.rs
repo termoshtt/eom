@@ -1,7 +1,7 @@
 //! GOY-shell model
 
 use ndarray::*;
-use super::traits::StiffDiag;
+use super::traits::*;
 use num_traits::{PrimInt, Zero};
 use num_complex::Complex64 as c64;
 
@@ -34,8 +34,8 @@ impl Default for GoyShell {
     }
 }
 
-impl StiffDiag<c64, Ix1> for GoyShell {
-    fn nonlinear(&self, mut v: RcArray1<c64>) -> RcArray1<c64> {
+impl<'a> EOM<c64, Ix1> for &'a GoyShell {
+    fn rhs(self, mut v: RcArray1<c64>) -> RcArray1<c64> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
         let mut a_0 = v[0].conj();
@@ -62,8 +62,10 @@ impl StiffDiag<c64, Ix1> for GoyShell {
         v[self.f_idx] = v[self.f_idx] + c64::new(self.f, 0.0);
         v
     }
+}
 
-    fn linear_diagonal(&self) -> RcArray1<c64> {
+impl Diag<c64, Ix1> for GoyShell {
+    fn diagonal(&self) -> RcArray1<c64> {
         (0..self.size)
             .map(|n| self.nu * self.k(n) * self.k(n))
             .collect()
