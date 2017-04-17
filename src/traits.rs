@@ -24,7 +24,11 @@ pub trait TimeEvolution<A, D>
 {
     /// calculate next step
     fn iterate(self, RcArray<A, D>) -> RcArray<A, D>;
+}
+
+pub trait TimeStep {
     fn get_dt(&self) -> f64;
+    fn set_dt(&mut self, dt: f64);
 }
 
 /// utility trait for easy implementation

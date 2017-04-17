@@ -5,7 +5,7 @@ use ndarray_linalg::prelude::*;
 use itertools::iterate;
 use std::mem::replace;
 
-use super::traits::TimeEvolution;
+use super::traits::*;
 
 pub use ndarray::linalg::Dot;
 
@@ -73,7 +73,7 @@ pub fn exponents<'a, TEO>(teo: &'a TEO,
                           duration: usize)
                           -> Array1<f64>
     where &'a TEO: TimeEvolution<f64, Ix1>,
-          TEO: 'a
+          TEO: 'a + TimeStep
 {
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));

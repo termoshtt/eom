@@ -64,9 +64,6 @@ impl<'a, A, F, D> TimeEvolution<A, D> for &'a DiagRK4<A, F, D>
         let k4 = f.rhs(l3);
         l.iterate(l.iterate(x + k1 * dt_6) + (k2 + k3) * dt_3) + k4 * dt_6
     }
-    fn get_dt(&self) -> f64 {
-        self.dt
-    }
 }
 
 impl<'a, A, F, D> TimeEvolution<A, D> for &'a mut DiagRK4<A, F, D>
@@ -93,8 +90,5 @@ impl<'a, A, F, D> TimeEvolution<A, D> for &'a mut DiagRK4<A, F, D>
         let l3 = l.iterate(lx + &k3 * dt);
         let k4 = f.rhs(l3);
         l.iterate(l.iterate(x + k1 * dt_6) + (k2 + k3) * dt_3) + k4 * dt_6
-    }
-    fn get_dt(&self) -> f64 {
-        self.dt
     }
 }

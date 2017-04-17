@@ -1,7 +1,6 @@
 
 use ndarray::*;
-use std::marker::PhantomData;
-use super::traits::{TimeEvolution, OdeScalar};
+use super::traits::*;
 use super::exponential::Exponential;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
@@ -9,9 +8,9 @@ pub struct Diagonal<A, D>
     where A: OdeScalar<f64> + Exponential,
           D: Dimension
 {
-    diag: Vec<A>,
+    diag: RcArray<A, D>,
+    diag_of_matrix: RcArray<A, D>,
     dt: f64,
-    phantom: PhantomData<D>,
 }
 
 impl<A, D> Diagonal<A, D>
@@ -19,13 +18,27 @@ impl<A, D> Diagonal<A, D>
           D: Dimension
 {
     pub fn new(diag_of_matrix: RcArray<A, D>, dt: f64) -> Self {
-        Diagonal {
-            diag: diag_of_matrix.iter()
-                .map(|x| (*x * dt).exp())
-                .collect(),
-            dt: dt,
-            phantom: PhantomData,
+        let mut diag = diag_of_matrix.clone();
+        for v in diag.iter_mut() {
+            *v = (*v * dt).exp();
         }
+        Diagonal {
+            diag: diag,
+            diag_of_matrix: diag_of_matrix,
+            dt: dt,
+        }
+    }
+}
+
+impl<A, D> TimeStep for Diagonal<A, D>
+    where A: OdeScalar<f64> + Exponential,
+          D: Dimension
+{
+    fn get_dt(&self) -> f64 {
+        self.dt
+    }
+    fn set_dt(&mut self, dt: f64) {
+        Zip::from(&mut self.diag).and(&self.diag_of_matrix).apply(|a, &b| { *a = (b * dt).exp(); });
     }
 }
 
@@ -38,8 +51,5 @@ impl<'a, A, D> TimeEvolution<A, D> for &'a Diagonal<A, D>
             *val = *val * *d;
         }
         x
-    }
-    fn get_dt(&self) -> f64 {
-        self.dt
     }
 }
