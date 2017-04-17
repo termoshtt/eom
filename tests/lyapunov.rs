@@ -34,6 +34,7 @@ fn jacobian_matrix_shape() {
 }
 
 #[test]
+#[ignore]
 fn exponents_l63() {
     let dt = 0.01;
     let eom = Lorenz63::default();
