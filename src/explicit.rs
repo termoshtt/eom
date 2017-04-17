@@ -40,7 +40,7 @@ macro_rules! impl_time_evolution {
 impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          &'a $($mut_),* F: EOM<A, D>
+          for<'b> &'b $($mut_),* F: EOM<A, D>
 {
     #[inline(always)]
     fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
