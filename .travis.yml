@@ -15,8 +15,15 @@ matrix:
   allow_failures:
     - rust: nightly
 
-script:
-  - cargo test -vv
+deploy:
+  - provider: script
+    script: cargo test -v
+    on:
+      all_branches: true
+  - provider: script
+    script: cargo test -v -- --ignored
+    on:
+      branch: master
 
 addons:
   apt:

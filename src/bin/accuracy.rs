@@ -13,9 +13,8 @@ use ndarray_odeint::prelude::*;
 use itertools::iterate;
 use num_traits::int::PrimInt;
 
-macro_rules! impl_accuracy_test {
+macro_rules! impl_accuracy {
     ($name:ident, $method:path, $filename:expr) => {
-#[test]
 fn $name() {
     let data: Vec<_> = (0..12)
         .map(|n| {
@@ -38,6 +37,12 @@ fn $name() {
 }
 }} // impl_accuracy_test
 
-impl_accuracy_test!(euler, explicit::euler, "euler.csv");
-impl_accuracy_test!(heun, explicit::heun, "heun.csv");
-impl_accuracy_test!(rk4, explicit::rk4, "rk4.csv");
+impl_accuracy!(euler, explicit::euler, "euler.csv");
+impl_accuracy!(heun, explicit::heun, "heun.csv");
+impl_accuracy!(rk4, explicit::rk4, "rk4.csv");
+
+fn main() {
+    euler();
+    heun();
+    rk4();
+}
