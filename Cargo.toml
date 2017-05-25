@@ -18,4 +18,5 @@ num-complex = "0.1"
 derive-new = "0.4"
 
 [dev-dependencies]
-ndarray-numtest = "0.2"
+rand-extra = "0.1"
+ndarray-rand = "0.5"
