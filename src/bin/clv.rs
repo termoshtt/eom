@@ -1,5 +1,4 @@
 
-#[macro_use]
 extern crate ndarray;
 extern crate ndarray_odeint;
 extern crate ndarray_linalg;
