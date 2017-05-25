@@ -38,3 +38,15 @@ impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Lorenz63 {
         v
     }
 }
+
+impl<'a> EOM<f64, ViewRepr<&'a mut f64>, Ix1> for &'a Lorenz63 {
+    fn rhs(self, mut v: ArrayViewMut1<f64>) -> ArrayViewMut1<f64> {
+        let x = v[0];
+        let y = v[1];
+        let z = v[2];
+        v[0] = self.p * (y - x);
+        v[1] = x * (self.r - z) - y;
+        v[2] = x * y - self.b * z;
+        v
+    }
+}

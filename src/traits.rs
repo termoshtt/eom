@@ -8,7 +8,7 @@ pub trait EOM<A, S, D>
           D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(self, RcArray<A, D>) -> RcArray<A, D>;
+    fn rhs(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
 }
 
 /// Stiff equation with diagonalized linear part
