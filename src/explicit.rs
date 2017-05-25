@@ -1,6 +1,6 @@
 
 use std::marker::PhantomData;
-use ndarray::{RcArray, Dimension};
+use ndarray::*;
 use super::traits::*;
 
 pub mod markers {
@@ -37,10 +37,10 @@ impl<F, Marker> TimeStep for Explicit<F, Marker> {
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
+impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, D>
+          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
 {
     #[inline(always)]
     fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
@@ -49,10 +49,10 @@ impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::Eu
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
+impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, D>
+          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
 {
     #[inline(always)]
     fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
@@ -63,10 +63,10 @@ impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::He
 }
 
 
-impl<'a, A, D, F> TimeEvolution<A, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
+impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, D>
+          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
 {
     #[inline(always)]
     fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {

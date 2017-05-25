@@ -27,7 +27,7 @@ impl Lorenz63 {
     }
 }
 
-impl<'a> EOM<f64, Ix1> for &'a Lorenz63 {
+impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Lorenz63 {
     fn rhs(self, mut v: RcArray1<f64>) -> RcArray1<f64> {
         let x = v[0];
         let y = v[1];

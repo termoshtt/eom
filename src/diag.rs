@@ -42,7 +42,7 @@ impl<A, D> TimeStep for Diagonal<A, D>
     }
 }
 
-impl<'a, A, D> TimeEvolution<A, D> for &'a Diagonal<A, D>
+impl<'a, A, D> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a Diagonal<A, D>
     where A: OdeScalar<f64> + Exponential,
           D: Dimension
 {

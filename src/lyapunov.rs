@@ -12,7 +12,7 @@ pub use ndarray::linalg::Dot;
 /// Jacobian operator using numerical-differentiation
 pub struct Jacobian<'a, TEO>
     where TEO: 'a,
-          &'a TEO: TimeEvolution<f64, Ix1>
+          &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>
 {
     f: &'a TEO,
     x: RcArray1<f64>,
@@ -22,7 +22,7 @@ pub struct Jacobian<'a, TEO>
 
 pub fn jacobian<'a, TEO>(f: &'a TEO, x: RcArray1<f64>, alpha: f64) -> Jacobian<'a, TEO>
     where TEO: 'a,
-          &'a TEO: TimeEvolution<f64, Ix1>
+          &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>
 {
     let fx = f.iterate(x.clone());
     Jacobian {
@@ -34,7 +34,7 @@ pub fn jacobian<'a, TEO>(f: &'a TEO, x: RcArray1<f64>, alpha: f64) -> Jacobian<'
 }
 
 impl<'a, S, TEO> Dot<ArrayBase<S, Ix1>> for Jacobian<'a, TEO>
-    where &'a TEO: TimeEvolution<f64, Ix1>,
+    where &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>,
           S: Data<Elem = f64>
 {
     type Output = RcArray1<f64>;
@@ -47,7 +47,7 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix1>> for Jacobian<'a, TEO>
 }
 
 impl<'a, S, TEO> Dot<ArrayBase<S, Ix2>> for Jacobian<'a, TEO>
-    where &'a TEO: TimeEvolution<f64, Ix1>,
+    where &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>,
           S: Data<Elem = f64>
 {
     type Output = Array2<f64>;
@@ -72,7 +72,7 @@ pub fn exponents<'a, TEO>(teo: &'a TEO,
                           alpha: f64,
                           duration: usize)
                           -> Array1<f64>
-    where &'a TEO: TimeEvolution<f64, Ix1>,
+    where &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>,
           TEO: 'a + TimeStep
 {
     let n = x0.len();
@@ -97,7 +97,7 @@ pub fn clv<'a, TEO>(teo: &'a TEO,
                     alpha: f64,
                     duration: usize)
                     -> Vec<(Array1<f64>, Array2<f64>, Array1<f64>)>
-    where &'a TEO: TimeEvolution<f64, Ix1>,
+    where &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>,
           TEO: 'a
 {
     let n = x0.len();

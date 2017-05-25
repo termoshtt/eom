@@ -3,7 +3,7 @@ use super::traits::*;
 use super::diag::Diagonal;
 use super::exponential::Exponential;
 
-use ndarray::{RcArray, Dimension};
+use ndarray::*;
 
 pub struct DiagRK4<A, F, D>
     where A: OdeScalar<f64> + Exponential,
@@ -42,9 +42,9 @@ impl<A, F, D> DiagRK4<A, F, D>
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, F, D> TimeEvolution<A, D> for &'a $($mut_),* DiagRK4<A, F, D>
+impl<'a, A, F, D> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* DiagRK4<A, F, D>
     where A: OdeScalar<f64> + Exponential,
-          for<'b> &'b $($mut_),* F: EOM<A, D>,
+          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>,
           D: Dimension
 {
     fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {

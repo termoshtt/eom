@@ -25,7 +25,7 @@ pub trait TimeEvolution<A, S, D>
           D: Dimension
 {
     /// calculate next step
-    fn iterate(self, ArrayBase<A, S, D>) -> ArrayBase<A, S, D>;
+    fn iterate(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
 }
 
 pub trait TimeStep {

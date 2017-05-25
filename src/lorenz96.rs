@@ -1,7 +1,7 @@
 //! Lorenz 96 model
 //! https://en.wikipedia.org/wiki/Lorenz_96_model
 
-use ndarray::prelude::*;
+use ndarray::*;
 use super::traits::EOM;
 
 #[derive(Clone,Copy,Debug)]
@@ -21,7 +21,7 @@ impl Lorenz96 {
     }
 }
 
-impl<'a> EOM<f64, Ix1> for &'a Lorenz96 {
+impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Lorenz96 {
     #[inline(always)]
     fn rhs(self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
         let n = v.len();
