@@ -1,7 +1,7 @@
+//! Define semi-implicit schemes
 
 use super::traits::*;
 use super::diag::Diagonal;
-use super::exponential::Exponential;
 
 use ndarray::*;
 

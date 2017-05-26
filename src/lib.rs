@@ -8,7 +8,6 @@ extern crate num_complex;
 extern crate num_traits;
 
 pub mod traits;
-pub mod exponential;
 pub mod explicit;
 pub mod diag;
 pub mod semi_implicit;

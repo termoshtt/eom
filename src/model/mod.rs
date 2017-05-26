@@ -1,3 +1,4 @@
+//! Example nonlinear ODEs
 
 pub mod lorenz63;
 pub mod lorenz96;
