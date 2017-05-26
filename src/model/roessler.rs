@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor
 
 use ndarray::*;
-use super::traits::EOM;
+use traits::EOM;
 
 #[derive(Clone,Copy,Debug)]
 pub struct Roessler {

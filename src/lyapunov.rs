@@ -1,4 +1,4 @@
-//! Jacobi matrix for time-evolution function
+//! Lyapunov Analysis
 
 use ndarray::*;
 use ndarray_linalg::prelude::*;

@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_96_model
 
 use ndarray::*;
-use super::traits::EOM;
+use traits::EOM;
 
 #[derive(Clone,Copy,Debug)]
 pub struct Lorenz96 {

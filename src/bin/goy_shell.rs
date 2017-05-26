@@ -7,13 +7,13 @@ extern crate num_complex;
 
 use ndarray::rcarr1;
 use itertools::iterate;
-use ndarray_odeint::prelude::*;
+use ndarray_odeint::*;
 use num_complex::Complex64 as c64;
 use num_traits::Zero;
 
 fn main() {
     let dt = 1e-5;
-    let eom = GoyShell::default();
+    let eom = model::GoyShell::default();
     let teo = semi_implicit::diag_rk4(eom, dt);
     let mut x0 = rcarr1(&vec![c64::zero(); 27]);
     x0[2] = c64::new(1.0, 0.0);

@@ -1,7 +1,7 @@
+//! Solve linear diagonal dynamics
 
 use ndarray::*;
 use super::traits::*;
-use super::exponential::Exponential;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
 pub struct Diagonal<A, D>

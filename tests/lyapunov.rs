@@ -10,12 +10,12 @@ use rand_extra::*;
 use ndarray::*;
 use ndarray_rand::*;
 use ndarray_linalg::prelude::*;
-use ndarray_odeint::prelude::*;
+use ndarray_odeint::*;
 use ndarray_odeint::lyapunov::*;
 
 #[test]
 fn jacobian_linearity() {
-    let eom = Lorenz63::default();
+    let eom = model::Lorenz63::default();
     let teo = explicit::rk4(eom, 0.01);
     let x0 = rcarr1(&[1.0, 0.0, 0.0]);
     let j = jacobian(&teo, x0, 1e-7);
@@ -27,7 +27,7 @@ fn jacobian_linearity() {
 
 #[test]
 fn jacobian_matrix_shape() {
-    let eom = Lorenz63::default();
+    let eom = model::Lorenz63::default();
     let teo = explicit::rk4(eom, 0.01);
     let x0 = rcarr1(&[1.0, 0.0, 0.0]);
     let j = jacobian(&teo, x0, 1e-7);
@@ -41,7 +41,7 @@ fn jacobian_matrix_shape() {
 #[ignore]
 fn exponents_l63() {
     let dt = 0.01;
-    let eom = Lorenz63::default();
+    let eom = model::Lorenz63::default();
     let teo = explicit::rk4(eom, dt);
     let l = exponents(&teo, rcarr1(&[1.0, 0.0, 0.0]), 1e-7, 100000);
     assert_close_l2!(&l, &arr1(&[0.906, 0.0, -14.572]), 1e-2);

@@ -1,9 +1,10 @@
 //! GOY-shell model
 
 use ndarray::*;
-use super::traits::*;
 use num_traits::{PrimInt, Zero};
 use num_complex::Complex64 as c64;
+
+use traits::*;
 
 #[derive(Clone,Copy,Debug,new)]
 pub struct GoyShell {

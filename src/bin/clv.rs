@@ -6,12 +6,12 @@ extern crate itertools;
 
 use std::io::Write;
 use ndarray::*;
-use ndarray_odeint::prelude::*;
+use ndarray_odeint::*;
 use ndarray_odeint::lyapunov::*;
 
 fn main() {
     let dt = 0.01;
-    let eom = Lorenz63::default();
+    let eom = model::Lorenz63::default();
     let teo = explicit::rk4(eom, dt);
     let duration = 100000;
     let ts = clv(&teo, rcarr1(&[1.0, 0.0, 0.0]), 1e-7, duration);
