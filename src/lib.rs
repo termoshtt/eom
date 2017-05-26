@@ -15,8 +15,8 @@
 //! Basic chaotic dynamics are implemented as examples in [model submodule](model/)
 //!
 //! - [Lorenz three-variables system](https://en.wikipedia.org/wiki/Lorenz_system): [Lorenz63](model/lorenz63/struct.Lorenz63.html)
-//! - [Lorenz 96 system](https://en.wikipedia.org/wiki/Lorenz_96_system): [Lorenz96](model/lorenz96/struct.Lorenz96.html)
-//! - [Roessler system](https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor): [Roessler](model/roessler/struct.Roessler.html)
+//! - [Lorenz 96 system](https://en.wikipedia.org/wiki/Lorenz_96_model): [Lorenz96](model/lorenz96/struct.Lorenz96.html)
+//! - [Roessler system](https://en.wikipedia.org/wiki/R%C3%B6ssler_attractor): [Roessler](model/roessler/struct.Roessler.html)
 //! - GOY shell model: [GoyShell](model/goy_shell/struct.GoyShell.html)
 
 #[macro_use]

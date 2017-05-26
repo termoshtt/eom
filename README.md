@@ -21,8 +21,8 @@ Models
  Basic chaotic dynamics are implemented as examples
 
 - [Lorenz three-variables system](https://en.wikipedia.org/wiki/Lorenz_system)
-- [Lorenz 96 system](https://en.wikipedia.org/wiki/Lorenz_96_system)
-- [Roessler system](https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor)
+- [Lorenz 96 system](https://en.wikipedia.org/wiki/Lorenz_96_model)
+- [Roessler system](https://en.wikipedia.org/wiki/R%C3%B6ssler_attractor)
 - GOY shell model
 
 Example
