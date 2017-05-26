@@ -8,8 +8,8 @@ extern crate num_traits;
 use std::fs::*;
 use std::io::Write;
 use ndarray::*;
+use ndarray_odeint::*;
 use ndarray_linalg::prelude::*;
-use ndarray_odeint::prelude::*;
 use itertools::iterate;
 use num_traits::int::PrimInt;
 
@@ -19,7 +19,7 @@ fn $name() {
     let data: Vec<_> = (0..12)
         .map(|n| {
             let dt = 0.1 / 2.pow(n) as f64;
-            let eom = Lorenz63::default();
+            let eom = model::Lorenz63::default();
             let teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
             let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));

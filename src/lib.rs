@@ -8,17 +8,11 @@ extern crate num_complex;
 extern crate num_traits;
 
 pub mod traits;
-pub mod prelude;
 pub mod exponential;
-pub mod lyapunov;
-
-// solvers
 pub mod explicit;
 pub mod diag;
 pub mod semi_implicit;
+pub mod model;
+pub mod lyapunov;
 
-// models
-pub mod lorenz63;
-pub mod lorenz96;
-pub mod roessler;
-pub mod goy_shell;
+pub use self::traits::*;
