@@ -10,12 +10,13 @@ keywords = ["ndarray", "ode"]
 license = "MIT"
 
 [dependencies]
-ndarray = "0.8"
-ndarray-linalg = "0.3"
+ndarray = "0.9"
+ndarray-linalg = "0.4"
 itertools = "0.5"
 num-traits = "0.1"
 num-complex = "0.1"
 derive-new = "0.4"
 
 [dev-dependencies]
-ndarray-numtest = "0.2"
+rand-extra = "0.1"
+ndarray-rand = "0.5"

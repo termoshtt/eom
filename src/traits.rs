@@ -1,13 +1,14 @@
 
-use ndarray::{RcArray, Dimension, LinalgScalar};
+use ndarray::*;
 use std::ops::*;
 
 /// Equation of motion (EOM)
-pub trait EOM<A, D>
-    where D: Dimension
+pub trait EOM<A, S, D>
+    where S: Data<Elem = A>,
+          D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(self, RcArray<A, D>) -> RcArray<A, D>;
+    fn rhs(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
 }
 
 /// Stiff equation with diagonalized linear part
@@ -19,11 +20,12 @@ pub trait Diag<A, D>
 }
 
 /// Time-evolution operator
-pub trait TimeEvolution<A, D>
-    where D: Dimension
+pub trait TimeEvolution<A, S, D>
+    where S: Data<Elem = A>,
+          D: Dimension
 {
     /// calculate next step
-    fn iterate(self, RcArray<A, D>) -> RcArray<A, D>;
+    fn iterate(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
 }
 
 pub trait TimeStep {

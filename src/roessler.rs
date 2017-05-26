@@ -1,7 +1,7 @@
 //! Roessler system
 //! https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor
 
-use ndarray::prelude::*;
+use ndarray::*;
 use super::traits::EOM;
 
 #[derive(Clone,Copy,Debug)]
@@ -27,7 +27,7 @@ impl Roessler {
     }
 }
 
-impl<'a> EOM<f64, Ix1> for &'a Roessler {
+impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Roessler {
     #[inline(always)]
     fn rhs(self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
         let x = v[0];

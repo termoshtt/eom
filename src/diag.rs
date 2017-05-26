@@ -42,11 +42,23 @@ impl<A, D> TimeStep for Diagonal<A, D>
     }
 }
 
-impl<'a, A, D> TimeEvolution<A, D> for &'a Diagonal<A, D>
+impl<'a, A, D> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a Diagonal<A, D>
     where A: OdeScalar<f64> + Exponential,
           D: Dimension
 {
     fn iterate(self, mut x: RcArray<A, D>) -> RcArray<A, D> {
+        for (val, d) in x.iter_mut().zip(self.diag.iter()) {
+            *val = *val * *d;
+        }
+        x
+    }
+}
+
+impl<'a, A, D> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a Diagonal<A, D>
+    where A: OdeScalar<f64> + Exponential,
+          D: Dimension
+{
+    fn iterate(self, mut x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;
         }

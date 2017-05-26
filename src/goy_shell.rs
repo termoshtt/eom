@@ -34,7 +34,7 @@ impl Default for GoyShell {
     }
 }
 
-impl<'a> EOM<c64, Ix1> for &'a GoyShell {
+impl<'a> EOM<c64, OwnedRcRepr<c64>, Ix1> for &'a GoyShell {
     fn rhs(self, mut v: RcArray1<c64>) -> RcArray1<c64> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
