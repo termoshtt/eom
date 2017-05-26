@@ -49,13 +49,13 @@ impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explici
     }
 }
 
-impl<'a, 'b, A, D, F> TimeEvolution<A, ViewRepr<&'b mut A>, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
+impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          for<'c> &'c $($mut_),* F: EOM<A, ViewRepr<&'b mut A>, D>
+          for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayViewMut<'b ,A, D>) -> ArrayViewMut<'b, A, D> {
+    fn iterate(self, x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
         let x_ = x.to_owned();
         let mut fx = self.f.rhs(x);
         azip!(mut fx, x_ in { *fx = x_ + *fx * self.dt });
@@ -76,13 +76,13 @@ impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explici
     }
 }
 
-impl<'a, 'b, A, D, F> TimeEvolution<A, ViewRepr<&'b mut A>, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
+impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          for<'c> &'c $($mut_),* F: EOM<A, ViewRepr<&'b mut A>, D>
+          for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayViewMut<'b ,A, D>) -> ArrayViewMut<'b, A, D> {
+    fn iterate(self, x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
         let dt = self.dt;
         let dt_2 = self.dt * 0.5;
         let x_ = x.to_owned();
@@ -115,13 +115,13 @@ impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explici
     }
 }
 
-impl<'a, 'b, A, D, F> TimeEvolution<A, ViewRepr<&'b mut A>, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
+impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
     where A: OdeScalar<f64>,
           D: Dimension,
-          for<'c> &'c $($mut_),* F: EOM<A, ViewRepr<&'b mut A>, D>
+          for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayViewMut<'b ,A, D>) -> ArrayViewMut<'b, A, D> {
+    fn iterate(self, x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
         let dt = self.dt;
         let dt_2 = self.dt * 0.5;
         let dt_6 = self.dt / 6.0;
