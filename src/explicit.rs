@@ -1,16 +1,18 @@
+//! Define explicit schemes
 
-use std::ops::*;
 use ndarray::*;
-
 use super::traits::*;
 
+macro_rules! def_explicit {
+    ($method:ident) => {
+
 #[derive(new)]
-pub struct Explicit<F> {
+pub struct $method<F> {
     f: F,
     dt: f64,
 }
 
-impl<F> TimeStep for Explicit<F> {
+impl<F> TimeStep for $method<F> {
     fn get_dt(&self) -> f64 {
         self.dt
     }
@@ -19,36 +21,11 @@ impl<F> TimeStep for Explicit<F> {
     }
 }
 
-macro_rules! impl_explicit {
-    ($method:ident) => {
+}} // def_explicit
 
-pub struct $method<F>(Explicit<F>);
-
-impl<F> Deref for $method<F> {
-    type Target = Explicit<F>;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<F> DerefMut for $method<F> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl<F> $method<F> {
-    pub fn new(f: F, dt: f64) -> Self {
-        let e = Explicit { f: f, dt: dt };
-        $method(e)
-    }
-}
-
-}} // impl_explicit
-
-impl_explicit!(Euler);
-impl_explicit!(Heun);
-impl_explicit!(RK4);
+def_explicit!(Euler);
+def_explicit!(Heun);
+def_explicit!(RK4);
 
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
