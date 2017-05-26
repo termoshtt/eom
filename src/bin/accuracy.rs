@@ -37,9 +37,9 @@ fn $name() {
 }
 }} // impl_accuracy_test
 
-impl_accuracy!(euler, explicit::euler, "euler.csv");
-impl_accuracy!(heun, explicit::heun, "heun.csv");
-impl_accuracy!(rk4, explicit::rk4, "rk4.csv");
+impl_accuracy!(euler, explicit::Euler::new, "euler.csv");
+impl_accuracy!(heun, explicit::Heun::new, "heun.csv");
+impl_accuracy!(rk4, explicit::RK4::new, "rk4.csv");
 
 fn main() {
     euler();

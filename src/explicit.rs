@@ -1,31 +1,16 @@
 
-use std::marker::PhantomData;
+use std::ops::*;
 use ndarray::*;
+
 use super::traits::*;
 
-pub mod markers {
-    pub struct EulerMarker {}
-    pub struct HeunMarker {}
-    pub struct RK4Marker {}
-}
-
-pub struct Explicit<F, Marker> {
+#[derive(new)]
+pub struct Explicit<F> {
     f: F,
     dt: f64,
-    phantom: PhantomData<Marker>,
 }
 
-impl<F, Marker> Explicit<F, Marker> {
-    pub fn new(f: F, dt: f64) -> Self {
-        Explicit {
-            f: f,
-            dt: dt,
-            phantom: PhantomData,
-        }
-    }
-}
-
-impl<F, Marker> TimeStep for Explicit<F, Marker> {
+impl<F> TimeStep for Explicit<F> {
     fn get_dt(&self) -> f64 {
         self.dt
     }
@@ -34,10 +19,41 @@ impl<F, Marker> TimeStep for Explicit<F, Marker> {
     }
 }
 
+macro_rules! impl_explicit {
+    ($method:ident) => {
+
+pub struct $method<F>(Explicit<F>);
+
+impl<F> Deref for $method<F> {
+    type Target = Explicit<F>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<F> DerefMut for $method<F> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<F> $method<F> {
+    pub fn new(f: F, dt: f64) -> Self {
+        let e = Explicit { f: f, dt: dt };
+        $method(e)
+    }
+}
+
+}} // impl_explicit
+
+impl_explicit!(Euler);
+impl_explicit!(Heun);
+impl_explicit!(RK4);
+
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
+impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Euler<F>
     where A: OdeScalar<f64>,
           D: Dimension,
           for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
@@ -49,7 +65,7 @@ impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explici
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Explicit<F, markers::EulerMarker>
+impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Euler<F>
     where A: OdeScalar<f64>,
           D: Dimension,
           for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
@@ -63,7 +79,7 @@ impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Ex
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
+impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Heun<F>
     where A: OdeScalar<f64>,
           D: Dimension,
           for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
@@ -76,7 +92,7 @@ impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explici
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Explicit<F, markers::HeunMarker>
+impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Heun<F>
     where A: OdeScalar<f64>,
           D: Dimension,
           for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
@@ -95,7 +111,7 @@ impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Ex
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
+impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* RK4<F>
     where A: OdeScalar<f64>,
           D: Dimension,
           for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
@@ -115,7 +131,7 @@ impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Explici
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Explicit<F, markers::RK4Marker>
+impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* RK4<F>
     where A: OdeScalar<f64>,
           D: Dimension,
           for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
@@ -150,15 +166,3 @@ impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Ex
 
 impl_time_evolution!();
 impl_time_evolution!(mut);
-
-pub fn euler<F>(f: F, dt: f64) -> Explicit<F, markers::EulerMarker> {
-    Explicit::new(f, dt)
-}
-
-pub fn heun<F>(f: F, dt: f64) -> Explicit<F, markers::HeunMarker> {
-    Explicit::new(f, dt)
-}
-
-pub fn rk4<F>(f: F, dt: f64) -> Explicit<F, markers::RK4Marker> {
-    Explicit::new(f, dt)
-}
