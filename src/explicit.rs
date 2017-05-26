@@ -4,12 +4,16 @@ use ndarray::*;
 use super::traits::*;
 
 macro_rules! def_explicit {
-    ($method:ident) => {
+    ($method:ident, $constructor:ident) => {
 
 #[derive(new)]
 pub struct $method<F> {
     f: F,
     dt: f64,
+}
+
+pub fn $constructor<F>(f: F, dt: f64) -> $method<F> {
+    $method::new(f, dt)
 }
 
 impl<F> TimeStep for $method<F> {
@@ -23,9 +27,9 @@ impl<F> TimeStep for $method<F> {
 
 }} // def_explicit
 
-def_explicit!(Euler);
-def_explicit!(Heun);
-def_explicit!(RK4);
+def_explicit!(Euler, euler);
+def_explicit!(Heun, heun);
+def_explicit!(RK4, rk4);
 
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
