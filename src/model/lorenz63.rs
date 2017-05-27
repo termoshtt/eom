@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_system
 
 use ndarray::*;
-use traits::EOM;
+use traits::*;
 
 #[derive(Clone,Copy,Debug)]
 pub struct Lorenz63 {
@@ -38,5 +38,25 @@ impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz63
         v[1] = x * (self.r - z) - y;
         v[2] = x * y - self.b * z;
         v
+    }
+}
+
+impl<'a, S> NonLinear<f64, S, Ix1> for &'a Lorenz63
+    where S: DataMut<Elem = f64>
+{
+    fn nlin(self, mut v: ArrayBase<S, Ix1>) -> ArrayBase<S, Ix1> {
+        let x = v[0];
+        let y = v[1];
+        let z = v[2];
+        v[0] = self.p * y;
+        v[1] = x * (self.r - z);
+        v[2] = x * y;
+        v
+    }
+}
+
+impl Diag<f64, Ix1> for Lorenz63 {
+    fn diagonal(&self) -> RcArray1<f64> {
+        rcarr1(&[-self.p, -1.0, -self.b])
     }
 }
