@@ -27,20 +27,10 @@ impl Lorenz63 {
     }
 }
 
-impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Lorenz63 {
-    fn rhs(self, mut v: RcArray1<f64>) -> RcArray1<f64> {
-        let x = v[0];
-        let y = v[1];
-        let z = v[2];
-        v[0] = self.p * (y - x);
-        v[1] = x * (self.r - z) - y;
-        v[2] = x * y - self.b * z;
-        v
-    }
-}
-
-impl<'a, 'b> EOM<f64, ViewRepr<&'b mut f64>, Ix1> for &'a Lorenz63 {
-    fn rhs(self, mut v: ArrayViewMut1<f64>) -> ArrayViewMut1<f64> {
+impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz63
+    where S: DataMut<Elem = f64>
+{
+    fn rhs(self, mut v: ArrayBase<S, Ix1>) -> ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
