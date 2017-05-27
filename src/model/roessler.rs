@@ -27,9 +27,11 @@ impl Roessler {
     }
 }
 
-impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Roessler {
+impl<'a, S> EOM<f64, S, Ix1> for &'a Roessler
+    where S: DataMut<Elem = f64>
+{
     #[inline(always)]
-    fn rhs(self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
+    fn rhs(self, mut v: ArrayBase<S, Ix1>) -> ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];

@@ -34,25 +34,14 @@ def_explicit!(RK4, rk4);
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Euler<F>
+impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Euler<F>
     where A: OdeScalar<f64>,
+          S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
+          for<'b> &'b $($mut_),* F: EOM<A, S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let fx = self.f.rhs(x.clone());
-        x + fx * self.dt
-    }
-}
-
-impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Euler<F>
-    where A: OdeScalar<f64>,
-          D: Dimension,
-          for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
-{
-    #[inline(always)]
-    fn iterate(self, x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
+    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
         let x_ = x.to_owned();
         let mut fx = self.f.rhs(x);
         azip!(mut fx, x_ in { *fx = x_ + *fx * self.dt });
@@ -60,26 +49,14 @@ impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Eu
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* Heun<F>
+impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Heun<F>
     where A: OdeScalar<f64>,
+          S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
+          for<'b> &'b $($mut_),* F: EOM<A, S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let k1 = self.f.rhs(x.clone()) * self.dt;
-        let k2 = self.f.rhs(x.clone() + k1.clone()) * self.dt;
-        x + (k1 + k2) * 0.5
-    }
-}
-
-impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* Heun<F>
-    where A: OdeScalar<f64>,
-          D: Dimension,
-          for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
-{
-    #[inline(always)]
-    fn iterate(self, x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
+    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * 0.5;
         let x_ = x.to_owned();
@@ -92,33 +69,14 @@ impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* He
     }
 }
 
-impl<'a, A, D, F> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* RK4<F>
+impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* RK4<F>
     where A: OdeScalar<f64>,
+          S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>
+          for<'b> &'b $($mut_),* F: EOM<A, S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
-        let dt_2 = 0.5 * self.dt;
-        let dt_6 = self.dt / 6.0;
-        let k1 = self.f.rhs(x.clone());
-        let l1 = k1.clone() * dt_2 + &x;
-        let k2 = self.f.rhs(l1);
-        let l2 = k2.clone() * dt_2 + &x;
-        let k3 = self.f.rhs(l2);
-        let l3 = k3.clone() * self.dt + &x;
-        let k4 = self.f.rhs(l3);
-        x + (k1 + (k2 + k3) * 2.0 + k4) * dt_6
-    }
-}
-
-impl<'a, A, D, F> TimeEvolution<A, ViewRepr<&'a mut A>, D> for &'a $($mut_),* RK4<F>
-    where A: OdeScalar<f64>,
-          D: Dimension,
-          for<'b, 'c> &'b $($mut_),* F: EOM<A, ViewRepr<&'c mut A>, D>
-{
-    #[inline(always)]
-    fn iterate(self, x: ArrayViewMut<A, D>) -> ArrayViewMut<A, D> {
+    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * 0.5;
         let dt_6 = self.dt / 6.0;

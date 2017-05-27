@@ -42,12 +42,13 @@ impl<A, F, D> DiagRK4<A, F, D>
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, F, D> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* DiagRK4<A, F, D>
+impl<'a, A, S, F, D> TimeEvolution<A, S, D> for &'a $($mut_),* DiagRK4<A, F, D>
     where A: OdeScalar<f64> + Exponential,
-          for<'b> &'b $($mut_),* F: EOM<A, OwnedRcRepr<A>, D>,
+          S: DataMut<Elem=A> + DataClone<Elem=A>,
+          for<'b> &'b $($mut_),* F: NonLinear<A, S, D>,
           D: Dimension
 {
-    fn iterate(self, x: RcArray<A, D>) -> RcArray<A, D> {
+    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
         // constants
         let dt = self.dt;
         let dt_2 = 0.5 * self.dt;
@@ -57,15 +58,24 @@ impl<'a, A, F, D> TimeEvolution<A, OwnedRcRepr<A>, D> for &'a $($mut_),* DiagRK4
         let l = &self.lin_half;
         let f = &$($mut_),* self.f;
         // calc
-        let k1 = f.rhs(x.clone());
-        let l1 = l.iterate(k1.clone() * dt_2 + &x);
-        let k2 = f.rhs(l1);
+        let mut x_ = x.to_owned();
         let lx = l.iterate(x.clone());
-        let l2 = k2.clone() * dt_2 + &lx;
-        let k3 = f.rhs(l2);
-        let l3 = l.iterate(lx + &k3 * dt);
-        let k4 = f.rhs(l3);
-        l.iterate(l.iterate(x + k1 * dt_6) + (k2 + k3) * dt_3) + k4 * dt_6
+        let mut k1 = f.nlin(x);
+        let k1_ = k1.to_owned();
+        azip!(mut k1, x_ in { *k1 = x_ + *k1 * dt_2 });
+        let mut k2 = f.nlin(l.iterate(k1));
+        let k2_ = k2.to_owned();
+        azip!(mut k2, lx in { *k2 = lx + *k2 * dt_2 });
+        let mut k3 = f.nlin(k2);
+        let k3_ = k3.to_owned();
+        azip!(mut k3, lx in { *k3 = lx + *k3 * dt });
+        let mut k4 = f.nlin(l.iterate(k3));
+        azip!(mut x_, k1_ in { *x_ = *x_ + k1_ * dt_6 });
+        let mut x_ = l.iterate(x_);
+        azip!(mut x_, k2_, k3_ in { *x_ = *x_ + (k2_ + k3_) * dt_3 });
+        let x_ = l.iterate(x_);
+        azip!(mut k4, x_ in { *k4 = x_ + *k4 * dt_6 });
+        k4
     }
 }
 

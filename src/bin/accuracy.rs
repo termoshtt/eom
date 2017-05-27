@@ -40,9 +40,11 @@ fn $name() {
 impl_accuracy!(euler, explicit::euler, "euler.csv");
 impl_accuracy!(heun, explicit::heun, "heun.csv");
 impl_accuracy!(rk4, explicit::rk4, "rk4.csv");
+impl_accuracy!(diag_rk4, semi_implicit::diag_rk4, "diag_rk4.csv");
 
 fn main() {
     euler();
     heun();
     rk4();
+    diag_rk4();
 }

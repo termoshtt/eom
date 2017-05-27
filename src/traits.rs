@@ -14,7 +14,15 @@ pub trait EOM<A, S, D>
     fn rhs(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
 }
 
-/// Stiff equation with diagonalized linear part
+/// non-linear part of stiff equation
+pub trait NonLinear<A, S, D>
+    where S: Data<Elem = A>,
+          D: Dimension
+{
+    fn nlin(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
+}
+
+/// Diagonalized linear part of stiff equation
 pub trait Diag<A, D>
     where D: Dimension
 {
@@ -31,6 +39,7 @@ pub trait TimeEvolution<A, S, D>
     fn iterate(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
 }
 
+/// Interface for time-step
 pub trait TimeStep {
     fn get_dt(&self) -> f64;
     fn set_dt(&mut self, dt: f64);
