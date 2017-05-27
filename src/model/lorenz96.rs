@@ -21,11 +21,13 @@ impl Lorenz96 {
     }
 }
 
-impl<'a> EOM<f64, OwnedRcRepr<f64>, Ix1> for &'a Lorenz96 {
+impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz96
+    where S: DataMut<Elem = f64>
+{
     #[inline(always)]
-    fn rhs(self, mut v: RcArray<f64, Ix1>) -> RcArray<f64, Ix1> {
+    fn rhs(self, mut v: ArrayBase<S, Ix1>) -> ArrayBase<S, Ix1> {
         let n = v.len();
-        let v0 = v.clone();
+        let v0 = v.to_owned();
         for i in 0..n {
             let p1 = (i + 1) % n;
             let m1 = (i + n - 1) % n;
