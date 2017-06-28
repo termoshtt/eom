@@ -4,7 +4,7 @@
 use ndarray::*;
 use traits::EOM;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Lorenz96 {
     pub f: f64,
 }

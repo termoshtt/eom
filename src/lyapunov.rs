@@ -53,8 +53,8 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix2>> for Jacobian<'a, TEO>
     type Output = Array2<f64>;
     fn dot(&self, dxs: &ArrayBase<S, Ix2>) -> Self::Output {
         hstack(&dxs.axis_iter(Axis(1))
-                .map(|dx| self.dot(&dx))
-                .collect::<Vec<_>>())
+                   .map(|dx| self.dot(&dx))
+                   .collect::<Vec<_>>())
             .unwrap()
     }
 }
@@ -78,12 +78,11 @@ pub fn exponents<'a, TEO>(teo: &'a TEO,
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
     ts.scan(Array::eye(n), |q, x| {
-            let (q_next, r) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
-            *q = q_next;
-            let d = r.diag().map(|x| x.abs().ln());
-            Some(d)
-        })
-        .skip(duration / 10)
+        let (q_next, r) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
+        *q = q_next;
+        let d = r.diag().map(|x| x.abs().ln());
+        Some(d)
+    }).skip(duration / 10)
         .take(duration)
         .fold(Array::zeros(n), |x, y| x + y) / (teo.get_dt() * duration as f64)
 }
@@ -103,14 +102,14 @@ pub fn clv<'a, TEO>(teo: &'a TEO,
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
     let qr_series = ts.scan(Array::eye(n), |q, x| {
-            let (q_next, r) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
-            let q = replace(q, q_next);
-            Some((x, q, r))
-        })
-        .skip(duration / 10)
+        let (q_next, r) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
+        let q = replace(q, q_next);
+        Some((x, q, r))
+    }).skip(duration / 10)
         .take(duration + duration / 10)
         .collect::<Vec<_>>();
-    let clv_rev = qr_series.into_iter()
+    let clv_rev = qr_series
+        .into_iter()
         .rev()
         .scan(Array::eye(n), |c, (x, q, r)| {
             let (c_now, f) = clv_backward(c, &r);

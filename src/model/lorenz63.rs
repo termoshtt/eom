@@ -4,7 +4,7 @@
 use ndarray::*;
 use traits::*;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Lorenz63 {
     pub p: f64,
     pub r: f64,

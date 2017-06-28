@@ -38,7 +38,9 @@ impl<A, D> TimeStep for Diagonal<A, D>
         self.dt
     }
     fn set_dt(&mut self, dt: f64) {
-        Zip::from(&mut self.diag).and(&self.diag_of_matrix).apply(|a, &b| { *a = (b * dt).exp(); });
+        Zip::from(&mut self.diag)
+            .and(&self.diag_of_matrix)
+            .apply(|a, &b| { *a = (b * dt).exp(); });
     }
 }
 

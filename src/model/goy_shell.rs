@@ -6,7 +6,7 @@ use num_complex::Complex64 as c64;
 
 use traits::*;
 
-#[derive(Clone,Copy,Debug,new)]
+#[derive(Clone, Copy, Debug, new)]
 pub struct GoyShell {
     size: usize,
     nu: f64,

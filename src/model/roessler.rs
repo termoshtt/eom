@@ -4,7 +4,7 @@
 use ndarray::*;
 use traits::EOM;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Roessler {
     pub a: f64,
     pub b: f64,
