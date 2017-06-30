@@ -32,6 +32,5 @@ pub mod explicit;
 pub mod diag;
 pub mod semi_implicit;
 pub mod model;
-pub mod lyapunov;
 
 pub use self::traits::*;

@@ -24,7 +24,8 @@ pub fn jacobian<'a, TEO>(f: &'a TEO, x: RcArray1<f64>, alpha: f64) -> Jacobian<'
     where TEO: 'a,
           &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>
 {
-    let fx = f.iterate(x.clone());
+    let fx = x.clone();
+    f.iterate(&mut fx);
     Jacobian {
         f: f,
         x: x,
@@ -42,7 +43,7 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix1>> for Jacobian<'a, TEO>
         let nrm = self.x.norm_l2().max(dx.norm_l2());
         let n = self.alpha / nrm;
         let x = n * dx + &self.x;
-        (self.f.iterate(x.into_shared()) - &self.fx) / n
+        (*self.f.iterate(&mut x.into_shared()) - &self.fx) / n
     }
 }
 
@@ -77,7 +78,7 @@ pub fn exponents<'a, TEO>(teo: &'a TEO,
           TEO: 'a + TimeStep<f64>
 {
     let n = x0.len();
-    let ts = iterate(x0, |y| teo.iterate(y.clone()));
+    let ts = iterate(x0, |y| teo.iterate(&mut y));
     ts.scan(Array::eye(n), |q, x| {
         let (q_next, r): (_, Array2<f64>) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
         *q = q_next;
