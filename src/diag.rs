@@ -5,17 +5,19 @@ use ndarray_linalg::Scalar;
 use super::traits::*;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
-pub struct Diagonal<A, D>
+pub struct Diagonal<A, S, D>
     where A: Scalar,
+          S: Data<Elem = A>,
           D: Dimension
 {
-    diag: RcArray<A, D>,
-    diag_of_matrix: RcArray<A, D>,
+    diag: ArrayBase<S, D>,
+    diag_of_matrix: ArrayBase<S, D>,
     dt: A::Real,
 }
 
-impl<A, D> TimeStep<A::Real> for Diagonal<A, D>
+impl<A, S, D> TimeStep<A::Real> for Diagonal<A, S, D>
     where A: Scalar,
+          S: DataMut<Elem = A>,
           D: Dimension
 {
     fn get_dt(&self) -> A::Real {
@@ -28,11 +30,12 @@ impl<A, D> TimeStep<A::Real> for Diagonal<A, D>
     }
 }
 
-impl<A, D> Diagonal<A, D>
+impl<A, S, D> Diagonal<A, S, D>
     where A: Scalar,
+          S: DataClone<Elem = A> + DataMut,
           D: Dimension
 {
-    pub fn new(diag_of_matrix: RcArray<A, D>, dt: A::Real) -> Self {
+    pub fn new(diag_of_matrix: ArrayBase<S, D>, dt: A::Real) -> Self {
         let mut diag = diag_of_matrix.clone();
         for v in diag.iter_mut() {
             *v = v.mul_real(dt).exp();
@@ -45,7 +48,7 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<'a, A, S, D> TimeEvolution<A, S, D> for &'a Diagonal<A, D>
+impl<'a, A, S, D> TimeEvolution<S, D> for &'a Diagonal<A, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension

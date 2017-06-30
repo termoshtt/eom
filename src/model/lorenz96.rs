@@ -21,7 +21,7 @@ impl Lorenz96 {
     }
 }
 
-impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz96
+impl<'a, S> EOM<S, Ix1> for &'a Lorenz96
     where S: DataMut<Elem = f64>
 {
     #[inline(always)]

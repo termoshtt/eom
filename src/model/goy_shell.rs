@@ -35,7 +35,7 @@ impl Default for GoyShell {
     }
 }
 
-impl<'a, S> NonLinear<c64, S, Ix1> for &'a GoyShell
+impl<'a, S> NonLinear<S, Ix1> for &'a GoyShell
     where S: DataMut<Elem = c64>
 {
     fn nlin(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
@@ -67,8 +67,10 @@ impl<'a, S> NonLinear<c64, S, Ix1> for &'a GoyShell
     }
 }
 
-impl Diag<c64, Ix1> for GoyShell {
-    fn diagonal(&self) -> RcArray1<c64> {
+impl<S> Diag<S, Ix1> for GoyShell
+    where S: DataOwned<Elem = c64>
+{
+    fn diagonal(&self) -> ArrayBase<S, Ix1> {
         (0..self.size)
             .map(|n| self.nu * self.k(n) * self.k(n))
             .collect()

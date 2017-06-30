@@ -27,7 +27,7 @@ impl Lorenz63 {
     }
 }
 
-impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz63
+impl<'a, S> EOM<S, Ix1> for &'a Lorenz63
     where S: DataMut<Elem = f64>
 {
     fn rhs(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
@@ -41,7 +41,7 @@ impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz63
     }
 }
 
-impl<'a, S> NonLinear<f64, S, Ix1> for &'a Lorenz63
+impl<'a, S> NonLinear<S, Ix1> for &'a Lorenz63
     where S: DataMut<Elem = f64>
 {
     fn nlin(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
@@ -55,8 +55,8 @@ impl<'a, S> NonLinear<f64, S, Ix1> for &'a Lorenz63
     }
 }
 
-impl Diag<f64, Ix1> for Lorenz63 {
-    fn diagonal(&self) -> RcArray1<f64> {
-        rcarr1(&[-self.p, -1.0, -self.b])
+impl<S: DataOwned<Elem = f64>> Diag<S, Ix1> for Lorenz63 {
+    fn diagonal(&self) -> ArrayBase<S, Ix1> {
+        ArrayBase::from_vec(vec![-self.p, -1.0, -self.b])
     }
 }

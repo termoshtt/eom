@@ -4,31 +4,34 @@ use super::traits::*;
 use super::diag::Diagonal;
 
 use ndarray::*;
-use ndarray_linalg::{Scalar, into_scalar};
+use ndarray_linalg::{Scalar, into_scalar, replicate};
 
-pub struct DiagRK4<A, F, D>
+pub struct DiagRK4<A, S, F, D>
     where A: Scalar,
+          S: Data<Elem = A>,
           D: Dimension
 {
     f: F,
-    lin_half: Diagonal<A, D>,
+    lin_half: Diagonal<A, S, D>,
     dt: A::Real,
 }
 
-pub fn diag_rk4<A, F, D>(f: F, dt: A::Real) -> DiagRK4<A, F, D>
+pub fn diag_rk4<A, S, F, D>(f: F, dt: A::Real) -> DiagRK4<A, S, F, D>
     where A: Scalar,
-          F: Diag<A, D>,
+          S: DataClone<Elem = A> + DataMut,
+          F: Diag<S, D>,
           D: Dimension
 {
     DiagRK4::new(f, dt)
 }
 
-impl<A, F, D> DiagRK4<A, F, D>
+impl<A, S, F, D> DiagRK4<A, S, F, D>
     where A: Scalar,
+          S: DataClone<Elem = A> + DataMut,
           D: Dimension
 {
     pub fn new(f: F, dt: A::Real) -> Self
-        where F: Diag<A, D>
+        where F: Diag<S, D>
     {
         let diag = f.diagonal();
         let lin_half = Diagonal::new(diag, dt / into_scalar(2.0));
@@ -43,10 +46,10 @@ impl<A, F, D> DiagRK4<A, F, D>
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, S, F, D> TimeEvolution<A, S, D> for &'a $($mut_),* DiagRK4<A, F, D>
+impl<'a, A, S, F, D> TimeEvolution<S, D> for &'a $($mut_),* DiagRK4<A, S, F, D>
     where A: Scalar,
-          S: DataMut<Elem=A> + DataClone<Elem=A>,
-          for<'b> &'b $($mut_),* F: NonLinear<A, S, D>,
+          S: DataMut<Elem=A> + DataClone + DataOwned,
+          for<'b> &'b $($mut_),* F: NonLinear<S, D>,
           D: Dimension
 {
     fn iterate(self, x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
@@ -59,8 +62,8 @@ impl<'a, A, S, F, D> TimeEvolution<A, S, D> for &'a $($mut_),* DiagRK4<A, F, D>
         let l = &self.lin_half;
         let f = &$($mut_),* self.f;
         // calc
-        let mut x_ = x.to_owned();
-        let mut lx = x.to_owned();
+        let mut x_ = replicate(&x);
+        let mut lx = replicate(&x);
         l.iterate(&mut lx);
         let mut k1 = f.nlin(x);
         let k1_ = k1.to_owned();

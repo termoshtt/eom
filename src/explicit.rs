@@ -35,11 +35,11 @@ def_explicit!(RK4, rk4);
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Euler<F, A::Real>
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Euler<F, A::Real>
     where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, S, D>
+          for<'b> &'b $($mut_),* F: EOM<S, D>
 {
     #[inline(always)]
     fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
@@ -52,11 +52,11 @@ impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Euler<F, A::Real>
     }
 }
 
-impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Heun<F, A::Real>
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Heun<F, A::Real>
     where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, S, D>
+          for<'b> &'b $($mut_),* F: EOM<S, D>
 {
     #[inline(always)]
     fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
@@ -77,11 +77,11 @@ impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Heun<F, A::Real>
     }
 }
 
-impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* RK4<F, A::Real>
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* RK4<F, A::Real>
     where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, S, D>
+          for<'b> &'b $($mut_),* F: EOM<S, D>
 {
     #[inline(always)]
     fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {

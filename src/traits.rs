@@ -3,8 +3,8 @@
 use ndarray::*;
 
 /// Equation of motion (EOM)
-pub trait EOM<A, S, D>
-    where S: DataMut<Elem = A>,
+pub trait EOM<S, D>
+    where S: DataMut,
           D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
@@ -12,24 +12,25 @@ pub trait EOM<A, S, D>
 }
 
 /// non-linear part of stiff equation
-pub trait NonLinear<A, S, D>
-    where S: DataMut<Elem = A>,
+pub trait NonLinear<S, D>
+    where S: DataMut,
           D: Dimension
 {
     fn nlin(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
 }
 
 /// Diagonalized linear part of stiff equation
-pub trait Diag<A, D>
-    where D: Dimension
+pub trait Diag<S, D>
+    where S: Data,
+          D: Dimension
 {
     /// Linear part of EOM (assume to be diagonalized)
-    fn diagonal(&self) -> RcArray<A, D>;
+    fn diagonal(&self) -> ArrayBase<S, D>;
 }
 
 /// Time-evolution operator
-pub trait TimeEvolution<A, S, D>
-    where S: DataMut<Elem = A>,
+pub trait TimeEvolution<S, D>
+    where S: DataMut,
           D: Dimension
 {
     /// calculate next step

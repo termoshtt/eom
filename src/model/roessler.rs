@@ -27,7 +27,7 @@ impl Roessler {
     }
 }
 
-impl<'a, S> EOM<f64, S, Ix1> for &'a Roessler
+impl<'a, S> EOM<S, Ix1> for &'a Roessler
     where S: DataMut<Elem = f64>
 {
     #[inline(always)]
