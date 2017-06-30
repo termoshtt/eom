@@ -1,12 +1,10 @@
 
 extern crate ndarray;
 extern crate ndarray_odeint;
-extern crate itertools;
 extern crate num_traits;
 extern crate num_complex;
 
 use ndarray::rcarr1;
-use itertools::iterate;
 use ndarray_odeint::*;
 use num_complex::Complex64 as c64;
 use num_traits::Zero;
@@ -21,7 +19,7 @@ fn main() {
     x0[4] = c64::new(1.0, 0.0);
     x0[5] = c64::new(1.0, 0.0);
     x0[6] = c64::new(1.0, 0.0);
-    let ts = iterate(x0, |y| teo.iterate(y.clone()));
+    let mut ts = TimeSeries::new(x0, teo);
     let end_time = 10_000_000;
     let interval = 100;
     print!("time");

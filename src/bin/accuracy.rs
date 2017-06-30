@@ -2,7 +2,6 @@
 extern crate ndarray;
 extern crate ndarray_odeint;
 extern crate ndarray_linalg;
-extern crate itertools;
 extern crate num_traits;
 
 use std::fs::*;
@@ -10,7 +9,6 @@ use std::io::Write;
 use ndarray::*;
 use ndarray_odeint::*;
 use ndarray_linalg::*;
-use itertools::iterate;
 use num_traits::int::PrimInt;
 
 macro_rules! impl_accuracy {
@@ -22,7 +20,7 @@ fn $name() {
             let eom = model::Lorenz63::default();
             let teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
-            let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));
+            let mut ts = TimeSeries::new(rcarr1(&[1.0, 0.0, 0.0]), teo);
             (dt, ts.take(t+1).last().unwrap())
         })
         .collect();

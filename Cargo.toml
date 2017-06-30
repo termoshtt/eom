@@ -12,7 +12,6 @@ license = "MIT"
 [dependencies]
 ndarray = "0.9"
 ndarray-linalg = { git = "http://github.com/termoshtt/ndarray-linalg" }
-itertools = "0.5"
 num-traits = "0.1"
 num-complex = "0.1"
 derive-new = "0.4"
