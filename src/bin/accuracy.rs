@@ -9,7 +9,7 @@ use std::fs::*;
 use std::io::Write;
 use ndarray::*;
 use ndarray_odeint::*;
-use ndarray_linalg::prelude::*;
+use ndarray_linalg::*;
 use itertools::iterate;
 use num_traits::int::PrimInt;
 

@@ -1,7 +1,7 @@
 //! Lyapunov Analysis
 
 use ndarray::*;
-use ndarray_linalg::prelude::*;
+use ndarray_linalg::*;
 use itertools::iterate;
 use std::mem::replace;
 
@@ -60,7 +60,8 @@ impl<'a, S, TEO> Dot<ArrayBase<S, Ix2>> for Jacobian<'a, TEO>
 }
 
 fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f64>) {
-    let cd = r.solve_upper(c).expect("Failed to solve R");
+    let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
+        .expect("Failed to solve R");
     let (c, d) = normalize(cd, NormalizeAxis::Column);
     let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
     (c, f)
@@ -78,9 +79,9 @@ pub fn exponents<'a, TEO>(teo: &'a TEO,
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));
     ts.scan(Array::eye(n), |q, x| {
-        let (q_next, r) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
+        let (q_next, r): (_, Array2<f64>) = jacobian(teo, x.clone(), alpha).dot(q).qr().unwrap();
         *q = q_next;
-        let d = r.diag().map(|x| x.abs().ln());
+        let d = r.diag().map(|x: &f64| x.abs().ln());
         Some(d)
     }).skip(duration / 10)
         .take(duration)

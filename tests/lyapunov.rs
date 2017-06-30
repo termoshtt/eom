@@ -9,7 +9,7 @@ extern crate ndarray_linalg;
 use rand_extra::*;
 use ndarray::*;
 use ndarray_rand::*;
-use ndarray_linalg::prelude::*;
+use ndarray_linalg::*;
 use ndarray_odeint::*;
 use ndarray_odeint::lyapunov::*;
 
