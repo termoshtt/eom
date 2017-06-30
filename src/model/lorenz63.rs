@@ -30,7 +30,7 @@ impl Lorenz63 {
 impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz63
     where S: DataMut<Elem = f64>
 {
-    fn rhs(self, mut v: ArrayBase<S, Ix1>) -> ArrayBase<S, Ix1> {
+    fn rhs(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
@@ -44,7 +44,7 @@ impl<'a, S> EOM<f64, S, Ix1> for &'a Lorenz63
 impl<'a, S> NonLinear<f64, S, Ix1> for &'a Lorenz63
     where S: DataMut<Elem = f64>
 {
-    fn nlin(self, mut v: ArrayBase<S, Ix1>) -> ArrayBase<S, Ix1> {
+    fn nlin(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
