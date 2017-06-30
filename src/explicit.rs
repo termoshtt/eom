@@ -8,21 +8,21 @@ macro_rules! def_explicit {
     ($method:ident, $constructor:ident) => {
 
 #[derive(new)]
-pub struct $method<F, Time> {
+pub struct $method<F, A: Scalar> {
     f: F,
-    dt: Time,
+    dt: A::Real,
 }
 
-impl<F, Time: Copy> TimeStep<Time> for $method<F, Time> {
-    fn get_dt(&self) -> Time {
+impl<F, A: Scalar> TimeStep<A::Real> for $method<F, A> {
+    fn get_dt(&self) -> A::Real {
         self.dt
     }
-    fn set_dt(&mut self, dt: Time) {
+    fn set_dt(&mut self, dt: A::Real) {
         self.dt = dt;
     }
 }
 
-pub fn $constructor<F, Time>(f: F, dt: Time) -> $method<F, Time> {
+pub fn $constructor<F, A: Scalar>(f: F, dt: A::Real) -> $method<F, A> {
     $method::new(f, dt)
 }
 
@@ -35,7 +35,7 @@ def_explicit!(RK4, rk4);
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Euler<F, A::Real>
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Euler<F, A>
     where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
@@ -52,7 +52,7 @@ impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Euler<F, A::Real>
     }
 }
 
-impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Heun<F, A::Real>
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Heun<F, A>
     where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
@@ -77,7 +77,7 @@ impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Heun<F, A::Real>
     }
 }
 
-impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* RK4<F, A::Real>
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* RK4<F, A>
     where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
