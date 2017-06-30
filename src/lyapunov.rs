@@ -6,18 +6,22 @@ use num_traits::Float;
 use super::traits::*;
 
 /// Jacobian operator using numerical-differentiation
-pub struct Jacobian<A, S, D, TEO>
+pub struct Jacobian<'a, A, S, D, TEO>
     where A: Scalar,
           S: Data<Elem = A>,
-          D: Dimension
+          D: Dimension,
+          TEO: 'a
 {
-    f: TEO,
+    f: &'a TEO,
     x: ArrayBase<S, D>,
     fx: ArrayBase<S, D>,
     alpha: A::Real,
 }
 
-pub fn jacobian<A, S, D, TEO>(f: TEO, x: ArrayBase<S, D>, alpha: A::Real) -> Jacobian<A, S, D, TEO>
+pub fn jacobian<'a, A, S, D, TEO>(f: &'a TEO,
+                                  x: ArrayBase<S, D>,
+                                  alpha: A::Real)
+                                  -> Jacobian<'a, A, S, D, TEO>
     where A: Scalar,
           S: DataClone<Elem = A> + DataMut,
           D: Dimension,
@@ -33,8 +37,8 @@ pub fn jacobian<A, S, D, TEO>(f: TEO, x: ArrayBase<S, D>, alpha: A::Real) -> Jac
     }
 }
 
-impl<'a, A, S, D, TEO> Operator<&'a mut ArrayBase<S, D>, &'a mut ArrayBase<S, D>>
-    for Jacobian<A, S, D, TEO>
+impl<'a, 'j, A, S, D, TEO> Operator<&'a mut ArrayBase<S, D>, &'a mut ArrayBase<S, D>>
+    for Jacobian<'j, A, S, D, TEO>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,

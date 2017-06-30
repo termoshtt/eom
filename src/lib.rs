@@ -36,3 +36,4 @@ pub mod traits;
 
 pub use self::traits::*;
 pub use self::adaptor::*;
+pub use self::lyapunov::*;
