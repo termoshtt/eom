@@ -1,26 +1,41 @@
 //! Solve linear diagonal dynamics
 
 use ndarray::*;
+use ndarray_linalg::Scalar;
 use super::traits::*;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
 pub struct Diagonal<A, D>
-    where A: OdeScalar<f64> + Exponential,
+    where A: Scalar,
           D: Dimension
 {
     diag: RcArray<A, D>,
     diag_of_matrix: RcArray<A, D>,
-    dt: f64,
+    dt: A::Real,
+}
+
+impl<A, D> TimeStep<A::Real> for Diagonal<A, D>
+    where A: Scalar,
+          D: Dimension
+{
+    fn get_dt(&self) -> A::Real {
+        self.dt
+    }
+    fn set_dt(&mut self, dt: A::Real) {
+        Zip::from(&mut self.diag)
+            .and(&self.diag_of_matrix)
+            .apply(|a, &b| { *a = b.mul_real(dt).exp(); });
+    }
 }
 
 impl<A, D> Diagonal<A, D>
-    where A: OdeScalar<f64> + Exponential,
+    where A: Scalar,
           D: Dimension
 {
-    pub fn new(diag_of_matrix: RcArray<A, D>, dt: f64) -> Self {
+    pub fn new(diag_of_matrix: RcArray<A, D>, dt: A::Real) -> Self {
         let mut diag = diag_of_matrix.clone();
         for v in diag.iter_mut() {
-            *v = (*v * dt).exp();
+            *v = v.mul_real(dt).exp();
         }
         Diagonal {
             diag: diag,
@@ -30,22 +45,8 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, D> TimeStep for Diagonal<A, D>
-    where A: OdeScalar<f64> + Exponential,
-          D: Dimension
-{
-    fn get_dt(&self) -> f64 {
-        self.dt
-    }
-    fn set_dt(&mut self, dt: f64) {
-        Zip::from(&mut self.diag)
-            .and(&self.diag_of_matrix)
-            .apply(|a, &b| { *a = (b * dt).exp(); });
-    }
-}
-
 impl<'a, A, S, D> TimeEvolution<A, S, D> for &'a Diagonal<A, D>
-    where A: OdeScalar<f64> + Exponential,
+    where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension
 {

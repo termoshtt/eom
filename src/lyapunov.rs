@@ -74,7 +74,7 @@ pub fn exponents<'a, TEO>(teo: &'a TEO,
                           duration: usize)
                           -> Array1<f64>
     where &'a TEO: TimeEvolution<f64, OwnedRcRepr<f64>, Ix1>,
-          TEO: 'a + TimeStep
+          TEO: 'a + TimeStep<f64>
 {
     let n = x0.len();
     let ts = iterate(x0, |y| teo.iterate(y.clone()));

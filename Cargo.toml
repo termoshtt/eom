@@ -11,7 +11,7 @@ license = "MIT"
 
 [dependencies]
 ndarray = "0.9"
-ndarray-linalg = "0.5.2"
+ndarray-linalg = { path = "../ndarray-linalg" }
 itertools = "0.5"
 num-traits = "0.1"
 num-complex = "0.1"

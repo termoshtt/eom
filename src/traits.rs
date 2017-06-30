@@ -1,8 +1,5 @@
 //! Fundamental traits for ODE
 
-use std::ops::*;
-use num_complex::Complex;
-use num_traits::Float;
 use ndarray::*;
 
 /// Equation of motion (EOM)
@@ -40,46 +37,7 @@ pub trait TimeEvolution<A, S, D>
 }
 
 /// Interface for time-step
-pub trait TimeStep {
-    fn get_dt(&self) -> f64;
-    fn set_dt(&mut self, dt: f64);
-}
-
-/// utility trait for easy implementation
-pub trait OdeScalar<R: Ring>: LinalgScalar + RMod<R> {}
-impl<A, R: Ring> OdeScalar<R> for A where A: LinalgScalar + RMod<R> {}
-
-/// Ring (math)
-pub trait Ring
-    : Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Sized {
-}
-impl<A> Ring for A where A: Add<Output = A> + Sub<Output = A> + Mul<Output = A> + Sized {}
-
-/// R-module
-pub trait RMod<R: Ring>: Mul<R, Output = Self> + Sized {}
-impl<A, R: Ring> RMod<R> for A where A: Mul<R, Output = A> + Sized {}
-
-/// exponential function
-pub trait Exponential: Clone + Copy + Sized {
-    fn exp(self) -> Self;
-}
-
-impl Exponential for f32 {
-    fn exp(self) -> Self {
-        <Self>::exp(self)
-    }
-}
-
-impl Exponential for f64 {
-    fn exp(self) -> Self {
-        <Self>::exp(self)
-    }
-}
-
-impl<T> Exponential for Complex<T>
-    where T: Clone + Float
-{
-    fn exp(self) -> Self {
-        <Complex<T>>::exp(&self)
-    }
+pub trait TimeStep<Time> {
+    fn get_dt(&self) -> Time;
+    fn set_dt(&mut self, dt: Time);
 }
