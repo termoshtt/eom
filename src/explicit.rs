@@ -42,10 +42,12 @@ impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Euler<F, A::Real>
           for<'b> &'b $($mut_),* F: EOM<A, S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         let x_ = x.to_owned();
-        let mut fx = self.f.rhs(x);
-        azip!(mut fx, x_ in { *fx = x_ + fx.mul_real(self.dt) });
+        let fx = self.f.rhs(x);
+        Zip::from(&mut *fx).and(&x_).apply(|vfx, vx| {
+            *vfx = *vx + vfx.mul_real(self.dt);
+        });
         fx
     }
 }
@@ -57,15 +59,20 @@ impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Heun<F, A::Real>
           for<'b> &'b $($mut_),* F: EOM<A, S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
+        // calc
         let x_ = x.to_owned();
-        let mut k1 = self.f.rhs(x);
+        let k1 = self.f.rhs(x);
         let k1_ = k1.to_owned();
-        azip!(mut k1, x_ in { *k1 = k1.mul_real(dt) + x_ });
-        let mut k2 = self.f.rhs(k1);
-        azip!(mut k2, x_, k1_ in { *k2 = x_ + (k1_ + *k2).mul_real(dt_2) });
+        Zip::from(&mut *k1).and(&x_).apply(|k1, &x_|{
+            *k1 = k1.mul_real(dt) + x_;
+        });
+        let k2 = self.f.rhs(k1);
+        Zip::from(&mut *k2).and(&x_).and(&k1_).apply(|k2, &x_, &k1_| {
+            *k2 = x_ + (k1_ + *k2).mul_real(dt_2);
+        });
         k2
     }
 }
@@ -77,7 +84,7 @@ impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* RK4<F, A::Real>
           for<'b> &'b $($mut_),* F: EOM<A, S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
         let dt_6 = self.dt / into_scalar(6.0);
@@ -85,18 +92,24 @@ impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* RK4<F, A::Real>
         // k1
         let mut k1 = self.f.rhs(x);
         let k1_ = k1.to_owned();
-        azip!(mut k1, x_ in { *k1 = k1.mul_real(dt_2) + x_ });
+        Zip::from(&mut *k1).and(&x_).apply(|k1, &x_| {
+            *k1 = k1.mul_real(dt_2) + x_;
+        });
         // k2
         let mut k2 = self.f.rhs(k1);
         let k2_ = k2.to_owned();
-        azip!(mut k2, x_ in { *k2 = x_ + k2.mul_real(dt_2) });
+        Zip::from(&mut *k2).and(&x_).apply(|k2, &x_| {
+            *k2 = x_ + k2.mul_real(dt_2);
+        });
         // k3
         let mut k3 = self.f.rhs(k2);
         let k3_ = k3.to_owned();
-        azip!(mut k3, x_ in { *k3 = x_ + k3.mul_real(dt) });
+        Zip::from(&mut *k3).and(&x_).apply(|k3, &x_| {
+            *k3 = x_ + k3.mul_real(dt);
+        });
         let mut k4 = self.f.rhs(k3);
-        azip!(mut k4, x_, k1_, k2_, k3_ in {
-            *k4 = x_ + (k1_ + (k2_ + k3_).mul_real(into_scalar(2.0)) + *k4).mul_real(dt_6)
+        Zip::from(&mut *k4).and(&x_).and(&k1_).and(&k2_).and(&k3_).apply(|k4, &x_, &k1_, &k2_, &k3_| {
+            *k4 = x_ + (k1_ + (k2_ + k3_).mul_real(into_scalar(2.0)) + *k4).mul_real(dt_6);
         });
         k4
     }

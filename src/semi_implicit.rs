@@ -49,7 +49,7 @@ impl<'a, A, S, F, D> TimeEvolution<A, S, D> for &'a $($mut_),* DiagRK4<A, F, D>
           for<'b> &'b $($mut_),* F: NonLinear<A, S, D>,
           D: Dimension
 {
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         // constants
         let dt = self.dt;
         let dt_2 = self.dt / into_scalar(2.0);
@@ -60,22 +60,31 @@ impl<'a, A, S, F, D> TimeEvolution<A, S, D> for &'a $($mut_),* DiagRK4<A, F, D>
         let f = &$($mut_),* self.f;
         // calc
         let mut x_ = x.to_owned();
-        let lx = l.iterate(x.clone());
+        let mut lx = x.to_owned();
+        l.iterate(&mut lx);
         let mut k1 = f.nlin(x);
         let k1_ = k1.to_owned();
-        azip!(mut k1, x_ in { *k1 = x_ + k1.mul_real(dt_2) });
+        Zip::from(&mut *k1).and(&x_).apply(|k1, &x_| {
+            *k1 = x_ + k1.mul_real(dt_2);
+        });
         let mut k2 = f.nlin(l.iterate(k1));
         let k2_ = k2.to_owned();
-        azip!(mut k2, lx in { *k2 = lx + k2.mul_real(dt_2) });
+        Zip::from(&mut *k2).and(&lx).apply(|k2, &lx| {
+            *k2 = lx + k2.mul_real(dt_2);
+        });
         let mut k3 = f.nlin(k2);
         let k3_ = k3.to_owned();
-        azip!(mut k3, lx in { *k3 = lx + k3.mul_real(dt) });
+        Zip::from(&mut *k3).and(&lx).apply(|k3, &lx| {
+            *k3 = lx + k3.mul_real(dt);
+        });
         let mut k4 = f.nlin(l.iterate(k3));
         azip!(mut x_, k1_ in { *x_ = *x_ + k1_.mul_real(dt_6) });
-        let mut x_ = l.iterate(x_);
+        l.iterate(&mut x_);
         azip!(mut x_, k2_, k3_ in { *x_ = *x_ + (k2_ + k3_).mul_real(dt_3) });
-        let x_ = l.iterate(x_);
-        azip!(mut k4, x_ in { *k4 = x_ + k4.mul_real(dt_6) });
+        l.iterate(&mut x_);
+        Zip::from(&mut *k4).and(&x_).apply(|k4, &x_| {
+            *k4 = x_ + k4.mul_real(dt_6);
+        });
         k4
     }
 }

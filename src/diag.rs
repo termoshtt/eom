@@ -50,7 +50,7 @@ impl<'a, A, S, D> TimeEvolution<A, S, D> for &'a Diagonal<A, D>
           S: DataMut<Elem = A>,
           D: Dimension
 {
-    fn iterate(self, mut x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;
         }

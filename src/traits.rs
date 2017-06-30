@@ -4,19 +4,19 @@ use ndarray::*;
 
 /// Equation of motion (EOM)
 pub trait EOM<A, S, D>
-    where S: Data<Elem = A>,
+    where S: DataMut<Elem = A>,
           D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
+    fn rhs(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
 }
 
 /// non-linear part of stiff equation
 pub trait NonLinear<A, S, D>
-    where S: Data<Elem = A>,
+    where S: DataMut<Elem = A>,
           D: Dimension
 {
-    fn nlin(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
+    fn nlin(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
 }
 
 /// Diagonalized linear part of stiff equation
@@ -29,11 +29,11 @@ pub trait Diag<A, D>
 
 /// Time-evolution operator
 pub trait TimeEvolution<A, S, D>
-    where S: Data<Elem = A>,
+    where S: DataMut<Elem = A>,
           D: Dimension
 {
     /// calculate next step
-    fn iterate(self, ArrayBase<S, D>) -> ArrayBase<S, D>;
+    fn iterate(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
 }
 
 /// Interface for time-step
