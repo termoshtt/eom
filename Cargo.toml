@@ -11,7 +11,7 @@ license = "MIT"
 
 [dependencies]
 ndarray = "0.9"
-ndarray-linalg = "0.5.3"
+ndarray-linalg = "0.5.4"
 num-traits = "0.1"
 num-complex = "0.1"
 derive-new = "0.4"
