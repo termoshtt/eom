@@ -3,15 +3,16 @@ use ndarray::*;
 use super::traits::*;
 
 #[derive(new)]
-pub struct TimeSeries<S, D, TEO>
+pub struct TimeSeries<'a, TEO, S, D>
     where S: DataMut,
-          D: Dimension
+          D: Dimension,
+          TEO: 'a
 {
     state: ArrayBase<S, D>,
-    teo: TEO,
+    teo: &'a TEO,
 }
 
-impl<S, D, TEO> TimeSeries<S, D, TEO>
+impl<'a, TEO, S, D> TimeSeries<'a, TEO, S, D>
     where S: DataMut + DataClone,
           D: Dimension,
           for<'b> &'b TEO: TimeEvolution<S, D>
@@ -21,7 +22,7 @@ impl<S, D, TEO> TimeSeries<S, D, TEO>
     }
 }
 
-impl<'a, S, D, TEO> Iterator for &'a mut TimeSeries<S, D, TEO>
+impl<'a, TEO, S, D> Iterator for TimeSeries<'a, TEO, S, D>
     where S: DataMut + DataClone,
           D: Dimension,
           for<'b> &'b TEO: TimeEvolution<S, D>

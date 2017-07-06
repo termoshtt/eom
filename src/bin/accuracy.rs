@@ -20,7 +20,7 @@ fn $name() {
             let eom = model::Lorenz63::default();
             let teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
-            let mut ts = TimeSeries::new(rcarr1(&[1.0, 0.0, 0.0]), teo);
+            let ts = TimeSeries::new(rcarr1(&[1.0, 0.0, 0.0]), &teo);
             (dt, ts.take(t+1).last().unwrap())
         })
         .collect();

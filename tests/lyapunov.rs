@@ -22,6 +22,6 @@ fn jacobian_linearity() {
     let v = Array::random(3, dist);
     let w = Array::random(3, dist);
     let jv_jw = j.op(&v) + j.op(&w);
-    let j_vw = j.op((v + w));
+    let j_vw = j.op_into(v + w);
     assert_close_l2!(&jv_jw, &j_vw, 1e-5);
 }

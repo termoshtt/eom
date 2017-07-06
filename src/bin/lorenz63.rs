@@ -9,7 +9,7 @@ fn main() {
     let dt = 0.01;
     let eom = model::Lorenz63::default();
     let teo = explicit::rk4(eom, dt);
-    let mut ts = TimeSeries::new(rcarr1(&[1.0, 0.0, 0.0]), teo);
+    let ts = TimeSeries::new(rcarr1(&[1.0, 0.0, 0.0]), &teo);
     let end_time = 10000;
     println!("time,x,y,z");
     for (t, v) in ts.take(end_time).enumerate() {
