@@ -1,20 +1,65 @@
+//! Calculate Covariant Lyapunov Vector
+//!
+//! This function consumes much memory since this saves matrices duraing the time evolution.
 
 extern crate ndarray;
 extern crate ndarray_odeint;
 extern crate ndarray_linalg;
-extern crate itertools;
 
 use std::io::Write;
 use ndarray::*;
+use ndarray_linalg::*;
 use ndarray_odeint::*;
-use ndarray_odeint::lyapunov::*;
+use std::mem::replace;
+
+fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f64>) {
+    let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
+        .expect("Failed to solve R");
+    let (c, d) = normalize(cd, NormalizeAxis::Column);
+    let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
+    (c, f)
+}
+
+pub fn clv<TEO>(teo: &TEO,
+                x0: Array1<f64>,
+                alpha: f64,
+                duration: usize)
+                -> Vec<(Array1<f64>, Array2<f64>, Array1<f64>)>
+    where TEO: TimeStep<f64>,
+          for<'a> &'a TEO: TimeEvolution<OwnedRepr<f64>, Ix1>,
+          for<'a, 'b> Jacobian<'a, f64, OwnedRepr<f64>, Ix1, TEO>: OperatorMut<ViewRepr<&'b mut f64>, Ix1>
+{
+    let n = x0.len();
+    let ts = time_series(x0, &teo);
+    let qr_series = ts.scan(Array::eye(n), |q, x| {
+        let (q_next, r) = jacobian(teo, x.clone(), alpha)
+            .op_multi_mut(q)
+            .qr()
+            .unwrap();
+        let q = replace(q, q_next);
+        Some((x, q, r))
+    }).skip(duration / 10)
+        .take(duration + duration / 10)
+        .collect::<Vec<_>>();
+    let clv_rev = qr_series
+        .into_iter()
+        .rev()
+        .scan(Array::eye(n), |c, (x, q, r)| {
+            let (c_now, f) = clv_backward(c, &r);
+            let v = q.dot(&c_now);
+            *c = c_now;
+            Some((x, v, f))
+        })
+        .collect::<Vec<_>>();
+    clv_rev.into_iter().skip(duration / 10).rev().collect()
+}
 
 fn main() {
     let dt = 0.01;
     let eom = model::Lorenz63::default();
     let teo = explicit::rk4(eom, dt);
     let duration = 100000;
-    let ts = clv(&teo, rcarr1(&[1.0, 0.0, 0.0]), 1e-7, duration);
+    let ts = clv(&teo, arr1(&[1.0, 0.0, 0.0]), 1e-7, duration);
     let mut l = Array::zeros(3);
     println!("v0v1, v0v2, v1v2");
     for (_, v, f) in ts.into_iter().rev() {
