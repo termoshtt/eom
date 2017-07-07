@@ -1,17 +1,15 @@
 
 extern crate ndarray;
 extern crate ndarray_odeint;
-extern crate itertools;
 
 use ndarray::rcarr1;
-use itertools::iterate;
 use ndarray_odeint::*;
 
 fn main() {
     let dt = 0.01;
     let eom = model::Roessler::default();
     let teo = explicit::rk4(eom, dt);
-    let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));
+    let ts = time_series(rcarr1(&[1.0, 0.0, 0.0]), &teo);
     let end_time = 50000;
     println!("time,x,y,z");
     for (t, v) in ts.take(end_time).enumerate() {

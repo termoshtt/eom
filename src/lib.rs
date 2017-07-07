@@ -23,15 +23,17 @@
 extern crate derive_new;
 extern crate ndarray;
 extern crate ndarray_linalg;
-extern crate itertools;
 extern crate num_complex;
 extern crate num_traits;
 
-pub mod traits;
-pub mod explicit;
+pub mod adaptor;
 pub mod diag;
-pub mod semi_implicit;
-pub mod model;
+pub mod explicit;
 pub mod lyapunov;
+pub mod model;
+pub mod semi_implicit;
+pub mod traits;
 
 pub use self::traits::*;
+pub use self::adaptor::*;
+pub use self::lyapunov::*;

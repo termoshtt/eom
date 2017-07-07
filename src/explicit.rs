@@ -1,28 +1,29 @@
 //! Define explicit schemes
 
 use ndarray::*;
+use ndarray_linalg::*;
 use super::traits::*;
 
 macro_rules! def_explicit {
     ($method:ident, $constructor:ident) => {
 
 #[derive(new)]
-pub struct $method<F> {
+pub struct $method<F, A: Scalar> {
     f: F,
-    dt: f64,
+    dt: A::Real,
 }
 
-pub fn $constructor<F>(f: F, dt: f64) -> $method<F> {
-    $method::new(f, dt)
-}
-
-impl<F> TimeStep for $method<F> {
-    fn get_dt(&self) -> f64 {
+impl<F, A: Scalar> TimeStep<A::Real> for $method<F, A> {
+    fn get_dt(&self) -> A::Real {
         self.dt
     }
-    fn set_dt(&mut self, dt: f64) {
+    fn set_dt(&mut self, dt: A::Real) {
         self.dt = dt;
     }
+}
+
+pub fn $constructor<F, A: Scalar>(f: F, dt: A::Real) -> $method<F, A> {
+    $method::new(f, dt)
 }
 
 }} // def_explicit
@@ -34,68 +35,81 @@ def_explicit!(RK4, rk4);
 macro_rules! impl_time_evolution {
     ( $($mut_:tt), * ) => {
 
-impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Euler<F>
-    where A: OdeScalar<f64>,
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Euler<F, A>
+    where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, S, D>
+          for<'b> &'b $($mut_),* F: EOM<S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         let x_ = x.to_owned();
-        let mut fx = self.f.rhs(x);
-        azip!(mut fx, x_ in { *fx = x_ + *fx * self.dt });
+        let fx = self.f.rhs(x);
+        Zip::from(&mut *fx).and(&x_).apply(|vfx, vx| {
+            *vfx = *vx + vfx.mul_real(self.dt);
+        });
         fx
     }
 }
 
-impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* Heun<F>
-    where A: OdeScalar<f64>,
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* Heun<F, A>
+    where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, S, D>
+          for<'b> &'b $($mut_),* F: EOM<S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         let dt = self.dt;
-        let dt_2 = self.dt * 0.5;
+        let dt_2 = self.dt * into_scalar(0.5);
+        // calc
         let x_ = x.to_owned();
-        let mut k1 = self.f.rhs(x);
+        let k1 = self.f.rhs(x);
         let k1_ = k1.to_owned();
-        azip!(mut k1, x_ in { *k1 = *k1 * dt + x_ });
-        let mut k2 = self.f.rhs(k1);
-        azip!(mut k2, x_, k1_ in { *k2 = x_ + (k1_ + *k2) * dt_2 });
+        Zip::from(&mut *k1).and(&x_).apply(|k1, &x_|{
+            *k1 = k1.mul_real(dt) + x_;
+        });
+        let k2 = self.f.rhs(k1);
+        Zip::from(&mut *k2).and(&x_).and(&k1_).apply(|k2, &x_, &k1_| {
+            *k2 = x_ + (k1_ + *k2).mul_real(dt_2);
+        });
         k2
     }
 }
 
-impl<'a, A, S, D, F> TimeEvolution<A, S, D> for &'a $($mut_),* RK4<F>
-    where A: OdeScalar<f64>,
+impl<'a, A, S, D, F> TimeEvolution<S, D> for &'a $($mut_),* RK4<F, A>
+    where A: Scalar,
           S: DataMut<Elem=A>,
           D: Dimension,
-          for<'b> &'b $($mut_),* F: EOM<A, S, D>
+          for<'b> &'b $($mut_),* F: EOM<S, D>
 {
     #[inline(always)]
-    fn iterate(self, x: ArrayBase<S, D>) -> ArrayBase<S, D> {
+    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
         let dt = self.dt;
-        let dt_2 = self.dt * 0.5;
-        let dt_6 = self.dt / 6.0;
+        let dt_2 = self.dt * into_scalar(0.5);
+        let dt_6 = self.dt / into_scalar(6.0);
         let x_ = x.to_owned();
         // k1
         let mut k1 = self.f.rhs(x);
         let k1_ = k1.to_owned();
-        azip!(mut k1, x_ in { *k1 = *k1 * dt_2 + x_ });
+        Zip::from(&mut *k1).and(&x_).apply(|k1, &x_| {
+            *k1 = k1.mul_real(dt_2) + x_;
+        });
         // k2
         let mut k2 = self.f.rhs(k1);
         let k2_ = k2.to_owned();
-        azip!(mut k2, x_ in { *k2 = x_ + *k2 * dt_2 });
+        Zip::from(&mut *k2).and(&x_).apply(|k2, &x_| {
+            *k2 = x_ + k2.mul_real(dt_2);
+        });
         // k3
         let mut k3 = self.f.rhs(k2);
         let k3_ = k3.to_owned();
-        azip!(mut k3, x_ in { *k3 = x_ + *k3 * dt });
+        Zip::from(&mut *k3).and(&x_).apply(|k3, &x_| {
+            *k3 = x_ + k3.mul_real(dt);
+        });
         let mut k4 = self.f.rhs(k3);
-        azip!(mut k4, x_, k1_, k2_, k3_ in {
-            *k4 = x_ + (k1_ + (k2_ + k3_) * 2.0 + *k4) * dt_6
+        Zip::from(&mut *k4).and(&x_).and(&k1_).and(&k2_).and(&k3_).apply(|k4, &x_, &k1_, &k2_, &k3_| {
+            *k4 = x_ + (k1_ + (k2_ + k3_).mul_real(into_scalar(2.0)) + *k4).mul_real(dt_6);
         });
         k4
     }
