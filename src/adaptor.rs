@@ -2,7 +2,6 @@
 use ndarray::*;
 use super::traits::*;
 
-#[derive(new)]
 pub struct TimeSeries<'a, TEO, S, D>
     where S: DataMut,
           D: Dimension,

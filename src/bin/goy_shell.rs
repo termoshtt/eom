@@ -19,7 +19,7 @@ fn main() {
     x0[4] = c64::new(1.0, 0.0);
     x0[5] = c64::new(1.0, 0.0);
     x0[6] = c64::new(1.0, 0.0);
-    let ts = TimeSeries::new(x0, &teo);
+    let ts = time_series(x0, &teo);
     let end_time = 10_000_000;
     let interval = 100;
     print!("time");

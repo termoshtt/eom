@@ -19,7 +19,7 @@ pub fn exponents<A, TEO>(teo: TEO, x0: Array1<A>, alpha: A::Real, duration: usiz
 {
     let n = x0.len();
     let dur: A = AssociatedReal::inject(teo.get_dt() * into_scalar(duration as f64));
-    let ts = TimeSeries::new(x0, &teo);
+    let ts = time_series(x0, &teo);
     ts.scan(Array::eye(n), |q: &mut Array2<A>, x| {
         let j = jacobian(&teo, x.clone(), alpha);
         let q = j.op_multi_mut(q);
