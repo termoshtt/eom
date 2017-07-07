@@ -2,32 +2,36 @@
 //!
 //! This function consumes much memory since this saves matrices duraing the time evolution.
 
+extern crate num_traits;
 extern crate ndarray;
 extern crate ndarray_odeint;
 extern crate ndarray_linalg;
 
+use num_traits::One;
 use std::io::Write;
 use ndarray::*;
 use ndarray_linalg::*;
 use ndarray_odeint::*;
 use std::mem::replace;
 
-fn clv_backward(c: &Array2<f64>, r: &Array2<f64>) -> (Array2<f64>, Array1<f64>) {
+fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
     let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
         .expect("Failed to solve R");
     let (c, d) = normalize(cd, NormalizeAxis::Column);
-    let f = Array::from_vec(d).mapv_into(|x| 1.0 / x);
+    let f = Array::from_vec(d).mapv_into(|x| A::Real::one() / x);
     (c, f)
 }
 
-pub fn clv<TEO>(teo: &TEO,
-                x0: Array1<f64>,
-                alpha: f64,
-                duration: usize)
-                -> Vec<(Array1<f64>, Array2<f64>, Array1<f64>)>
-    where TEO: TimeStep<f64>,
-          for<'a> &'a TEO: TimeEvolution<OwnedRepr<f64>, Ix1>,
-          for<'a, 'b> Jacobian<'a, f64, OwnedRepr<f64>, Ix1, TEO>: OperatorMut<ViewRepr<&'b mut f64>, Ix1>
+pub fn clv<A, S, TEO>(teo: &TEO,
+                      x0: ArrayBase<S, Ix1>,
+                      alpha: A::Real,
+                      duration: usize)
+                      -> Vec<(ArrayBase<S, Ix1>, Array2<A>, Array1<A::Real>)>
+    where A: RealScalar,
+          S: DataMut<Elem = A> + DataClone,
+          TEO: TimeStep<A::Real>,
+          for<'a> &'a TEO: TimeEvolution<S, Ix1>,
+          for<'a, 'b> Jacobian<'a, A, S, Ix1, TEO>: OperatorMut<ViewRepr<&'b mut A>, Ix1> // XXX should be removed
 {
     let n = x0.len();
     let ts = time_series(x0, &teo);
