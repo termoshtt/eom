@@ -25,31 +25,15 @@ Models
 - [Roessler system](https://en.wikipedia.org/wiki/R%C3%B6ssler_attractor)
 - GOY shell model
 
-Example
---------
-
-```rust
-use ndarray::rcarr1;
-use itertools::iterate;
-use ndarray_odeint::prelude::*;
-
-let dt = 0.01;
-let eom = Lorenz63::default();
-let teo = explicit::rk4(eom, dt);
-let ts = iterate(rcarr1(&[1.0, 0.0, 0.0]), |y| teo.iterate(y.clone()));
-let end_time = 10000;
-for v in ts.take(end_time) {
-  println!("{:?}", &v);
-}
-```
-
 ![Lorenz63 Attractor](lorenz63.png)
 
 Figures are plotted by matplotlib (see [plot script](figure.py)).
 
 Lyapunov Analysis
 ------------------
-See [Notebook](CLV.ipynb)
+
+- [Lyapunov expoents of Lorenz 63 model](http://sprott.physics.wisc.edu/chaos/lorenzle.htm): [code](examples/lyapunov.rs)
+- [CLV: covarient Lyapunov vector](https://arxiv.org/abs/1212.3961): [code](examples/clv.rs) [notebook](CLV.ipynb)
 
 Accuracy Check
 ---------------
