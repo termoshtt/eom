@@ -35,12 +35,13 @@ impl Default for GoyShell {
     }
 }
 
-impl<S> NonLinear<S, Ix1> for GoyShell
-    where S: DataMut<Elem = c64>
+impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for GoyShell
+    where Sn: DataMut<Elem = c64>,
+          Sd: DataOwned<Elem = c64>
 {
     type Time = f64;
 
-    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
+    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<Sn, Ix1>) -> &'a mut ArrayBase<Sn, Ix1> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
         let mut a_0 = v[0].conj();
@@ -67,12 +68,8 @@ impl<S> NonLinear<S, Ix1> for GoyShell
         v[self.f_idx] = v[self.f_idx] + c64::new(self.f, 0.0);
         v
     }
-}
 
-impl<S> Diag<S, Ix1> for GoyShell
-    where S: DataOwned<Elem = c64>
-{
-    fn diagonal(&self) -> ArrayBase<S, Ix1> {
+    fn diag(&self) -> ArrayBase<Sd, Ix1> {
         (0..self.size)
             .map(|n| self.nu * self.k(n) * self.k(n))
             .collect()

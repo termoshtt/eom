@@ -9,7 +9,7 @@ macro_rules! def_explicit {
 
 #[derive(new)]
 pub struct $method<F, S, D>
-    where F: EOM<S, D>,
+    where F: Explicit<S, D>,
           S: DataMut,
           D: Dimension,
 {
@@ -18,7 +18,7 @@ pub struct $method<F, S, D>
 }
 
 impl<F, S, D> TimeStep for $method<F, S, D>
-    where F: EOM<S, D>,
+    where F: Explicit<S, D>,
           S: DataMut,
           D: Dimension,
 {
@@ -32,7 +32,7 @@ impl<F, S, D> TimeStep for $method<F, S, D>
 }
 
 pub fn $constructor<F, S, D>(f: F, dt: F::Time) -> $method<F, S, D>
-    where F: EOM<S, D>,
+    where F: Explicit<S, D>,
           S: DataMut,
           D: Dimension,
 {
@@ -49,7 +49,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: EOM<S, D, Time = A::Real>
+          F: Explicit<S, D, Time = A::Real>
 {
     type Time = F::Time;
 
@@ -68,7 +68,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: EOM<S, D, Time = A::Real>
+          F: Explicit<S, D, Time = A::Real>
 {
     type Time = F::Time;
 
@@ -96,7 +96,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for RK4<F, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: EOM<S, D, Time = A::Real>
+          F: Explicit<S, D, Time = A::Real>
 {
     type Time = F::Time;
 

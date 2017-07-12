@@ -19,7 +19,7 @@ pub struct DiagRK4<A, S, F, D>
 pub fn diag_rk4<A, S, F, D>(f: F, dt: A::Real) -> DiagRK4<A, S, F, D>
     where A: Scalar,
           S: DataClone<Elem = A> + DataMut,
-          F: Diag<S, D>,
+          F: SemiImplicitDiag<S, S, D>,
           D: Dimension
 {
     DiagRK4::new(f, dt)
@@ -31,9 +31,9 @@ impl<A, S, F, D> DiagRK4<A, S, F, D>
           D: Dimension
 {
     pub fn new(f: F, dt: A::Real) -> Self
-        where F: Diag<S, D>
+        where F: SemiImplicitDiag<S, S, D>
     {
-        let diag = f.diagonal();
+        let diag = f.diag();
         let lin_half = Diagonal::new(diag, dt / into_scalar(2.0));
         DiagRK4 {
             f: f,
@@ -47,7 +47,7 @@ impl<A, S, F, D> DiagRK4<A, S, F, D>
 impl<A, S, F, D> TimeEvolution<S, D> for DiagRK4<A, S, F, D>
     where A: Scalar,
           S: DataMut<Elem = A> + DataClone + DataOwned,
-          F: NonLinear<S, D, Time = A::Real>,
+          F: SemiImplicitDiag<S, S, D, Time = A::Real>,
           D: Dimension
 {
     type Time = F::Time;

@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor
 
 use ndarray::*;
-use traits::EOM;
+use traits::Explicit;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Roessler {
@@ -27,7 +27,7 @@ impl Roessler {
     }
 }
 
-impl<S> EOM<S, Ix1> for Roessler
+impl<S> Explicit<S, Ix1> for Roessler
     where S: DataMut<Elem = f64>
 {
     type Time = f64;

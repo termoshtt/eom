@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_96_model
 
 use ndarray::*;
-use traits::EOM;
+use traits::Explicit;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Lorenz96 {
@@ -21,7 +21,7 @@ impl Lorenz96 {
     }
 }
 
-impl<S> EOM<S, Ix1> for Lorenz96
+impl<S> Explicit<S, Ix1> for Lorenz96
     where S: DataMut<Elem = f64>
 {
     type Time = f64;

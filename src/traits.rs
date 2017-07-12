@@ -3,32 +3,26 @@
 use ndarray::*;
 use ndarray_linalg::*;
 
-/// Equation of motion (EOM)
-pub trait EOM<S, D>
+/// Equation of motion (Explicit)
+pub trait Explicit<S, D>
     where S: DataMut,
           D: Dimension
 {
     type Time: RealScalar;
-    /// calculate right hand side (rhs) of EOM from current state
+    /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
-/// non-linear part of stiff equation
-pub trait NonLinear<S, D>
-    where S: DataMut,
+pub trait SemiImplicitDiag<Sn, Sd, D>
+    where Sn: DataMut,
+          Sd: Data,
           D: Dimension
 {
     type Time: RealScalar;
-    fn nlin<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
-}
-
-/// Diagonalized linear part of stiff equation
-pub trait Diag<S, D>
-    where S: Data,
-          D: Dimension
-{
-    /// Linear part of EOM (assume to be diagonalized)
-    fn diagonal(&self) -> ArrayBase<S, D>;
+    /// non-linear part of stiff equation
+    fn nlin<'a>(&self, &'a mut ArrayBase<Sn, D>) -> &'a mut ArrayBase<Sn, D>;
+    /// Linear part of Explicit (assume to be diagonalized)
+    fn diag(&self) -> ArrayBase<Sd, D>;
 }
 
 /// Time-evolution operator
