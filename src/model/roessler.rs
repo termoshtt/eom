@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor
 
 use ndarray::*;
-use traits::Explicit;
+use traits::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Roessler {
@@ -18,6 +18,12 @@ impl Default for Roessler {
             b: 0.2,
             c: 5.7,
         }
+    }
+}
+
+impl ModelSize<Ix1> for Roessler {
+    fn model_size(&self) -> usize {
+        3
     }
 }
 

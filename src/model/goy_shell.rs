@@ -35,6 +35,12 @@ impl Default for GoyShell {
     }
 }
 
+impl ModelSize<Ix1> for GoyShell {
+    fn model_size(&self) -> usize {
+        self.size
+    }
+}
+
 impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for GoyShell
     where Sn: DataMut<Elem = c64>,
           Sd: DataOwned<Elem = c64>

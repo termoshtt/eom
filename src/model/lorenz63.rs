@@ -27,6 +27,12 @@ impl Lorenz63 {
     }
 }
 
+impl ModelSize<Ix1> for Lorenz63 {
+    fn model_size(&self) -> usize {
+        3
+    }
+}
+
 impl<S> Explicit<S, Ix1> for Lorenz63
     where S: DataMut<Elem = f64>
 {

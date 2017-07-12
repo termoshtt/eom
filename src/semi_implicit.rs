@@ -43,6 +43,16 @@ impl<A, S, F, D> DiagRK4<A, S, F, D>
     }
 }
 
+impl<A, S, F, D> ModelSize<D> for DiagRK4<A, S, F, D>
+    where A: Scalar,
+          F: ModelSize<D>,
+          S: DataClone<Elem = A> + DataMut,
+          D: Dimension
+{
+    fn model_size(&self) -> D::Pattern {
+        self.f.model_size()
+    }
+}
 
 impl<A, S, F, D> TimeEvolution<S, D> for DiagRK4<A, S, F, D>
     where A: Scalar,

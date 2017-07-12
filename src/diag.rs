@@ -32,6 +32,16 @@ impl<A, S, D> TimeStep for Diagonal<A, S, D>
     }
 }
 
+impl<A, S, D> ModelSize<D> for Diagonal<A, S, D>
+    where A: Scalar,
+          S: Data<Elem = A>,
+          D: Dimension
+{
+    fn model_size(&self) -> D::Pattern {
+        self.diag.dim()
+    }
+}
+
 impl<A, S, D> Diagonal<A, S, D>
     where A: Scalar,
           S: DataClone<Elem = A> + DataMut,

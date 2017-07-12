@@ -17,6 +17,16 @@ pub struct $method<F, S, D>
     dt: F::Time,
 }
 
+impl<F, S, D> ModelSize<D> for $method<F, S, D>
+    where F: Explicit<S, D>,
+          S: DataMut,
+          D: Dimension,
+{
+    fn model_size(&self) -> D::Pattern {
+        self.f.model_size()
+    }
+}
+
 impl<F, S, D> TimeStep for $method<F, S, D>
     where F: Explicit<S, D>,
           S: DataMut,

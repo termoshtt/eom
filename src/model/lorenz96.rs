@@ -2,22 +2,23 @@
 //! https://en.wikipedia.org/wiki/Lorenz_96_model
 
 use ndarray::*;
-use traits::Explicit;
+use traits::*;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, new)]
 pub struct Lorenz96 {
     pub f: f64,
+    pub n: usize,
 }
 
 impl Default for Lorenz96 {
     fn default() -> Self {
-        Lorenz96 { f: 8.0 }
+        Lorenz96 { f: 8.0, n: 40 }
     }
 }
 
-impl Lorenz96 {
-    pub fn new(f: f64) -> Self {
-        Lorenz96 { f: f }
+impl ModelSize<Ix1> for Lorenz96 {
+    fn model_size(&self) -> usize {
+        self.n
     }
 }
 

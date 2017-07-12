@@ -3,8 +3,12 @@
 use ndarray::*;
 use ndarray_linalg::*;
 
+pub trait ModelSize<D: Dimension> {
+    fn model_size(&self) -> D::Pattern;
+}
+
 /// Equation of motion (Explicit)
-pub trait Explicit<S, D>
+pub trait Explicit<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
@@ -13,7 +17,7 @@ pub trait Explicit<S, D>
     fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
-pub trait SemiImplicitDiag<Sn, Sd, D>
+pub trait SemiImplicitDiag<Sn, Sd, D>: ModelSize<D>
     where Sn: DataMut,
           Sd: Data,
           D: Dimension
@@ -26,7 +30,7 @@ pub trait SemiImplicitDiag<Sn, Sd, D>
 }
 
 /// Time-evolution operator
-pub trait TimeEvolution<S, D>
+pub trait TimeEvolution<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
