@@ -25,7 +25,7 @@ pub fn jacobian<'a, A, S, D, TEO>(f: &'a TEO,
     where A: Scalar,
           S: DataClone<Elem = A> + DataMut,
           D: Dimension,
-          for<'b> &'b TEO: TimeEvolution<S, D>
+          TEO: TimeEvolution<S, D>
 {
     let mut fx = x.clone();
     f.iterate(&mut fx);
@@ -42,7 +42,7 @@ impl<'j, A, S, Sr, D, TEO> OperatorMut<Sr, D> for Jacobian<'j, A, S, D, TEO>
           S: Data<Elem = A>,
           Sr: DataMut<Elem = A>,
           D: Dimension,
-          for<'b> &'b TEO: TimeEvolution<Sr, D>
+          TEO: TimeEvolution<Sr, D>
 {
     fn op_mut<'a>(&self, dx: &'a mut ArrayBase<Sr, D>) -> &'a mut ArrayBase<Sr, D> {
         let dx_nrm = dx.norm_l2().max(self.alpha);
@@ -63,7 +63,7 @@ impl<'j, A, S, Sr, D, TEO> OperatorInto<Sr, D> for Jacobian<'j, A, S, D, TEO>
           S: Data<Elem = A>,
           Sr: DataMut<Elem = A>,
           D: Dimension,
-          for<'b> &'b TEO: TimeEvolution<Sr, D>
+          TEO: TimeEvolution<Sr, D>
 {
     fn op_into(&self, mut dx: ArrayBase<Sr, D>) -> ArrayBase<Sr, D> {
         self.op_mut(&mut dx);
@@ -76,7 +76,7 @@ impl<'j, A, Si, S, D, TEO> Operator<A, Si, D> for Jacobian<'j, A, S, D, TEO>
           S: Data<Elem = A>,
           Si: Data<Elem = A>,
           D: Dimension,
-          for<'b> &'b TEO: TimeEvolution<OwnedRepr<A>, D>
+          TEO: TimeEvolution<OwnedRepr<A>, D>
 {
     fn op(&self, dx: &ArrayBase<Si, D>) -> Array<A, D> {
         let dx = replicate(dx);

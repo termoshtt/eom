@@ -15,7 +15,3 @@ ndarray-linalg = "0.5.4"
 num-traits = "0.1"
 num-complex = "0.1"
 derive-new = "0.4"
-
-[dev-dependencies]
-rand-extra = "0.1"
-ndarray-rand = "0.5"
