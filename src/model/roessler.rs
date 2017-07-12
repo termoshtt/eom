@@ -27,11 +27,11 @@ impl Roessler {
     }
 }
 
-impl<'a, S> EOM<S, Ix1> for &'a Roessler
+impl<S> EOM<S, Ix1> for Roessler
     where S: DataMut<Elem = f64>
 {
     #[inline(always)]
-    fn rhs(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
+    fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];

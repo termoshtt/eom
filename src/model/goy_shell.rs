@@ -35,10 +35,10 @@ impl Default for GoyShell {
     }
 }
 
-impl<'a, S> NonLinear<S, Ix1> for &'a GoyShell
+impl<S> NonLinear<S, Ix1> for GoyShell
     where S: DataMut<Elem = c64>
 {
-    fn nlin(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
+    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
         let mut a_0 = v[0].conj();

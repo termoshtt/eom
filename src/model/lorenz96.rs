@@ -21,11 +21,11 @@ impl Lorenz96 {
     }
 }
 
-impl<'a, S> EOM<S, Ix1> for &'a Lorenz96
+impl<S> EOM<S, Ix1> for Lorenz96
     where S: DataMut<Elem = f64>
 {
     #[inline(always)]
-    fn rhs(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
+    fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let n = v.len();
         let v0 = v.to_owned();
         for i in 0..n {

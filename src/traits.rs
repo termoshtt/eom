@@ -8,7 +8,7 @@ pub trait EOM<S, D>
           D: Dimension
 {
     /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
+    fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
 /// non-linear part of stiff equation
@@ -16,7 +16,7 @@ pub trait NonLinear<S, D>
     where S: DataMut,
           D: Dimension
 {
-    fn nlin(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
+    fn nlin<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
 /// Diagonalized linear part of stiff equation
@@ -34,7 +34,7 @@ pub trait TimeEvolution<S, D>
           D: Dimension
 {
     /// calculate next step
-    fn iterate(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
+    fn iterate<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
 /// Interface for time-step

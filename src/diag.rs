@@ -48,12 +48,12 @@ impl<A, S, D> Diagonal<A, S, D>
     }
 }
 
-impl<'a, A, S, D> TimeEvolution<S, D> for &'a Diagonal<A, S, D>
+impl<A, S, D> TimeEvolution<S, D> for Diagonal<A, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension
 {
-    fn iterate(self, mut x: &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D> {
+    fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;
         }
