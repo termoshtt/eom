@@ -15,15 +15,17 @@ pub struct Diagonal<A, S, D>
     dt: A::Real,
 }
 
-impl<A, S, D> TimeStep<A::Real> for Diagonal<A, S, D>
+impl<A, S, D> TimeStep for Diagonal<A, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension
 {
-    fn get_dt(&self) -> A::Real {
+    type Time = A::Real;
+
+    fn get_dt(&self) -> Self::Time {
         self.dt
     }
-    fn set_dt(&mut self, dt: A::Real) {
+    fn set_dt(&mut self, dt: Self::Time) {
         Zip::from(&mut self.diag)
             .and(&self.diag_of_matrix)
             .apply(|a, &b| { *a = b.mul_real(dt).exp(); });
@@ -53,6 +55,7 @@ impl<A, S, D> TimeEvolution<S, D> for Diagonal<A, S, D>
           S: DataMut<Elem = A>,
           D: Dimension
 {
+    type Time = A::Real;
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;

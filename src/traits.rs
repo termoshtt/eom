@@ -1,12 +1,14 @@
 //! Fundamental traits for ODE
 
 use ndarray::*;
+use ndarray_linalg::*;
 
 /// Equation of motion (EOM)
 pub trait EOM<S, D>
     where S: DataMut,
           D: Dimension
 {
+    type Time: RealScalar;
     /// calculate right hand side (rhs) of EOM from current state
     fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
@@ -16,6 +18,7 @@ pub trait NonLinear<S, D>
     where S: DataMut,
           D: Dimension
 {
+    type Time: RealScalar;
     fn nlin<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
@@ -33,12 +36,14 @@ pub trait TimeEvolution<S, D>
     where S: DataMut,
           D: Dimension
 {
+    type Time: RealScalar;
     /// calculate next step
     fn iterate<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
 /// Interface for time-step
-pub trait TimeStep<Time> {
-    fn get_dt(&self) -> Time;
-    fn set_dt(&mut self, dt: Time);
+pub trait TimeStep {
+    type Time: RealScalar;
+    fn get_dt(&self) -> Self::Time;
+    fn set_dt(&mut self, dt: Self::Time);
 }

@@ -24,6 +24,8 @@ impl Lorenz96 {
 impl<S> EOM<S, Ix1> for Lorenz96
     where S: DataMut<Elem = f64>
 {
+    type Time = f64;
+
     #[inline(always)]
     fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let n = v.len();

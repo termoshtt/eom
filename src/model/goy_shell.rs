@@ -38,6 +38,8 @@ impl Default for GoyShell {
 impl<S> NonLinear<S, Ix1> for GoyShell
     where S: DataMut<Elem = c64>
 {
+    type Time = f64;
+
     fn nlin<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();

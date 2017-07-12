@@ -47,9 +47,11 @@ impl<A, S, F, D> DiagRK4<A, S, F, D>
 impl<A, S, F, D> TimeEvolution<S, D> for DiagRK4<A, S, F, D>
     where A: Scalar,
           S: DataMut<Elem = A> + DataClone + DataOwned,
-          F: NonLinear<S, D>,
+          F: NonLinear<S, D, Time = A::Real>,
           D: Dimension
 {
+    type Time = F::Time;
+
     fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         // constants
         let dt = self.dt;

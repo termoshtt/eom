@@ -8,21 +8,34 @@ macro_rules! def_explicit {
     ($method:ident, $constructor:ident) => {
 
 #[derive(new)]
-pub struct $method<F, A: Scalar> {
+pub struct $method<F, S, D>
+    where F: EOM<S, D>,
+          S: DataMut,
+          D: Dimension,
+{
     f: F,
-    dt: A::Real,
+    dt: F::Time,
 }
 
-impl<F, A: Scalar> TimeStep<A::Real> for $method<F, A> {
-    fn get_dt(&self) -> A::Real {
+impl<F, S, D> TimeStep for $method<F, S, D>
+    where F: EOM<S, D>,
+          S: DataMut,
+          D: Dimension,
+{
+    type Time = F::Time;
+    fn get_dt(&self) -> Self::Time {
         self.dt
     }
-    fn set_dt(&mut self, dt: A::Real) {
+    fn set_dt(&mut self, dt: Self::Time) {
         self.dt = dt;
     }
 }
 
-pub fn $constructor<F, A: Scalar>(f: F, dt: A::Real) -> $method<F, A> {
+pub fn $constructor<F, S, D>(f: F, dt: F::Time) -> $method<F, S, D>
+    where F: EOM<S, D>,
+          S: DataMut,
+          D: Dimension,
+{
     $method::new(f, dt)
 }
 
@@ -32,12 +45,14 @@ def_explicit!(Euler, euler);
 def_explicit!(Heun, heun);
 def_explicit!(RK4, rk4);
 
-impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, A>
+impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: EOM<S, D>
+          F: EOM<S, D, Time = A::Real>
 {
+    type Time = F::Time;
+
     #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         let x_ = x.to_owned();
@@ -49,12 +64,14 @@ impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, A>
     }
 }
 
-impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, A>
+impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: EOM<S, D>
+          F: EOM<S, D, Time = A::Real>
 {
+    type Time = F::Time;
+
     #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         let dt = self.dt;
@@ -75,12 +92,14 @@ impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, A>
     }
 }
 
-impl<A, S, D, F> TimeEvolution<S, D> for RK4<F, A>
+impl<A, S, D, F> TimeEvolution<S, D> for RK4<F, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: EOM<S, D>
+          F: EOM<S, D, Time = A::Real>
 {
+    type Time = F::Time;
+
     #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         let dt = self.dt;
