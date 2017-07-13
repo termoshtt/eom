@@ -5,19 +5,17 @@ use ndarray_linalg::Scalar;
 use super::traits::*;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
-pub struct Diagonal<A, S, D>
+pub struct Diagonal<A, D>
     where A: Scalar,
-          S: Data<Elem = A>,
           D: Dimension
 {
-    diag: ArrayBase<S, D>,
-    diag_of_matrix: ArrayBase<S, D>,
+    diag: Array<A, D>,
+    diag_of_matrix: Array<A, D>,
     dt: A::Real,
 }
 
-impl<A, S, D> TimeStep for Diagonal<A, S, D>
+impl<A, D> TimeStep for Diagonal<A, D>
     where A: Scalar,
-          S: DataMut<Elem = A>,
           D: Dimension
 {
     type Time = A::Real;
@@ -32,9 +30,8 @@ impl<A, S, D> TimeStep for Diagonal<A, S, D>
     }
 }
 
-impl<A, S, D> ModelSize<D> for Diagonal<A, S, D>
+impl<A, D> ModelSize<D> for Diagonal<A, D>
     where A: Scalar,
-          S: Data<Elem = A>,
           D: Dimension
 {
     fn model_size(&self) -> D::Pattern {
@@ -42,44 +39,34 @@ impl<A, S, D> ModelSize<D> for Diagonal<A, S, D>
     }
 }
 
-impl<A, S, D> Diagonal<A, S, D>
+impl<A, D> Diagonal<A, D>
     where A: Scalar,
-          S: DataClone<Elem = A> + DataMut,
           D: Dimension
 {
-    pub fn new(diag_of_matrix: ArrayBase<S, D>, dt: A::Real) -> Self {
-        let mut diag = diag_of_matrix.clone();
+    pub fn new<S: Data<Elem = A>>(diag_of_matrix: &ArrayBase<S, D>, dt: A::Real) -> Self {
+        let mut diag = diag_of_matrix.to_owned();
         for v in diag.iter_mut() {
             *v = v.mul_real(dt).exp();
         }
         Diagonal {
             diag: diag,
-            diag_of_matrix: diag_of_matrix,
+            diag_of_matrix: diag_of_matrix.to_owned(),
             dt: dt,
         }
     }
 }
 
-impl<A, S, Sr, D> TimeEvolutionBase<Sr, D> for Diagonal<A, S, D>
+impl<A, Sr, D> SemiImplicitLinear<Sr, D> for Diagonal<A, D>
     where A: Scalar,
-          S: DataMut<Elem = A>,
           Sr: DataMut<Elem = A>,
           D: Dimension
 {
     type Scalar = A;
-    type Time = A::Real;
 
-    fn iterate<'a>(&self, mut x: &'a mut ArrayBase<Sr, D>) -> &'a mut ArrayBase<Sr, D> {
+    fn lin<'a>(&self, mut x: &'a mut ArrayBase<Sr, D>) -> &'a mut ArrayBase<Sr, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;
         }
         x
     }
-}
-
-impl<A, S, D> TimeEvolution<A, D> for Diagonal<A, S, D>
-    where A: Scalar,
-          D: Dimension,
-          S: DataMut<Elem = A>
-{
 }
