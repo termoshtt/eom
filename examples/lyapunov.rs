@@ -18,9 +18,7 @@ pub fn exponents<A, S, TEO>(teo: TEO,
                             -> Array1<A>
     where A: RealScalar,
           S: DataMut<Elem = A> + DataClone,
-          for<'a> TEO: TimeEvolution<S, Ix1>
-                           + TimeEvolution<ViewRepr<&'a mut A>, Ix1>
-                           + TimeStep<Time = A::Real>
+          TEO: TimeEvolutionAll<A, Ix1> + TimeEvolution<S, Ix1>
 {
     let n = x0.len();
     let dur: A = AssociatedReal::inject(teo.get_dt() * into_scalar(duration as f64));

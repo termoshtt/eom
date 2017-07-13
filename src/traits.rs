@@ -45,3 +45,23 @@ pub trait TimeStep {
     fn get_dt(&self) -> Self::Time;
     fn set_dt(&mut self, dt: Self::Time);
 }
+
+pub trait TimeEvolutionAll<A, D>
+    : TimeEvolution<OwnedRepr<A>, D, Time = A::Real>
+    + TimeEvolution<OwnedRcRepr<A>, D, Time = A::Real>
+    + for<'a> TimeEvolution<ViewRepr<&'a mut A>, D, Time = A::Real>
+    + TimeStep<Time = A::Real>
+    where A: Scalar,
+          D: Dimension
+{
+}
+
+impl<A, D, EOM> TimeEvolutionAll<A, D> for EOM
+    where A: Scalar,
+          D: Dimension,
+          EOM: TimeEvolution<OwnedRepr<A>, D, Time = A::Real>
+                   + TimeEvolution<OwnedRcRepr<A>, D, Time = A::Real>
+                   + for<'a> TimeEvolution<ViewRepr<&'a mut A>, D, Time = A::Real>
+                   + TimeStep<Time = A::Real>
+{
+}
