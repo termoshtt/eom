@@ -8,31 +8,23 @@ macro_rules! def_explicit {
     ($method:ident, $constructor:ident) => {
 
 #[derive(new)]
-pub struct $method<F, S, D>
-    where F: Explicit<S, D>,
-          S: DataMut,
-          D: Dimension,
-{
+pub struct $method<F, Time: RealScalar> {
     f: F,
-    dt: F::Time,
+    dt: Time,
 }
 
-impl<F, S, D> ModelSize<D> for $method<F, S, D>
-    where F: Explicit<S, D>,
-          S: DataMut,
+impl<F, D, Time> ModelSize<D> for $method<F, Time>
+    where F: ModelSize<D>,
           D: Dimension,
+          Time: RealScalar
 {
     fn model_size(&self) -> D::Pattern {
         self.f.model_size()
     }
 }
 
-impl<F, S, D> TimeStep for $method<F, S, D>
-    where F: Explicit<S, D>,
-          S: DataMut,
-          D: Dimension,
-{
-    type Time = F::Time;
+impl<F, Time: RealScalar> TimeStep for $method<F, Time> {
+    type Time = Time;
     fn get_dt(&self) -> Self::Time {
         self.dt
     }
@@ -41,11 +33,7 @@ impl<F, S, D> TimeStep for $method<F, S, D>
     }
 }
 
-pub fn $constructor<F, S, D>(f: F, dt: F::Time) -> $method<F, S, D>
-    where F: Explicit<S, D>,
-          S: DataMut,
-          D: Dimension,
-{
+pub fn $constructor<F, Time: RealScalar>(f: F, dt: Time) -> $method<F, Time> {
     $method::new(f, dt)
 }
 
@@ -55,7 +43,7 @@ def_explicit!(Euler, euler);
 def_explicit!(Heun, heun);
 def_explicit!(RK4, rk4);
 
-impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, S, D>
+impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
@@ -74,7 +62,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, S, D>
     }
 }
 
-impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, S, D>
+impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
@@ -102,7 +90,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, S, D>
     }
 }
 
-impl<A, S, D, F> TimeEvolution<S, D> for RK4<F, S, D>
+impl<A, S, D, F> TimeEvolution<S, D> for RK4<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
