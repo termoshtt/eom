@@ -1,14 +1,28 @@
 //! Define semi-implicit schemes
 
-use super::traits::*;
-
 use ndarray::*;
 use ndarray_linalg::*;
+
+use super::traits::*;
+use super::diag::{Diagonal, StiffDiagonal, diagonal};
 
 pub struct StiffRK4<NLin, Lin, Time: RealScalar> {
     nlin: NLin,
     lin: Lin,
     dt: Time,
+}
+
+pub fn stiff_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> StiffRK4<EOM, Diagonal<A, D>, A::Real>
+    where A: Scalar,
+          D: Dimension,
+          EOM: StiffDiagonal<A, D>
+{
+    let diag = diagonal(&eom, dt / into_scalar(2.0));
+    StiffRK4 {
+        nlin: eom,
+        lin: diag,
+        dt: dt,
+    }
 }
 
 impl<D, NLin, Lin, Time> ModelSize<D> for StiffRK4<NLin, Lin, Time>
