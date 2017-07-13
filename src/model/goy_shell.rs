@@ -45,8 +45,6 @@ impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for GoyShell
     where Sn: DataMut<Elem = c64>,
           Sd: DataOwned<Elem = c64>
 {
-    type Time = f64;
-
     fn nlin<'a>(&self, mut v: &'a mut ArrayBase<Sn, Ix1>) -> &'a mut ArrayBase<Sn, Ix1> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();

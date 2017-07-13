@@ -57,10 +57,10 @@ impl<A, S, F, D> ModelSize<D> for DiagRK4<A, S, F, D>
 impl<A, S, F, D> TimeEvolutionBase<S, D> for DiagRK4<A, S, F, D>
     where A: Scalar,
           S: DataMut<Elem = A> + DataClone + DataOwned,
-          F: SemiImplicitDiag<S, S, D, Time = A::Real>,
+          F: SemiImplicitDiag<S, S, D>,
           D: Dimension
 {
-    type Time = F::Time;
+    type Time = A::Real;
 
     fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         // constants
