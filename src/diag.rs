@@ -71,14 +71,14 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, Sr, D> SemiImplicitLinear<Sr, D> for Diagonal<A, D>
+impl<A, Sr, D> TimeEvolutionBase<Sr, D> for Diagonal<A, D>
     where A: Scalar,
           Sr: DataMut<Elem = A>,
           D: Dimension
 {
     type Scalar = A;
 
-    fn lin<'a>(&self, mut x: &'a mut ArrayBase<Sr, D>) -> &'a mut ArrayBase<Sr, D> {
+    fn iterate<'a>(&self, mut x: &'a mut ArrayBase<Sr, D>) -> &'a mut ArrayBase<Sr, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;
         }

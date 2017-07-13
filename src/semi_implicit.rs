@@ -6,26 +6,41 @@ use ndarray_linalg::*;
 use super::traits::*;
 use super::diag::{Diagonal, StiffDiagonal, diagonal};
 
-pub struct StiffRK4<NLin, Lin, Time: RealScalar> {
+pub struct DiagRK4<NLin, Lin, Time: RealScalar> {
     nlin: NLin,
     lin: Lin,
     dt: Time,
 }
 
-pub fn stiff_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> StiffRK4<EOM, Diagonal<A, D>, A::Real>
+pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<EOM, Diagonal<A, D>, A::Real>
     where A: Scalar,
           D: Dimension,
           EOM: StiffDiagonal<A, D>
 {
     let diag = diagonal(&eom, dt / into_scalar(2.0));
-    StiffRK4 {
+    DiagRK4 {
         nlin: eom,
         lin: diag,
         dt: dt,
     }
 }
 
-impl<D, NLin, Lin, Time> ModelSize<D> for StiffRK4<NLin, Lin, Time>
+impl<NLin, Lin, Time> TimeStep for DiagRK4<NLin, Lin, Time>
+    where Time: RealScalar,
+          Lin: TimeStep<Time = Time>
+{
+    type Time = Time;
+
+    fn get_dt(&self) -> Self::Time {
+        self.dt
+    }
+
+    fn set_dt(&mut self, dt: Self::Time) {
+        self.lin.set_dt(dt / into_scalar(2.0));
+    }
+}
+
+impl<D, NLin, Lin, Time> ModelSize<D> for DiagRK4<NLin, Lin, Time>
     where D: Dimension,
           NLin: ModelSize<D>,
           Lin: ModelSize<D>,
@@ -36,15 +51,14 @@ impl<D, NLin, Lin, Time> ModelSize<D> for StiffRK4<NLin, Lin, Time>
     }
 }
 
-impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for StiffRK4<NLin, Lin, A::Real>
+impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
     where A: Scalar,
           S: DataMut<Elem = A> + DataOwned,
           D: Dimension,
-          NLin: SemiImplicitNonLinear<S, D, Scalar = A, Time = A::Real>,
-          Lin: SemiImplicitLinear<S, D, Scalar = A, Time = A::Real>
+          NLin: SemiImplicit<S, D, Scalar = A, Time = A::Real>,
+          Lin: TimeEvolutionBase<S, D, Scalar = A, Time = A::Real>
 {
     type Scalar = A;
-    type Time = A::Real;
 
     fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         // constants
@@ -58,13 +72,13 @@ impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for StiffRK4<NLin, Lin, A::Real
         // calc
         let mut x_ = replicate(&x);
         let mut lx = replicate(&x);
-        l.lin(&mut lx);
+        l.iterate(&mut lx);
         let mut k1 = f.nlin(x);
         let k1_ = k1.to_owned();
         Zip::from(&mut *k1)
             .and(&x_)
             .apply(|k1, &x_| { *k1 = x_ + k1.mul_real(dt_2); });
-        let mut k2 = f.nlin(l.lin(k1));
+        let mut k2 = f.nlin(l.iterate(k1));
         let k2_ = k2.to_owned();
         Zip::from(&mut *k2)
             .and(&lx)
@@ -74,11 +88,11 @@ impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for StiffRK4<NLin, Lin, A::Real
         Zip::from(&mut *k3)
             .and(&lx)
             .apply(|k3, &lx| { *k3 = lx + k3.mul_real(dt); });
-        let mut k4 = f.nlin(l.lin(k3));
+        let mut k4 = f.nlin(l.iterate(k3));
         azip!(mut x_, k1_ in { *x_ = *x_ + k1_.mul_real(dt_6) });
-        l.lin(&mut x_);
+        l.iterate(&mut x_);
         azip!(mut x_, k2_, k3_ in { *x_ = *x_ + (k2_ + k3_).mul_real(dt_3) });
-        l.lin(&mut x_);
+        l.iterate(&mut x_);
         Zip::from(&mut *k4)
             .and(&x_)
             .apply(|k4, &x_| { *k4 = x_ + k4.mul_real(dt_6); });

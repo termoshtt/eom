@@ -15,40 +15,32 @@ pub trait TimeStep {
 }
 
 /// Equation of motion (Explicit)
-pub trait Explicit<S, D>: ModelSize<D> + TimeStep
-    where S: DataMut,
-          D: Dimension
-{
-    type Scalar: Scalar;
-    /// calculate right hand side (rhs) of Explicit from current state
-    fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
-}
-
-pub trait SemiImplicitNonLinear<S, D>: ModelSize<D> + TimeStep
-    where S: DataMut,
-          D: Dimension
-{
-    type Scalar: Scalar;
-    /// non-linear part of stiff equation
-    fn nlin<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
-}
-
-pub trait SemiImplicitLinear<S, D>: ModelSize<D> + TimeStep
-    where S: DataMut,
-          D: Dimension
-{
-    type Scalar: Scalar;
-    /// Linear part of stiff equation
-    fn lin<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
-}
-
-/// Time-evolution operator
-pub trait TimeEvolutionBase<S, D>: ModelSize<D>
+pub trait Explicit<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
     type Scalar: Scalar;
     type Time: RealScalar;
+    /// calculate right hand side (rhs) of Explicit from current state
+    fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
+}
+
+pub trait SemiImplicit<S, D>: ModelSize<D>
+    where S: DataMut,
+          D: Dimension
+{
+    type Scalar: Scalar;
+    type Time: RealScalar;
+    /// non-linear part of stiff equation
+    fn nlin<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
+}
+
+/// Time-evolution operator
+pub trait TimeEvolutionBase<S, D>: ModelSize<D> + TimeStep
+    where S: DataMut,
+          D: Dimension
+{
+    type Scalar: Scalar;
     /// calculate next step
     fn iterate<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
