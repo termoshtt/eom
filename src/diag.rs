@@ -85,3 +85,9 @@ impl<A, Sr, D> TimeEvolutionBase<Sr, D> for Diagonal<A, D>
         x
     }
 }
+
+impl<A, D> TimeEvolution<A, D> for Diagonal<A, D>
+    where A: Scalar,
+          D: Dimension
+{
+}

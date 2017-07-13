@@ -53,10 +53,10 @@ impl<D, NLin, Lin, Time> ModelSize<D> for DiagRK4<NLin, Lin, Time>
 
 impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
     where A: Scalar,
-          S: DataMut<Elem = A> + DataOwned,
+          S: DataMut<Elem = A>,
           D: Dimension,
           NLin: SemiImplicit<S, D, Scalar = A, Time = A::Real>,
-          Lin: TimeEvolutionBase<S, D, Scalar = A, Time = A::Real>
+          Lin: TimeEvolution<A, D> + TimeEvolutionBase<S, D>
 {
     type Scalar = A;
 
@@ -70,8 +70,8 @@ impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
         let l = &self.lin;
         let f = &self.nlin;
         // calc
-        let mut x_ = replicate(&x);
-        let mut lx = replicate(&x);
+        let mut x_ = x.to_owned();
+        let mut lx = x.to_owned();
         l.iterate(&mut lx);
         let mut k1 = f.nlin(x);
         let k1_ = k1.to_owned();
@@ -98,4 +98,14 @@ impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
             .apply(|k4, &x_| { *k4 = x_ + k4.mul_real(dt_6); });
         k4
     }
+}
+
+impl<A, D, NLin, Lin> TimeEvolution<A, D> for DiagRK4<NLin, Lin, A::Real>
+    where A: Scalar,
+          D: Dimension,
+          NLin: SemiImplicit<OwnedRepr<A>, D, Scalar = A, Time = A::Real>
+                    + SemiImplicit<OwnedRcRepr<A>, D, Scalar = A, Time = A::Real>
+                    + for<'a> SemiImplicit<ViewRepr<&'a mut A>, D, Scalar = A, Time = A::Real>,
+          Lin: TimeEvolution<A, D>
+{
 }

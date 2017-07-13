@@ -50,7 +50,6 @@ pub trait TimeEvolution<A, D>
     : TimeEvolutionBase<OwnedRepr<A>, D, Scalar = A, Time = A::Real>
     + TimeEvolutionBase<OwnedRcRepr<A>, D, Scalar = A, Time = A::Real>
     + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Scalar = A, Time = A::Real>
-    + TimeStep<Time = A::Real>
     where A: Scalar,
           D: Dimension
 {
