@@ -4,6 +4,21 @@ use ndarray::*;
 use ndarray_linalg::Scalar;
 use super::traits::*;
 
+pub trait StiffDiagonal<A, D>
+    where A: Scalar,
+          D: Dimension
+{
+    fn diag(&self) -> Array<A, D>;
+}
+
+pub fn diagonal<A, D, EOM>(eom: &EOM, dt: A::Real) -> Diagonal<A, D>
+    where A: Scalar,
+          D: Dimension,
+          EOM: StiffDiagonal<A, D>
+{
+    Diagonal::new(eom.diag(), dt)
+}
+
 /// Linear ODE with diagonalized matrix (exactly solvable)
 pub struct Diagonal<A, D>
     where A: Scalar,
@@ -43,14 +58,14 @@ impl<A, D> Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
-    pub fn new<S: Data<Elem = A>>(diag_of_matrix: &ArrayBase<S, D>, dt: A::Real) -> Self {
+    pub fn new(diag_of_matrix: Array<A, D>, dt: A::Real) -> Self {
         let mut diag = diag_of_matrix.to_owned();
         for v in diag.iter_mut() {
             *v = v.mul_real(dt).exp();
         }
         Diagonal {
             diag: diag,
-            diag_of_matrix: diag_of_matrix.to_owned(),
+            diag_of_matrix: diag_of_matrix,
             dt: dt,
         }
     }
