@@ -100,3 +100,10 @@ impl<TEO, S, D> TimeEvolutionBase<S, D> for NStep<TEO>
         x
     }
 }
+
+impl<TEO, A, D> TimeEvolution<A, D> for NStep<TEO>
+    where A: Scalar,
+          D: Dimension,
+          TEO: TimeEvolution<A, D>
+{
+}
