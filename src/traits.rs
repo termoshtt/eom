@@ -30,7 +30,7 @@ pub trait SemiImplicitDiag<Sn, Sd, D>: ModelSize<D>
 }
 
 /// Time-evolution operator
-pub trait TimeEvolution<S, D>: ModelSize<D>
+pub trait TimeEvolutionBase<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
@@ -46,22 +46,22 @@ pub trait TimeStep {
     fn set_dt(&mut self, dt: Self::Time);
 }
 
-pub trait TimeEvolutionAll<A, D>
-    : TimeEvolution<OwnedRepr<A>, D, Time = A::Real>
-    + TimeEvolution<OwnedRcRepr<A>, D, Time = A::Real>
-    + for<'a> TimeEvolution<ViewRepr<&'a mut A>, D, Time = A::Real>
+pub trait TimeEvolution<A, D>
+    : TimeEvolutionBase<OwnedRepr<A>, D, Time = A::Real>
+    + TimeEvolutionBase<OwnedRcRepr<A>, D, Time = A::Real>
+    + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Time = A::Real>
     + TimeStep<Time = A::Real>
     where A: Scalar,
           D: Dimension
 {
 }
 
-impl<A, D, EOM> TimeEvolutionAll<A, D> for EOM
+impl<A, D, EOM> TimeEvolution<A, D> for EOM
     where A: Scalar,
           D: Dimension,
-          EOM: TimeEvolution<OwnedRepr<A>, D, Time = A::Real>
-                   + TimeEvolution<OwnedRcRepr<A>, D, Time = A::Real>
-                   + for<'a> TimeEvolution<ViewRepr<&'a mut A>, D, Time = A::Real>
+          EOM: TimeEvolutionBase<OwnedRepr<A>, D, Time = A::Real>
+                   + TimeEvolutionBase<OwnedRcRepr<A>, D, Time = A::Real>
+                   + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Time = A::Real>
                    + TimeStep<Time = A::Real>
 {
 }

@@ -60,7 +60,7 @@ impl<A, S, D> Diagonal<A, S, D>
     }
 }
 
-impl<A, S, D> TimeEvolution<S, D> for Diagonal<A, S, D>
+impl<A, S, D> TimeEvolutionBase<S, D> for Diagonal<A, S, D>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension

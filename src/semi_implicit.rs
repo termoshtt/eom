@@ -54,7 +54,7 @@ impl<A, S, F, D> ModelSize<D> for DiagRK4<A, S, F, D>
     }
 }
 
-impl<A, S, F, D> TimeEvolution<S, D> for DiagRK4<A, S, F, D>
+impl<A, S, F, D> TimeEvolutionBase<S, D> for DiagRK4<A, S, F, D>
     where A: Scalar,
           S: DataMut<Elem = A> + DataClone + DataOwned,
           F: SemiImplicitDiag<S, S, D, Time = A::Real>,

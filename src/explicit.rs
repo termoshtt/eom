@@ -43,7 +43,7 @@ def_explicit!(Euler, euler);
 def_explicit!(Heun, heun);
 def_explicit!(RK4, rk4);
 
-impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, F::Time>
+impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
@@ -62,7 +62,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for Euler<F, F::Time>
     }
 }
 
-impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, F::Time>
+impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
@@ -90,7 +90,7 @@ impl<A, S, D, F> TimeEvolution<S, D> for Heun<F, F::Time>
     }
 }
 
-impl<A, S, D, F> TimeEvolution<S, D> for RK4<F, F::Time>
+impl<A, S, D, F> TimeEvolutionBase<S, D> for RK4<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
