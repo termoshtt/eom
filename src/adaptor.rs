@@ -45,10 +45,21 @@ impl<'a, TEO, S, D> Iterator for TimeSeries<'a, TEO, S, D>
     }
 }
 
-#[derive(new)]
+
+/// N-step adaptor
+///
+/// ```rust
+/// use ndarray_odeint::*;
+/// let teo = explicit::rk4(model::Lorenz63::default(), 0.01);
+/// let nstep = nstep(teo, 10);
+/// ```
 pub struct NStep<TEO> {
     teo: TEO,
     n: usize,
+}
+
+pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
+    NStep { teo, n }
 }
 
 impl<TEO, D> ModelSize<D> for NStep<TEO>
