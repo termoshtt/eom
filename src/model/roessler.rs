@@ -2,7 +2,7 @@
 //! https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor
 
 use ndarray::*;
-use traits::EOM;
+use traits::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Roessler {
@@ -21,17 +21,26 @@ impl Default for Roessler {
     }
 }
 
+impl ModelSize<Ix1> for Roessler {
+    fn model_size(&self) -> usize {
+        3
+    }
+}
+
 impl Roessler {
     pub fn new(a: f64, b: f64, c: f64) -> Self {
         Roessler { a: a, b: b, c: c }
     }
 }
 
-impl<'a, S> EOM<S, Ix1> for &'a Roessler
+impl<S> Explicit<S, Ix1> for Roessler
     where S: DataMut<Elem = f64>
 {
+    type Scalar = f64;
+    type Time = f64;
+
     #[inline(always)]
-    fn rhs(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
+    fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];

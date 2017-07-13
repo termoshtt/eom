@@ -18,9 +18,7 @@ pub fn exponents<A, S, TEO>(teo: TEO,
                             -> Array1<A>
     where A: RealScalar,
           S: DataMut<Elem = A> + DataClone,
-          TEO: TimeStep<A::Real>,
-          for<'a> &'a TEO: TimeEvolution<S, Ix1>,
-          for<'a, 'b> Jacobian<'a, A, S, Ix1, TEO>: OperatorMut<ViewRepr<&'b mut A>, Ix1> // XXX Can we remove?
+          TEO: TimeEvolution<A, Ix1> + TimeEvolutionBase<S, Ix1>
 {
     let n = x0.len();
     let dur: A = AssociatedReal::inject(teo.get_dt() * into_scalar(duration as f64));

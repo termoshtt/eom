@@ -5,8 +5,7 @@ use super::traits::*;
 pub struct TimeSeries<'a, TEO, S, D>
     where S: DataMut,
           D: Dimension,
-          TEO: 'a,
-          for<'b> &'b TEO: TimeEvolution<S, D>
+          TEO: TimeEvolutionBase<S, D> + 'a
 {
     state: ArrayBase<S, D>,
     teo: &'a TEO,
@@ -15,8 +14,7 @@ pub struct TimeSeries<'a, TEO, S, D>
 pub fn time_series<'a, TEO, S, D>(x0: ArrayBase<S, D>, teo: &'a TEO) -> TimeSeries<'a, TEO, S, D>
     where S: DataMut,
           D: Dimension,
-          TEO: 'a,
-          for<'b> &'b TEO: TimeEvolution<S, D>
+          TEO: TimeEvolutionBase<S, D>
 {
     TimeSeries {
         state: x0,
@@ -27,7 +25,7 @@ pub fn time_series<'a, TEO, S, D>(x0: ArrayBase<S, D>, teo: &'a TEO) -> TimeSeri
 impl<'a, TEO, S, D> TimeSeries<'a, TEO, S, D>
     where S: DataMut + DataClone,
           D: Dimension,
-          for<'b> &'b TEO: TimeEvolution<S, D>
+          TEO: TimeEvolutionBase<S, D>
 {
     pub fn iterate(&mut self) {
         self.teo.iterate(&mut self.state);
@@ -37,7 +35,7 @@ impl<'a, TEO, S, D> TimeSeries<'a, TEO, S, D>
 impl<'a, TEO, S, D> Iterator for TimeSeries<'a, TEO, S, D>
     where S: DataMut + DataClone,
           D: Dimension,
-          for<'b> &'b TEO: TimeEvolution<S, D>
+          TEO: TimeEvolutionBase<S, D>
 {
     type Item = ArrayBase<S, D>;
     fn next(&mut self) -> Option<Self::Item> {

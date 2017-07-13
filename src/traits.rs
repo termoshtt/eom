@@ -1,44 +1,70 @@
 //! Fundamental traits for ODE
 
 use ndarray::*;
+use ndarray_linalg::*;
 
-/// Equation of motion (EOM)
-pub trait EOM<S, D>
+pub trait ModelSize<D: Dimension> {
+    fn model_size(&self) -> D::Pattern;
+}
+
+/// Equation of motion (Explicit)
+pub trait Explicit<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
-    /// calculate right hand side (rhs) of EOM from current state
-    fn rhs(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
+    type Scalar: Scalar;
+    type Time: RealScalar;
+    /// calculate right hand side (rhs) of Explicit from current state
+    fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
-/// non-linear part of stiff equation
-pub trait NonLinear<S, D>
-    where S: DataMut,
+pub trait SemiImplicitDiag<Sn, Sd, D>: ModelSize<D>
+    where Sn: DataMut,
+          Sd: Data,
           D: Dimension
 {
-    fn nlin(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
-}
-
-/// Diagonalized linear part of stiff equation
-pub trait Diag<S, D>
-    where S: Data,
-          D: Dimension
-{
-    /// Linear part of EOM (assume to be diagonalized)
-    fn diagonal(&self) -> ArrayBase<S, D>;
+    type Scalar: Scalar;
+    type Time: RealScalar;
+    /// non-linear part of stiff equation
+    fn nlin<'a>(&self, &'a mut ArrayBase<Sn, D>) -> &'a mut ArrayBase<Sn, D>;
+    /// Linear part of Explicit (assume to be diagonalized)
+    fn diag(&self) -> ArrayBase<Sd, D>;
 }
 
 /// Time-evolution operator
-pub trait TimeEvolution<S, D>
+pub trait TimeEvolutionBase<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
+    type Scalar: Scalar;
+    type Time: RealScalar;
     /// calculate next step
-    fn iterate(self, &mut ArrayBase<S, D>) -> &mut ArrayBase<S, D>;
+    fn iterate<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
 /// Interface for time-step
-pub trait TimeStep<Time> {
-    fn get_dt(&self) -> Time;
-    fn set_dt(&mut self, dt: Time);
+pub trait TimeStep {
+    type Time: RealScalar;
+    fn get_dt(&self) -> Self::Time;
+    fn set_dt(&mut self, dt: Self::Time);
+}
+
+pub trait TimeEvolution<A, D>
+    : TimeEvolutionBase<OwnedRepr<A>, D, Time = A::Real>
+    + TimeEvolutionBase<OwnedRcRepr<A>, D, Time = A::Real>
+    + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Time = A::Real>
+    + TimeStep<Time = A::Real>
+    where A: Scalar,
+          D: Dimension
+{
+}
+
+impl<A, D, EOM> TimeEvolution<A, D> for EOM
+    where A: Scalar,
+          D: Dimension,
+          EOM: TimeEvolutionBase<OwnedRepr<A>, D, Time = A::Real>
+                   + TimeEvolutionBase<OwnedRcRepr<A>, D, Time = A::Real>
+                   + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Time = A::Real>
+                   + TimeStep<Time = A::Real>
+{
 }

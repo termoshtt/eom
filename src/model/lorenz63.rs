@@ -27,10 +27,19 @@ impl Lorenz63 {
     }
 }
 
-impl<'a, S> EOM<S, Ix1> for &'a Lorenz63
+impl ModelSize<Ix1> for Lorenz63 {
+    fn model_size(&self) -> usize {
+        3
+    }
+}
+
+impl<S> Explicit<S, Ix1> for Lorenz63
     where S: DataMut<Elem = f64>
 {
-    fn rhs(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
+    type Scalar = f64;
+    type Time = f64;
+
+    fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
@@ -41,10 +50,14 @@ impl<'a, S> EOM<S, Ix1> for &'a Lorenz63
     }
 }
 
-impl<'a, S> NonLinear<S, Ix1> for &'a Lorenz63
-    where S: DataMut<Elem = f64>
+impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for Lorenz63
+    where Sn: DataMut<Elem = f64>,
+          Sd: DataOwned<Elem = f64>
 {
-    fn nlin(self, mut v: &mut ArrayBase<S, Ix1>) -> &mut ArrayBase<S, Ix1> {
+    type Scalar = f64;
+    type Time = f64;
+
+    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<Sn, Ix1>) -> &'a mut ArrayBase<Sn, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
@@ -53,10 +66,8 @@ impl<'a, S> NonLinear<S, Ix1> for &'a Lorenz63
         v[2] = x * y;
         v
     }
-}
 
-impl<S: DataOwned<Elem = f64>> Diag<S, Ix1> for Lorenz63 {
-    fn diagonal(&self) -> ArrayBase<S, Ix1> {
+    fn diag(&self) -> ArrayBase<Sd, Ix1> {
         ArrayBase::from_vec(vec![-self.p, -1.0, -self.b])
     }
 }
