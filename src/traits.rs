@@ -50,21 +50,11 @@ pub trait TimeStep {
 }
 
 pub trait TimeEvolution<A, D>
-    : TimeEvolutionBase<OwnedRepr<A>, D, Time = A::Real>
-    + TimeEvolutionBase<OwnedRcRepr<A>, D, Time = A::Real>
-    + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Time = A::Real>
+    : TimeEvolutionBase<OwnedRepr<A>, D, Scalar = A, Time = A::Real>
+    + TimeEvolutionBase<OwnedRcRepr<A>, D, Scalar = A, Time = A::Real>
+    + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Scalar = A, Time = A::Real>
     + TimeStep<Time = A::Real>
     where A: Scalar,
           D: Dimension
-{
-}
-
-impl<A, D, EOM> TimeEvolution<A, D> for EOM
-    where A: Scalar,
-          D: Dimension,
-          EOM: TimeEvolutionBase<OwnedRepr<A>, D, Time = A::Real>
-                   + TimeEvolutionBase<OwnedRcRepr<A>, D, Time = A::Real>
-                   + for<'a> TimeEvolutionBase<ViewRepr<&'a mut A>, D, Time = A::Real>
-                   + TimeStep<Time = A::Real>
 {
 }

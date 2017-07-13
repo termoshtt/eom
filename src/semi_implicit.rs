@@ -4,7 +4,7 @@ use super::traits::*;
 use super::diag::Diagonal;
 
 use ndarray::*;
-use ndarray_linalg::{Scalar, into_scalar, replicate};
+use ndarray_linalg::{Scalar, into_scalar};
 
 pub struct DiagRK4<A, S, F, D>
     where A: Scalar,
@@ -73,8 +73,8 @@ impl<A, S, F, D> TimeEvolutionBase<S, D> for DiagRK4<A, S, F, D>
         let l = &self.lin_half;
         let f = &self.f;
         // calc
-        let mut x_ = replicate(&x);
-        let mut lx = replicate(&x);
+        let mut x_ = x.to_owned();
+        let mut lx = x.to_owned();
         l.iterate(&mut lx);
         let mut k1 = f.nlin(x);
         let k1_ = k1.to_owned();

@@ -37,6 +37,14 @@ pub fn $constructor<F, Time: RealScalar>(f: F, dt: Time) -> $method<F, Time> {
     $method::new(f, dt)
 }
 
+impl<A, D, F> TimeEvolution<A, D> for $method<F, A::Real>
+    where A: Scalar,
+          D: Dimension,
+          F: Explicit<OwnedRepr<A>, D, Scalar=A, Time=A::Real>
+           + Explicit<OwnedRcRepr<A>, D, Scalar=A, Time=A::Real>
+           + for<'a> Explicit<ViewRepr<&'a mut A>, D, Scalar=A, Time=A::Real>
+{}
+
 }} // def_explicit
 
 def_explicit!(Euler, euler);
