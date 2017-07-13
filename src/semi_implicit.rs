@@ -1,67 +1,64 @@
 //! Define semi-implicit schemes
 
-use super::traits::*;
-use super::diag::Diagonal;
-
 use ndarray::*;
-use ndarray_linalg::{Scalar, into_scalar};
+use ndarray_linalg::*;
 
-pub struct DiagRK4<A, S, F, D>
-    where A: Scalar,
-          S: Data<Elem = A>,
-          D: Dimension
-{
-    f: F,
-    lin_half: Diagonal<A, S, D>,
-    dt: A::Real,
+use super::traits::*;
+use super::diag::{Diagonal, StiffDiagonal, diagonal};
+
+pub struct DiagRK4<NLin, Lin, Time: RealScalar> {
+    nlin: NLin,
+    lin: Lin,
+    dt: Time,
 }
 
-pub fn diag_rk4<A, S, F, D>(f: F, dt: A::Real) -> DiagRK4<A, S, F, D>
+pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<EOM, Diagonal<A, D>, A::Real>
     where A: Scalar,
-          S: DataClone<Elem = A> + DataMut,
-          F: SemiImplicitDiag<S, S, D>,
-          D: Dimension
+          D: Dimension,
+          EOM: StiffDiagonal<A, D>
 {
-    DiagRK4::new(f, dt)
-}
-
-impl<A, S, F, D> DiagRK4<A, S, F, D>
-    where A: Scalar,
-          S: DataClone<Elem = A> + DataMut,
-          D: Dimension
-{
-    pub fn new(f: F, dt: A::Real) -> Self
-        where F: SemiImplicitDiag<S, S, D>
-    {
-        let diag = f.diag();
-        let lin_half = Diagonal::new(diag, dt / into_scalar(2.0));
-        DiagRK4 {
-            f: f,
-            lin_half: lin_half,
-            dt: dt,
-        }
+    let diag = diagonal(&eom, dt / into_scalar(2.0));
+    DiagRK4 {
+        nlin: eom,
+        lin: diag,
+        dt: dt,
     }
 }
 
-impl<A, S, F, D> ModelSize<D> for DiagRK4<A, S, F, D>
-    where A: Scalar,
-          F: ModelSize<D>,
-          S: DataClone<Elem = A> + DataMut,
-          D: Dimension
+impl<NLin, Lin, Time> TimeStep for DiagRK4<NLin, Lin, Time>
+    where Time: RealScalar,
+          Lin: TimeStep<Time = Time>
+{
+    type Time = Time;
+
+    fn get_dt(&self) -> Self::Time {
+        self.dt
+    }
+
+    fn set_dt(&mut self, dt: Self::Time) {
+        self.lin.set_dt(dt / into_scalar(2.0));
+    }
+}
+
+impl<D, NLin, Lin, Time> ModelSize<D> for DiagRK4<NLin, Lin, Time>
+    where D: Dimension,
+          NLin: ModelSize<D>,
+          Lin: ModelSize<D>,
+          Time: RealScalar
 {
     fn model_size(&self) -> D::Pattern {
-        self.f.model_size()
+        self.nlin.model_size() // TODO check
     }
 }
 
-impl<A, S, F, D> TimeEvolutionBase<S, D> for DiagRK4<A, S, F, D>
+impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
     where A: Scalar,
-          S: DataMut<Elem = A> + DataClone + DataOwned,
-          F: SemiImplicitDiag<S, S, D, Time = A::Real, Scalar = A>,
-          D: Dimension
+          S: DataMut<Elem = A>,
+          D: Dimension,
+          NLin: SemiImplicit<S, D, Scalar = A, Time = A::Real>,
+          Lin: TimeEvolution<A, D> + TimeEvolutionBase<S, D>
 {
-    type Scalar = F::Scalar;
-    type Time = F::Time;
+    type Scalar = A;
 
     fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         // constants
@@ -70,8 +67,8 @@ impl<A, S, F, D> TimeEvolutionBase<S, D> for DiagRK4<A, S, F, D>
         let dt_3 = self.dt / into_scalar(3.0);
         let dt_6 = self.dt / into_scalar(6.0);
         // operators
-        let l = &self.lin_half;
-        let f = &self.f;
+        let l = &self.lin;
+        let f = &self.nlin;
         // calc
         let mut x_ = x.to_owned();
         let mut lx = x.to_owned();
@@ -101,4 +98,14 @@ impl<A, S, F, D> TimeEvolutionBase<S, D> for DiagRK4<A, S, F, D>
             .apply(|k4, &x_| { *k4 = x_ + k4.mul_real(dt_6); });
         k4
     }
+}
+
+impl<A, D, NLin, Lin> TimeEvolution<A, D> for DiagRK4<NLin, Lin, A::Real>
+    where A: Scalar,
+          D: Dimension,
+          NLin: SemiImplicit<OwnedRepr<A>, D, Scalar = A, Time = A::Real>
+                    + SemiImplicit<OwnedRcRepr<A>, D, Scalar = A, Time = A::Real>
+                    + for<'a> SemiImplicit<ViewRepr<&'a mut A>, D, Scalar = A, Time = A::Real>,
+          Lin: TimeEvolution<A, D>
+{
 }

@@ -2,7 +2,9 @@
 //! https://en.wikipedia.org/wiki/Lorenz_system
 
 use ndarray::*;
+
 use traits::*;
+use diag::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Lorenz63 {
@@ -50,14 +52,13 @@ impl<S> Explicit<S, Ix1> for Lorenz63
     }
 }
 
-impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for Lorenz63
-    where Sn: DataMut<Elem = f64>,
-          Sd: DataOwned<Elem = f64>
+impl<S> SemiImplicit<S, Ix1> for Lorenz63
+    where S: DataMut<Elem = f64>
 {
     type Scalar = f64;
     type Time = f64;
 
-    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<Sn, Ix1>) -> &'a mut ArrayBase<Sn, Ix1> {
+    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
         let z = v[2];
@@ -66,8 +67,10 @@ impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for Lorenz63
         v[2] = x * y;
         v
     }
+}
 
-    fn diag(&self) -> ArrayBase<Sd, Ix1> {
-        ArrayBase::from_vec(vec![-self.p, -1.0, -self.b])
+impl StiffDiagonal<f64, Ix1> for Lorenz63 {
+    fn diag(&self) -> Array<f64, Ix1> {
+        Array::from_vec(vec![-self.p, -1.0, -self.b])
     }
 }

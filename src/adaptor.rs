@@ -91,7 +91,6 @@ impl<TEO, S, D> TimeEvolutionBase<S, D> for NStep<TEO>
           D: Dimension
 {
     type Scalar = TEO::Scalar;
-    type Time = TEO::Time;
 
     fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         for _ in 0..self.n {

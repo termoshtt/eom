@@ -5,6 +5,7 @@ use num_traits::{PrimInt, Zero};
 use num_complex::Complex64 as c64;
 
 use traits::*;
+use diag::*;
 
 #[derive(Clone, Copy, Debug, new)]
 pub struct GoyShell {
@@ -41,14 +42,13 @@ impl ModelSize<Ix1> for GoyShell {
     }
 }
 
-impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for GoyShell
-    where Sn: DataMut<Elem = c64>,
-          Sd: DataOwned<Elem = c64>
+impl<S> SemiImplicit<S, Ix1> for GoyShell
+    where S: DataMut<Elem = c64>
 {
     type Scalar = c64;
     type Time = f64;
 
-    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<Sn, Ix1>) -> &'a mut ArrayBase<Sn, Ix1> {
+    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
         let mut a_0 = v[0].conj();
@@ -75,8 +75,10 @@ impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for GoyShell
         v[self.f_idx] = v[self.f_idx] + c64::new(self.f, 0.0);
         v
     }
+}
 
-    fn diag(&self) -> ArrayBase<Sd, Ix1> {
+impl StiffDiagonal<c64, Ix1> for GoyShell {
+    fn diag(&self) -> Array<c64, Ix1> {
         (0..self.size)
             .map(|n| self.nu * self.k(n) * self.k(n))
             .collect()
