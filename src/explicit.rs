@@ -43,13 +43,13 @@ def_explicit!(Euler, euler);
 def_explicit!(Heun, heun);
 def_explicit!(RK4, rk4);
 
-impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, A::Real>
+impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: Explicit<S, D>
+          F: Explicit<S, D, Time = A::Real>
 {
-    type Time = A::Real;
+    type Time = F::Time;
 
     #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
@@ -62,13 +62,13 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, A::Real>
     }
 }
 
-impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, A::Real>
+impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: Explicit<S, D>
+          F: Explicit<S, D, Time = A::Real>
 {
-    type Time = A::Real;
+    type Time = F::Time;
 
     #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
@@ -90,13 +90,13 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, A::Real>
     }
 }
 
-impl<A, S, D, F> TimeEvolutionBase<S, D> for RK4<F, A::Real>
+impl<A, S, D, F> TimeEvolutionBase<S, D> for RK4<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: Explicit<S, D>
+          F: Explicit<S, D, Time = A::Real>
 {
-    type Time = A::Real;
+    type Time = F::Time;
 
     #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
