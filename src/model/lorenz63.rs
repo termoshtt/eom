@@ -36,6 +36,7 @@ impl ModelSize<Ix1> for Lorenz63 {
 impl<S> Explicit<S, Ix1> for Lorenz63
     where S: DataMut<Elem = f64>
 {
+    type Scalar = f64;
     type Time = f64;
 
     fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
@@ -53,6 +54,7 @@ impl<Sn, Sd> SemiImplicitDiag<Sn, Sd, Ix1> for Lorenz63
     where Sn: DataMut<Elem = f64>,
           Sd: DataOwned<Elem = f64>
 {
+    type Scalar = f64;
     type Time = f64;
 
     fn nlin<'a>(&self, mut v: &'a mut ArrayBase<Sn, Ix1>) -> &'a mut ArrayBase<Sn, Ix1> {

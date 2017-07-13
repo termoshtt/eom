@@ -65,6 +65,7 @@ impl<A, S, D> TimeEvolutionBase<S, D> for Diagonal<A, S, D>
           S: DataMut<Elem = A>,
           D: Dimension
 {
+    type Scalar = A;
     type Time = A::Real;
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {

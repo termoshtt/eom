@@ -12,6 +12,7 @@ pub trait Explicit<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
+    type Scalar: Scalar;
     type Time: RealScalar;
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
@@ -22,6 +23,7 @@ pub trait SemiImplicitDiag<Sn, Sd, D>: ModelSize<D>
           Sd: Data,
           D: Dimension
 {
+    type Scalar: Scalar;
     type Time: RealScalar;
     /// non-linear part of stiff equation
     fn nlin<'a>(&self, &'a mut ArrayBase<Sn, D>) -> &'a mut ArrayBase<Sn, D>;
@@ -34,6 +36,7 @@ pub trait TimeEvolutionBase<S, D>: ModelSize<D>
     where S: DataMut,
           D: Dimension
 {
+    type Scalar: Scalar;
     type Time: RealScalar;
     /// calculate next step
     fn iterate<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;

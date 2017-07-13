@@ -47,8 +47,9 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: Explicit<S, D, Time = A::Real>
+          F: Explicit<S, D, Time = A::Real, Scalar = A>
 {
+    type Scalar = F::Scalar;
     type Time = F::Time;
 
     #[inline(always)]
@@ -66,8 +67,9 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: Explicit<S, D, Time = A::Real>
+          F: Explicit<S, D, Time = A::Real, Scalar = A>
 {
+    type Scalar = F::Scalar;
     type Time = F::Time;
 
     #[inline(always)]
@@ -94,8 +96,9 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for RK4<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
-          F: Explicit<S, D, Time = A::Real>
+          F: Explicit<S, D, Time = A::Real, Scalar = A>
 {
+    type Scalar = F::Scalar;
     type Time = F::Time;
 
     #[inline(always)]
