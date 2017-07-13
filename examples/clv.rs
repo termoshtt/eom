@@ -29,12 +29,10 @@ pub fn clv<A, S, TEO>(teo: &TEO,
                       -> Vec<(ArrayBase<S, Ix1>, Array2<A>, Array1<A::Real>)>
     where A: RealScalar,
           S: DataMut<Elem = A> + DataClone,
-          TEO: TimeStep<A::Real>,
-          for<'a> &'a TEO: TimeEvolution<S, Ix1>,
-          for<'a, 'b> Jacobian<'a, A, S, Ix1, TEO>: OperatorMut<ViewRepr<&'b mut A>, Ix1> // XXX should be removed
+          for<'a> TEO: TimeEvolution<S, Ix1> + TimeEvolution<ViewRepr<&'a mut A>, Ix1> + TimeStep
 {
     let n = x0.len();
-    let ts = time_series(x0, &teo);
+    let ts = time_series(x0, teo);
     let qr_series = ts.scan(Array::eye(n), |q, x| {
         let (q_next, r) = jacobian(teo, x.clone(), alpha)
             .op_multi_mut(q)
