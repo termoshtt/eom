@@ -59,7 +59,6 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, F::Time>
 {
     type Scalar = F::Scalar;
 
-    #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         let x_ = x.to_owned();
         let fx = self.f.rhs(x);
@@ -78,7 +77,6 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, F::Time>
 {
     type Scalar = F::Scalar;
 
-    #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
@@ -106,7 +104,6 @@ impl<A, S, D, F> TimeEvolutionBase<S, D> for RK4<F, F::Time>
 {
     type Scalar = F::Scalar;
 
-    #[inline(always)]
     fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);

@@ -39,7 +39,6 @@ impl<S> Explicit<S, Ix1> for Roessler
     type Scalar = f64;
     type Time = f64;
 
-    #[inline(always)]
     fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
         let x = v[0];
         let y = v[1];
