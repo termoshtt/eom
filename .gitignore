@@ -13,3 +13,6 @@ Cargo.lock
 
 # ipython notebook
 .ipynb_checkpoints
+
+# perf
+perf.*
