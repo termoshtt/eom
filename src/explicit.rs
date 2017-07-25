@@ -148,27 +148,34 @@ pub struct RK4Buffer<A, D> {
     k3: Array<A, D>,
 }
 
-impl<A, S, D, F> TimeEvolutionBuffered<S, D> for RK4<F, F::Time>
+impl<A, D> RK4Buffer<A, D>
+    where A: Scalar,
+          D: Dimension
+{
+    pub fn new_buffer<T>(t: &T) -> RK4Buffer<A, D>
+        where T: ModelSize<D>
+    {
+        RK4Buffer {
+            x: Array::zeros(t.model_size()),
+            k1: Array::zeros(t.model_size()),
+            k2: Array::zeros(t.model_size()),
+            k3: Array::zeros(t.model_size()),
+        }
+    }
+}
+
+impl<A, S, D, F> TimeEvolutionBuffered<S, D, RK4Buffer<A, D>> for RK4<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
           F: Explicit<S, D, Time = A::Real, Scalar = A>
 {
     type Scalar = F::Scalar;
-    type Buffer = RK4Buffer<A, D>;
 
-    fn get_buffer(&self) -> Self::Buffer {
-        RK4Buffer {
-            x: Array::zeros(self.model_size()),
-            k1: Array::zeros(self.model_size()),
-            k2: Array::zeros(self.model_size()),
-            k3: Array::zeros(self.model_size()),
-        }
-    }
 
     fn iterate_buf<'a>(&self,
                        mut x: &'a mut ArrayBase<S, D>,
-                       mut buf: &mut Self::Buffer)
+                       mut buf: &mut RK4Buffer<A, D>)
                        -> &'a mut ArrayBase<S, D> {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
