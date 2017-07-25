@@ -180,22 +180,22 @@ impl<A, S, D, F> TimeEvolutionBuffered<S, D, RK4Buffer<A, D>> for RK4<F, F::Time
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
         let dt_6 = self.dt / into_scalar(6.0);
-        buf.x.assign(x);
+        buf.x.zip_mut_with(x, |buf, x| *buf = *x);
         // k1
         let mut k1 = self.f.rhs(x);
-        buf.k1.assign(k1);
+        buf.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
         Zip::from(&mut *k1)
             .and(&buf.x)
             .apply(|k1, &x| { *k1 = k1.mul_real(dt_2) + x; });
         // k2
         let mut k2 = self.f.rhs(k1);
-        buf.k2.assign(k2);
+        buf.k2.zip_mut_with(k2, |buf, k| *buf = *k);
         Zip::from(&mut *k2)
             .and(&buf.x)
             .apply(|k2, &x| { *k2 = x + k2.mul_real(dt_2); });
         // k3
         let mut k3 = self.f.rhs(k2);
-        buf.k3.assign(k3);
+        buf.k3.zip_mut_with(k3, |buf, k| *buf = *k);
         Zip::from(&mut *k3)
             .and(&buf.x)
             .apply(|k3, &x| { *k3 = x + k3.mul_real(dt); });
