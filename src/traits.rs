@@ -45,6 +45,20 @@ pub trait TimeEvolutionBase<S, D>: ModelSize<D> + TimeStep
     fn iterate<'a>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>;
 }
 
+/// Time-evolution operator with buffer
+pub trait TimeEvolutionBuffered<S, D>: ModelSize<D> + TimeStep
+    where S: DataMut,
+          D: Dimension
+{
+    type Scalar: Scalar;
+    type Buffer;
+    fn get_buffer(&self) -> Self::Buffer;
+    /// calculate next step
+    fn iterate_buf<'a>(&self,
+                       &'a mut ArrayBase<S, D>,
+                       &mut Self::Buffer)
+                       -> &'a mut ArrayBase<S, D>;
+}
 
 pub trait TimeEvolution<A, D>
     : TimeEvolutionBase<OwnedRepr<A>, D, Scalar = A, Time = A::Real>
