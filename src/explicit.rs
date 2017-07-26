@@ -164,14 +164,13 @@ impl<A, D> RK4Buffer<A, D>
     }
 }
 
-impl<A, S, D, F> TimeEvolutionBuffered<S, D, RK4Buffer<A, D>> for RK4<F, F::Time>
+impl<A, S, D, F> TimeEvolutionBufferedBase<S, D, RK4Buffer<A, D>> for RK4<F, F::Time>
     where A: Scalar,
           S: DataMut<Elem = A>,
           D: Dimension,
           F: Explicit<S, D, Time = A::Real, Scalar = A>
 {
     type Scalar = F::Scalar;
-
 
     fn iterate_buf<'a>(&self,
                        mut x: &'a mut ArrayBase<S, D>,
