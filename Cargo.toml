@@ -8,6 +8,7 @@ documentation = "https://docs.rs/ndarray-odeint/"
 repository = "https://github.com/termoshtt/ndarray-odeint"
 keywords = ["ndarray", "ode"]
 license = "MIT"
+readme = "README.md"
 
 [dependencies]
 ndarray = "0.10"
