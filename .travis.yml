@@ -14,3 +14,9 @@ matrix:
     - rust: nightly
 
 script: cargo test -vv
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - gfortran
