@@ -1,13 +1,11 @@
 language: rust
-sudo: required
+dist: trusty
+sudo: false
 
 rust:
   - stable
   - beta
   - nightly
-
-os:
-  - linux
 
 cache: cargo
 
@@ -19,12 +17,6 @@ script: cargo test -vv
 
 addons:
   apt:
-    sources:
-      - kubuntu-backports
-
     packages:
       - cmake
       - gfortran
-
-env:
-  - RUST_BACKTRACE=1
