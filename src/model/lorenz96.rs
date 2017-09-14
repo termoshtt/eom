@@ -22,13 +22,13 @@ impl ModelSize<Ix1> for Lorenz96 {
     }
 }
 
-impl<S> Explicit<S, Ix1> for Lorenz96
-    where S: DataMut<Elem = f64>
-{
+impl Explicit<Ix1> for Lorenz96 {
     type Scalar = f64;
     type Time = f64;
 
-    fn rhs<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
+    fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+        where S: DataMut<Elem = f64>
+    {
         let n = v.len();
         let v0 = v.to_owned();
         for i in 0..n {

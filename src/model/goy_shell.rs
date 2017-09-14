@@ -42,13 +42,13 @@ impl ModelSize<Ix1> for GoyShell {
     }
 }
 
-impl<S> SemiImplicit<S, Ix1> for GoyShell
-    where S: DataMut<Elem = c64>
-{
+impl SemiImplicit<Ix1> for GoyShell {
     type Scalar = c64;
     type Time = f64;
 
-    fn nlin<'a>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1> {
+    fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+        where S: DataMut<Elem = c64>
+    {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();
         let mut a_0 = v[0].conj();
