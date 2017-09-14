@@ -33,6 +33,9 @@ pub trait SemiImplicit<D: Dimension>: ModelSize<D> {
 pub trait TimeEvolution<D: Dimension>: ModelSize<D> + TimeStep {
     type Scalar: Scalar;
     type Buffer;
+    /// Generate new calculate buffer
+    fn new_buffer(&self) -> Self::Buffer;
     /// calculate next step
-    fn iterate<S>(&self, &mut ArrayBase<S, D>, &mut Buffer) where S: DataMut<Elem = Self::Scalar>;
+    fn iterate<S>(&self, &mut ArrayBase<S, D>, &mut Self::Buffer)
+        where S: DataMut<Elem = Self::Scalar>;
 }
