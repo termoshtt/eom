@@ -37,107 +37,84 @@ pub fn $constructor<F, Time: RealScalar>(f: F, dt: Time) -> $method<F, Time> {
     $method::new(f, dt)
 }
 
-impl<A, D, F> TimeEvolution<A, D> for $method<F, A::Real>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<OwnedRepr<A>, D, Scalar=A, Time=A::Real>
-           + Explicit<OwnedRcRepr<A>, D, Scalar=A, Time=A::Real>
-           + for<'a> Explicit<ViewRepr<&'a mut A>, D, Scalar=A, Time=A::Real>
-{}
-
 }} // def_explicit
 
 def_explicit!(Euler, euler);
 def_explicit!(Heun, heun);
 def_explicit!(RK4, rk4);
 
-impl<A, S, D, F> TimeEvolutionBase<S, D> for Euler<F, F::Time>
-    where A: Scalar,
-          S: DataMut<Elem = A>,
-          D: Dimension,
-          F: Explicit<S, D, Time = A::Real, Scalar = A>
-{
-    type Scalar = F::Scalar;
+pub struct EulerBuffer<A, D> {
+    x: Array<A, D>,
+}
 
-    fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
-        let x_ = x.to_owned();
-        let fx = self.f.rhs(x);
+impl<A, F, D> TimeEvolution<D> for Euler<F, A::Real>
+    where A: Scalar,
+          F: Explicit<D, Scalar = A, Time = A::Real>,
+          D: Dimension
+{
+    type Scalar = A;
+    type Buffer = EulerBuffer<A, D>;
+
+    fn new_buffer(&self) -> Self::Buffer {
+        EulerBuffer { x: Array::zeros(self.f.model_size()) }
+    }
+
+    fn iterate<'a, S>(&self,
+                      mut x: &'a mut ArrayBase<S, D>,
+                      mut buf: &mut Self::Buffer)
+                      -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = A>
+    {
+        buf.x.zip_mut_with(x, |buf, x| *buf = *x);
+        let mut fx = self.f.rhs(x);
         Zip::from(&mut *fx)
-            .and(&x_)
+            .and(&buf.x)
             .apply(|vfx, vx| { *vfx = *vx + vfx.mul_real(self.dt); });
         fx
     }
 }
 
-impl<A, S, D, F> TimeEvolutionBase<S, D> for Heun<F, F::Time>
-    where A: Scalar,
-          S: DataMut<Elem = A>,
-          D: Dimension,
-          F: Explicit<S, D, Time = A::Real, Scalar = A>
-{
-    type Scalar = F::Scalar;
+pub struct HeunBuffer<A, D> {
+    x: Array<A, D>,
+    k1: Array<A, D>,
+}
 
-    fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
+impl<A, F, D> TimeEvolution<D> for Heun<F, A::Real>
+    where A: Scalar,
+          F: Explicit<D, Time = A::Real, Scalar = A>,
+          D: Dimension
+{
+    type Scalar = A;
+    type Buffer = HeunBuffer<A, D>;
+
+    fn new_buffer(&self) -> Self::Buffer {
+        HeunBuffer {
+            x: Array::zeros(self.f.model_size()),
+            k1: Array::zeros(self.f.model_size()),
+        }
+    }
+
+    fn iterate<'a, S>(&self,
+                      mut x: &'a mut ArrayBase<S, D>,
+                      mut buf: &mut HeunBuffer<A, D>)
+                      -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = A>
+    {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
         // calc
-        let x_ = x.to_owned();
+        buf.x.zip_mut_with(x, |buf, x| *buf = *x);
         let k1 = self.f.rhs(x);
-        let k1_ = k1.to_owned();
+        buf.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
         Zip::from(&mut *k1)
-            .and(&x_)
+            .and(&buf.x)
             .apply(|k1, &x_| { *k1 = k1.mul_real(dt) + x_; });
         let k2 = self.f.rhs(k1);
         Zip::from(&mut *k2)
-            .and(&x_)
-            .and(&k1_)
+            .and(&buf.x)
+            .and(&buf.k1)
             .apply(|k2, &x_, &k1_| { *k2 = x_ + (k1_ + *k2).mul_real(dt_2); });
         k2
-    }
-}
-
-impl<A, S, D, F> TimeEvolutionBase<S, D> for RK4<F, F::Time>
-    where A: Scalar,
-          S: DataMut<Elem = A>,
-          D: Dimension,
-          F: Explicit<S, D, Time = A::Real, Scalar = A>
-{
-    type Scalar = F::Scalar;
-
-    fn iterate<'a>(&self, mut x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
-        let dt = self.dt;
-        let dt_2 = self.dt * into_scalar(0.5);
-        let dt_6 = self.dt / into_scalar(6.0);
-        let x_ = x.to_owned();
-        // k1
-        let mut k1 = self.f.rhs(x);
-        let k1_ = k1.to_owned();
-        Zip::from(&mut *k1)
-            .and(&x_)
-            .apply(|k1, &x_| { *k1 = k1.mul_real(dt_2) + x_; });
-        // k2
-        let mut k2 = self.f.rhs(k1);
-        let k2_ = k2.to_owned();
-        Zip::from(&mut *k2)
-            .and(&x_)
-            .apply(|k2, &x_| { *k2 = x_ + k2.mul_real(dt_2); });
-        // k3
-        let mut k3 = self.f.rhs(k2);
-        let k3_ = k3.to_owned();
-        Zip::from(&mut *k3)
-            .and(&x_)
-            .apply(|k3, &x_| { *k3 = x_ + k3.mul_real(dt); });
-        let mut k4 = self.f.rhs(k3);
-        Zip::from(&mut *k4)
-            .and(&x_)
-            .and(&k1_)
-            .and(&k2_)
-            .and(&k3_)
-            .apply(|k4, &x_, &k1_, &k2_, &k3_| {
-                       *k4 = x_ +
-                             (k1_ + (k2_ + k3_).mul_real(into_scalar(2.0)) + *k4).mul_real(dt_6);
-                   });
-        k4
     }
 }
 
@@ -152,30 +129,32 @@ impl<A, D> RK4Buffer<A, D>
     where A: Scalar,
           D: Dimension
 {
-    pub fn new_buffer<T>(t: &T) -> RK4Buffer<A, D>
-        where T: ModelSize<D>
-    {
-        RK4Buffer {
-            x: Array::zeros(t.model_size()),
-            k1: Array::zeros(t.model_size()),
-            k2: Array::zeros(t.model_size()),
-            k3: Array::zeros(t.model_size()),
-        }
-    }
 }
 
-impl<A, S, D, F> TimeEvolutionBufferedBase<S, D, RK4Buffer<A, D>> for RK4<F, F::Time>
+impl<A, F, D> TimeEvolution<D> for RK4<F, A::Real>
     where A: Scalar,
-          S: DataMut<Elem = A>,
-          D: Dimension,
-          F: Explicit<S, D, Time = A::Real, Scalar = A>
+          F: Explicit<D, Time = A::Real, Scalar = A>,
+          D: Dimension
 {
-    type Scalar = F::Scalar;
+    type Scalar = A;
+    type Buffer = RK4Buffer<A, D>;
 
-    fn iterate_buf<'a>(&self,
-                       mut x: &'a mut ArrayBase<S, D>,
-                       mut buf: &mut RK4Buffer<A, D>)
-                       -> &'a mut ArrayBase<S, D> {
+    fn new_buffer(&self) -> Self::Buffer {
+        RK4Buffer {
+            x: Array::zeros(self.f.model_size()),
+            k1: Array::zeros(self.f.model_size()),
+            k2: Array::zeros(self.f.model_size()),
+            k3: Array::zeros(self.f.model_size()),
+        }
+    }
+
+    fn iterate<'a, S>(&self,
+                      mut x: &'a mut ArrayBase<S, D>,
+                      mut buf: &mut RK4Buffer<A, D>)
+                      -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = A>
+    {
+        let two = into_scalar(2.0);
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
         let dt_6 = self.dt / into_scalar(6.0);
@@ -205,7 +184,7 @@ impl<A, S, D, F> TimeEvolutionBufferedBase<S, D, RK4Buffer<A, D>> for RK4<F, F::
             .and(&buf.k2)
             .and(&buf.k3)
             .apply(|k4, &x, &k1, &k2, &k3| {
-                       *k4 = x + (k1 + (k2 + k3).mul_real(into_scalar(2.0)) + *k4).mul_real(dt_6);
+                       *k4 = x + (k1 + (k2 + k3).mul_real(two) + *k4).mul_real(dt_6);
                    });
         k4
     }
