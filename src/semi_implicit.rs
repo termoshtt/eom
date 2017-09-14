@@ -51,16 +51,25 @@ impl<D, NLin, Lin, Time> ModelSize<D> for DiagRK4<NLin, Lin, Time>
     }
 }
 
-impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
+impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<NLin, Lin, A::Real>
     where A: Scalar,
-          S: DataMut<Elem = A>,
           D: Dimension,
-          NLin: SemiImplicit<S, D, Scalar = A, Time = A::Real>,
-          Lin: TimeEvolution<A, D> + TimeEvolutionBase<S, D>
+          NLin: SemiImplicit<D, Scalar = A, Time = A::Real>,
+          Lin: TimeEvolution<D, Scalar = A, Time = A::Real>
 {
     type Scalar = A;
+    type Buffer = Lin::Buffer;
 
-    fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
+    fn new_buffer(&self) -> Self::Buffer {
+        self.lin.new_buffer()
+    }
+
+    fn iterate<'a, S>(&self,
+                      x: &'a mut ArrayBase<S, D>,
+                      mut buf: &mut Self::Buffer)
+                      -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = A>
+    {
         // constants
         let dt = self.dt;
         let dt_2 = self.dt / into_scalar(2.0);
@@ -72,13 +81,13 @@ impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
         // calc
         let mut x_ = x.to_owned();
         let mut lx = x.to_owned();
-        l.iterate(&mut lx);
+        l.iterate(&mut lx, &mut buf);
         let mut k1 = f.nlin(x);
         let k1_ = k1.to_owned();
         Zip::from(&mut *k1)
             .and(&x_)
             .apply(|k1, &x_| { *k1 = x_ + k1.mul_real(dt_2); });
-        let mut k2 = f.nlin(l.iterate(k1));
+        let mut k2 = f.nlin(l.iterate(k1, &mut buf));
         let k2_ = k2.to_owned();
         Zip::from(&mut *k2)
             .and(&lx)
@@ -88,24 +97,14 @@ impl<A, S, D, NLin, Lin> TimeEvolutionBase<S, D> for DiagRK4<NLin, Lin, A::Real>
         Zip::from(&mut *k3)
             .and(&lx)
             .apply(|k3, &lx| { *k3 = lx + k3.mul_real(dt); });
-        let mut k4 = f.nlin(l.iterate(k3));
+        let mut k4 = f.nlin(l.iterate(k3, &mut buf));
         azip!(mut x_, k1_ in { *x_ = *x_ + k1_.mul_real(dt_6) });
-        l.iterate(&mut x_);
+        l.iterate(&mut x_, &mut buf);
         azip!(mut x_, k2_, k3_ in { *x_ = *x_ + (k2_ + k3_).mul_real(dt_3) });
-        l.iterate(&mut x_);
+        l.iterate(&mut x_, &mut buf);
         Zip::from(&mut *k4)
             .and(&x_)
             .apply(|k4, &x_| { *k4 = x_ + k4.mul_real(dt_6); });
         k4
     }
-}
-
-impl<A, D, NLin, Lin> TimeEvolution<A, D> for DiagRK4<NLin, Lin, A::Real>
-    where A: Scalar,
-          D: Dimension,
-          NLin: SemiImplicit<OwnedRepr<A>, D, Scalar = A, Time = A::Real>
-                    + SemiImplicit<OwnedRcRepr<A>, D, Scalar = A, Time = A::Real>
-                    + for<'a> SemiImplicit<ViewRepr<&'a mut A>, D, Scalar = A, Time = A::Real>,
-          Lin: TimeEvolution<A, D>
-{
 }
