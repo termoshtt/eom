@@ -19,14 +19,16 @@ pub trait Explicit<D: Dimension>: ModelSize<D> {
     type Scalar: Scalar;
     type Time: RealScalar;
     /// calculate right hand side (rhs) of Explicit from current state
-    fn rhs<S>(&self, &mut ArrayBase<S, D>) where S: DataMut<Elem = Self::Scalar>;
+    fn rhs<'a, S>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = Self::Scalar>;
 }
 
 pub trait SemiImplicit<D: Dimension>: ModelSize<D> {
     type Scalar: Scalar;
     type Time: RealScalar;
     /// non-linear part of stiff equation
-    fn nlin<S>(&self, &mut ArrayBase<S, D>) where S: DataMut<Elem = Self::Scalar>;
+    fn nlin<'a, S>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = Self::Scalar>;
 }
 
 /// Time-evolution operator with buffer
@@ -36,6 +38,6 @@ pub trait TimeEvolution<D: Dimension>: ModelSize<D> + TimeStep {
     /// Generate new calculate buffer
     fn new_buffer(&self) -> Self::Buffer;
     /// calculate next step
-    fn iterate<S>(&self, &mut ArrayBase<S, D>, &mut Self::Buffer)
+    fn iterate<'a, S>(&self, &'a mut ArrayBase<S, D>, &mut Self::Buffer) -> &'a mut ArrayBase<S, D>
         where S: DataMut<Elem = Self::Scalar>;
 }
