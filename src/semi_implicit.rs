@@ -6,13 +6,15 @@ use ndarray_linalg::*;
 use super::traits::*;
 use super::diag::{Diagonal, StiffDiagonal, diagonal};
 
-pub struct DiagRK4<NLin, Lin, Time: RealScalar> {
+pub struct DiagRK4<A, NLin, Lin>
+    where A: Scalar
+{
     nlin: NLin,
     lin: Lin,
-    dt: Time,
+    dt: A::Real,
 }
 
-pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<EOM, Diagonal<A, D>, A::Real>
+pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<A, EOM, Diagonal<A, D>>
     where A: Scalar,
           D: Dimension,
           EOM: StiffDiagonal<A, D>
@@ -25,11 +27,11 @@ pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<EOM, Diagonal<A, D>
     }
 }
 
-impl<NLin, Lin, Time> TimeStep for DiagRK4<NLin, Lin, Time>
-    where Time: RealScalar,
-          Lin: TimeStep<Time = Time>
+impl<A, NLin, Lin> TimeStep for DiagRK4<A, NLin, Lin>
+    where A: Scalar,
+          Lin: TimeStep<Time = A::Real>
 {
-    type Time = Time;
+    type Time = A::Real;
 
     fn get_dt(&self) -> Self::Time {
         self.dt
@@ -40,20 +42,20 @@ impl<NLin, Lin, Time> TimeStep for DiagRK4<NLin, Lin, Time>
     }
 }
 
-impl<D, NLin, Lin, Time> ModelSize<D> for DiagRK4<NLin, Lin, Time>
-    where D: Dimension,
+impl<A, D, NLin, Lin> ModelSize<D> for DiagRK4<A, NLin, Lin>
+    where A: Scalar,
+          D: Dimension,
           NLin: ModelSize<D>,
-          Lin: ModelSize<D>,
-          Time: RealScalar
+          Lin: ModelSize<D>
 {
     fn model_size(&self) -> D::Pattern {
         self.nlin.model_size() // TODO check
     }
 }
 
-impl<NLin, Lin, Time> WithBuffer for DiagRK4<NLin, Lin, Time>
-    where Lin: WithBuffer,
-          Time: RealScalar
+impl<A, NLin, Lin> WithBuffer for DiagRK4<A, NLin, Lin>
+    where A: Scalar,
+          Lin: WithBuffer
 {
     type Buffer = Lin::Buffer;
 
@@ -62,7 +64,7 @@ impl<NLin, Lin, Time> WithBuffer for DiagRK4<NLin, Lin, Time>
     }
 }
 
-impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<NLin, Lin, A::Real>
+impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<A, NLin, Lin>
     where A: Scalar,
           D: Dimension,
           NLin: SemiImplicit<D, Scalar = A>,
