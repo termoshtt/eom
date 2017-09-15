@@ -4,27 +4,35 @@ use ndarray::*;
 use ndarray_linalg::*;
 use super::traits::*;
 
+use std::marker::PhantomData;
+
 macro_rules! def_explicit {
     ($method:ident, $constructor:ident) => {
 
-#[derive(new)]
-pub struct $method<F, Time: RealScalar> {
+pub struct $method<A, D, F> 
+where A: Scalar,
+      D: Dimension,
+{
     f: F,
-    dt: Time,
+    dt: A::Real,
+    phantom: PhantomData<D>
 }
 
-impl<F, D, Time> ModelSize<D> for $method<F, Time>
-    where F: ModelSize<D>,
-          D: Dimension,
-          Time: RealScalar
+impl<A, D, F> ModelSize<D> for $method<A, D, F>
+where A: Scalar,
+      D: Dimension,
+      F: ModelSize<D>
 {
     fn model_size(&self) -> D::Pattern {
         self.f.model_size()
     }
 }
 
-impl<F, Time: RealScalar> TimeStep for $method<F, Time> {
-    type Time = Time;
+impl<A, D, F> TimeStep for $method<A, D, F>
+where A: Scalar,
+      D: Dimension
+{
+    type Time = A::Real;
     fn get_dt(&self) -> Self::Time {
         self.dt
     }
@@ -33,8 +41,11 @@ impl<F, Time: RealScalar> TimeStep for $method<F, Time> {
     }
 }
 
-pub fn $constructor<F, Time: RealScalar>(f: F, dt: Time) -> $method<F, Time> {
-    $method::new(f, dt)
+pub fn $constructor<A, D, F>(f: F, dt: A::Real) -> $method<A, D, F>
+where A: Scalar,
+      D: Dimension
+{
+    $method { f: f, dt: dt, phantom: PhantomData }
 }
 
 }} // def_explicit
@@ -47,10 +58,10 @@ pub struct EulerBuffer<A, D> {
     x: Array<A, D>,
 }
 
-impl<A, F, D> TimeEvolution<D> for Euler<F, A::Real>
+impl<A, D, F> TimeEvolution<D> for Euler<A, D, F>
     where A: Scalar,
-          F: Explicit<D, Scalar = A, Time = A::Real>,
-          D: Dimension
+          D: Dimension,
+          F: Explicit<D, Scalar = A, Time = A::Real>
 {
     type Scalar = A;
     type Buffer = EulerBuffer<A, D>;
@@ -79,10 +90,10 @@ pub struct HeunBuffer<A, D> {
     k1: Array<A, D>,
 }
 
-impl<A, F, D> TimeEvolution<D> for Heun<F, A::Real>
+impl<A, D, F> TimeEvolution<D> for Heun<A, D, F>
     where A: Scalar,
-          F: Explicit<D, Time = A::Real, Scalar = A>,
-          D: Dimension
+          D: Dimension,
+          F: Explicit<D, Time = A::Real, Scalar = A>
 {
     type Scalar = A;
     type Buffer = HeunBuffer<A, D>;
@@ -125,16 +136,10 @@ pub struct RK4Buffer<A, D> {
     k3: Array<A, D>,
 }
 
-impl<A, D> RK4Buffer<A, D>
+impl<A, D, F> TimeEvolution<D> for RK4<A, D, F>
     where A: Scalar,
-          D: Dimension
-{
-}
-
-impl<A, F, D> TimeEvolution<D> for RK4<F, A::Real>
-    where A: Scalar,
-          F: Explicit<D, Time = A::Real, Scalar = A>,
-          D: Dimension
+          D: Dimension,
+          F: Explicit<D, Time = A::Real, Scalar = A>
 {
     type Scalar = A;
     type Buffer = RK4Buffer<A, D>;
