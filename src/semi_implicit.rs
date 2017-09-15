@@ -42,13 +42,14 @@ impl<A, NLin, Lin> TimeStep for DiagRK4<A, NLin, Lin>
     }
 }
 
-impl<A, D, NLin, Lin> ModelSize<D> for DiagRK4<A, NLin, Lin>
+impl<A, NLin, Lin> ModelSize for DiagRK4<A, NLin, Lin>
     where A: Scalar,
-          D: Dimension,
-          NLin: ModelSize<D>,
-          Lin: ModelSize<D>
+          NLin: ModelSize,
+          Lin: ModelSize
 {
-    fn model_size(&self) -> D::Pattern {
+    type Dim = NLin::Dim;
+
+    fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
         self.nlin.model_size() // TODO check
     }
 }
@@ -64,18 +65,18 @@ impl<A, NLin, Lin> WithBuffer for DiagRK4<A, NLin, Lin>
     }
 }
 
-impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<A, NLin, Lin>
+impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<A, NLin, Lin>
     where A: Scalar,
           D: Dimension,
-          NLin: SemiImplicit<D, Scalar = A>,
-          Lin: TimeEvolution<D, Scalar = A> + TimeStep<Time = A::Real>
+          NLin: SemiImplicit<Scalar = A, Dim = D>,
+          Lin: TimeEvolution<Scalar = A, Dim = D>
 {
     type Scalar = A;
 
     fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, D>,
+                      x: &'a mut ArrayBase<S, Self::Dim>,
                       mut buf: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, D>
+                      -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = A>
     {
         // constants

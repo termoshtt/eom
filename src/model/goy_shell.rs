@@ -36,13 +36,15 @@ impl Default for GoyShell {
     }
 }
 
-impl ModelSize<Ix1> for GoyShell {
+impl ModelSize for GoyShell {
+    type Dim = Ix1;
+
     fn model_size(&self) -> usize {
         self.size
     }
 }
 
-impl SemiImplicit<Ix1> for GoyShell {
+impl SemiImplicit for GoyShell {
     type Scalar = c64;
 
     fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>

@@ -21,7 +21,8 @@ impl Default for Roessler {
     }
 }
 
-impl ModelSize<Ix1> for Roessler {
+impl ModelSize for Roessler {
+    type Dim = Ix1;
     fn model_size(&self) -> usize {
         3
     }
@@ -33,7 +34,7 @@ impl Roessler {
     }
 }
 
-impl Explicit<Ix1> for Roessler {
+impl Explicit for Roessler {
     type Scalar = f64;
 
     fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>

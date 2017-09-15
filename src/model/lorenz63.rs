@@ -29,13 +29,15 @@ impl Lorenz63 {
     }
 }
 
-impl ModelSize<Ix1> for Lorenz63 {
+impl ModelSize for Lorenz63 {
+    type Dim = Ix1;
+
     fn model_size(&self) -> usize {
         3
     }
 }
 
-impl Explicit<Ix1> for Lorenz63 {
+impl Explicit for Lorenz63 {
     type Scalar = f64;
 
     fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
@@ -51,7 +53,7 @@ impl Explicit<Ix1> for Lorenz63 {
     }
 }
 
-impl SemiImplicit<Ix1> for Lorenz63 {
+impl SemiImplicit for Lorenz63 {
     type Scalar = f64;
 
     fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>

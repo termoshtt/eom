@@ -4,36 +4,23 @@ use ndarray::*;
 use ndarray_linalg::*;
 use super::traits::*;
 
-use std::marker::PhantomData;
-
 macro_rules! def_explicit {
     ($method:ident, $constructor:ident) => {
 
-pub struct $method<A, D, F> 
-where A: Scalar,
-      D: Dimension,
-      F: Explicit<D, Scalar = A>
-{
+pub struct $method<F: Explicit> {
     f: F,
-    dt: A::Real,
-    phantom: PhantomData<D>
+    dt: <F::Scalar as AssociatedReal>::Real,
 }
 
-impl<A, D, F> ModelSize<D> for $method<A, D, F>
-where A: Scalar,
-      D: Dimension,
-      F: Explicit<D, Scalar = A> + ModelSize<D>
-{
+impl<D: Dimension, F: Explicit<Dim = D>> ModelSize for $method<F> {
+    type Dim = D;
+
     fn model_size(&self) -> D::Pattern {
         self.f.model_size()
     }
 }
 
-impl<A, D, F> TimeStep for $method<A, D, F>
-where A: Scalar,
-      D: Dimension,
-      F: Explicit<D, Scalar = A>
-{
+impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for $method<F> {
     type Time = A::Real;
     fn get_dt(&self) -> Self::Time {
         self.dt
@@ -43,12 +30,11 @@ where A: Scalar,
     }
 }
 
-pub fn $constructor<A, D, F>(f: F, dt: A::Real) -> $method<A, D, F>
+pub fn $constructor<A, F>(f: F, dt: A::Real) -> $method<F>
 where A: Scalar,
-      D: Dimension,
-      F: Explicit<D, Scalar = A>
+      F: Explicit<Scalar = A>
 {
-    $method { f: f, dt: dt, phantom: PhantomData }
+    $method { f: f, dt: dt }
 }
 
 }} // def_explicit
@@ -61,30 +47,26 @@ pub struct EulerBuffer<A, D> {
     x: Array<A, D>,
 }
 
-impl<A, D, F> WithBuffer for Euler<A, D, F>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<D, Scalar = A> + ModelSize<D>
+impl<F> WithBuffer for Euler<F>
+    where F: Explicit + ModelSize
 {
-    type Buffer = EulerBuffer<A, D>;
+    type Buffer = EulerBuffer<F::Scalar, F::Dim>;
 
     fn new_buffer(&self) -> Self::Buffer {
         EulerBuffer { x: Array::zeros(self.f.model_size()) }
     }
 }
 
-impl<A, D, F> TimeEvolution<D> for Euler<A, D, F>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<D, Scalar = A> + ModelSize<D>
+impl<F> TimeEvolution for Euler<F>
+    where F: Explicit + ModelSize
 {
-    type Scalar = A;
+    type Scalar = F::Scalar;
 
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, D>,
+                      mut x: &'a mut ArrayBase<S, F::Dim>,
                       mut buf: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, D>
-        where S: DataMut<Elem = A>
+                      -> &'a mut ArrayBase<S, F::Dim>
+        where S: DataMut<Elem = Self::Scalar>
     {
         buf.x.zip_mut_with(x, |buf, x| *buf = *x);
         let mut fx = self.f.rhs(x);
@@ -100,12 +82,8 @@ pub struct HeunBuffer<A, D> {
     k1: Array<A, D>,
 }
 
-impl<A, D, F> WithBuffer for Heun<A, D, F>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<D, Scalar = A> + ModelSize<D>
-{
-    type Buffer = HeunBuffer<A, D>;
+impl<F: Explicit + ModelSize> WithBuffer for Heun<F> {
+    type Buffer = HeunBuffer<F::Scalar, F::Dim>;
 
     fn new_buffer(&self) -> Self::Buffer {
         HeunBuffer {
@@ -115,18 +93,14 @@ impl<A, D, F> WithBuffer for Heun<A, D, F>
     }
 }
 
-impl<A, D, F> TimeEvolution<D> for Heun<A, D, F>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<D, Scalar = A> + ModelSize<D>
-{
-    type Scalar = A;
+impl<F: Explicit + ModelSize> TimeEvolution for Heun<F> {
+    type Scalar = F::Scalar;
 
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, D>,
-                      mut buf: &mut HeunBuffer<A, D>)
-                      -> &'a mut ArrayBase<S, D>
-        where S: DataMut<Elem = A>
+                      mut x: &'a mut ArrayBase<S, F::Dim>,
+                      mut buf: &mut Self::Buffer)
+                      -> &'a mut ArrayBase<S, F::Dim>
+        where S: DataMut<Elem = Self::Scalar>
     {
         let dt = self.dt;
         let dt_2 = self.dt * into_scalar(0.5);
@@ -153,12 +127,8 @@ pub struct RK4Buffer<A, D> {
     k3: Array<A, D>,
 }
 
-impl<A, D, F> WithBuffer for RK4<A, D, F>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<D, Scalar = A> + ModelSize<D>
-{
-    type Buffer = RK4Buffer<A, D>;
+impl<F: Explicit + ModelSize> WithBuffer for RK4<F> {
+    type Buffer = RK4Buffer<F::Scalar, F::Dim>;
 
     fn new_buffer(&self) -> Self::Buffer {
         RK4Buffer {
@@ -170,18 +140,14 @@ impl<A, D, F> WithBuffer for RK4<A, D, F>
     }
 }
 
-impl<A, D, F> TimeEvolution<D> for RK4<A, D, F>
-    where A: Scalar,
-          D: Dimension,
-          F: Explicit<D, Scalar = A> + ModelSize<D>
-{
-    type Scalar = A;
+impl<F: Explicit + ModelSize> TimeEvolution for RK4<F> {
+    type Scalar = F::Scalar;
 
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, D>,
-                      mut buf: &mut RK4Buffer<A, D>)
-                      -> &'a mut ArrayBase<S, D>
-        where S: DataMut<Elem = A>
+                      mut x: &'a mut ArrayBase<S, F::Dim>,
+                      mut buf: &mut Self::Buffer)
+                      -> &'a mut ArrayBase<S, F::Dim>
+        where S: DataMut<Elem = Self::Scalar>
     {
         let two = into_scalar(2.0);
         let dt = self.dt;
