@@ -66,7 +66,7 @@ impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<NLin, Lin, A::Real>
     where A: Scalar,
           D: Dimension,
           NLin: SemiImplicit<D, Scalar = A, Time = A::Real>,
-          Lin: TimeEvolution<D, Scalar = A, Time = A::Real>
+          Lin: TimeEvolution<D, Scalar = A> + TimeStep<Time = A::Real>
 {
     type Scalar = A;
 

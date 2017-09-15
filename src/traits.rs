@@ -21,7 +21,7 @@ pub trait TimeStep {
 }
 
 /// Equation of motion (Explicit)
-pub trait Explicit<D: Dimension>: ModelSize<D> {
+pub trait Explicit<D: Dimension> {
     type Scalar: Scalar;
     type Time: RealScalar;
     /// calculate right hand side (rhs) of Explicit from current state
@@ -29,7 +29,7 @@ pub trait Explicit<D: Dimension>: ModelSize<D> {
         where S: DataMut<Elem = Self::Scalar>;
 }
 
-pub trait SemiImplicit<D: Dimension>: ModelSize<D> {
+pub trait SemiImplicit<D: Dimension> {
     type Scalar: Scalar;
     type Time: RealScalar;
     /// non-linear part of stiff equation
@@ -38,7 +38,7 @@ pub trait SemiImplicit<D: Dimension>: ModelSize<D> {
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution<D: Dimension>: ModelSize<D> + TimeStep + WithBuffer {
+pub trait TimeEvolution<D: Dimension>: WithBuffer {
     type Scalar: Scalar;
     /// calculate next step
     fn iterate<'a, S>(&self, &'a mut ArrayBase<S, D>, &mut Self::Buffer) -> &'a mut ArrayBase<S, D>
