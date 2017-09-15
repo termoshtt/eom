@@ -44,7 +44,6 @@ impl ModelSize<Ix1> for GoyShell {
 
 impl SemiImplicit<Ix1> for GoyShell {
     type Scalar = c64;
-    type Time = f64;
 
     fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = c64>

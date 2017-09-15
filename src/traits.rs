@@ -23,7 +23,6 @@ pub trait TimeStep {
 /// Equation of motion (Explicit)
 pub trait Explicit<D: Dimension> {
     type Scalar: Scalar;
-    type Time: RealScalar;
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
         where S: DataMut<Elem = Self::Scalar>;
@@ -31,7 +30,6 @@ pub trait Explicit<D: Dimension> {
 
 pub trait SemiImplicit<D: Dimension> {
     type Scalar: Scalar;
-    type Time: RealScalar;
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self, &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
         where S: DataMut<Elem = Self::Scalar>;

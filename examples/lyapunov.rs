@@ -18,7 +18,7 @@ pub fn exponents<A, S, TEO>(teo: TEO,
                             -> Array1<A>
     where A: RealScalar,
           S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<Ix1, Scalar = A, Time = A>
+          TEO: TimeEvolution<Ix1, Scalar = A> + TimeStep<Time = A>
 {
     let n = x0.len();
     let dur = teo.get_dt() * into_scalar(duration as f64);
