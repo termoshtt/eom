@@ -12,7 +12,7 @@ macro_rules! def_explicit {
 pub struct $method<A, D, F> 
 where A: Scalar,
       D: Dimension,
-      F: Explicit<D, Scalar = A, Time = A::Real>
+      F: Explicit<D, Scalar = A>
 {
     f: F,
     dt: A::Real,
@@ -22,7 +22,7 @@ where A: Scalar,
 impl<A, D, F> ModelSize<D> for $method<A, D, F>
 where A: Scalar,
       D: Dimension,
-      F: Explicit<D, Scalar = A, Time = A::Real>
+      F: Explicit<D, Scalar = A> + ModelSize<D>
 {
     fn model_size(&self) -> D::Pattern {
         self.f.model_size()
@@ -32,7 +32,7 @@ where A: Scalar,
 impl<A, D, F> TimeStep for $method<A, D, F>
 where A: Scalar,
       D: Dimension,
-      F: Explicit<D, Scalar = A, Time = A::Real>
+      F: Explicit<D, Scalar = A>
 {
     type Time = A::Real;
     fn get_dt(&self) -> Self::Time {
@@ -46,7 +46,7 @@ where A: Scalar,
 pub fn $constructor<A, D, F>(f: F, dt: A::Real) -> $method<A, D, F>
 where A: Scalar,
       D: Dimension,
-      F: Explicit<D, Scalar = A, Time = A::Real>
+      F: Explicit<D, Scalar = A>
 {
     $method { f: f, dt: dt, phantom: PhantomData }
 }
@@ -61,17 +61,24 @@ pub struct EulerBuffer<A, D> {
     x: Array<A, D>,
 }
 
-impl<A, D, F> TimeEvolution<D> for Euler<A, D, F>
+impl<A, D, F> WithBuffer for Euler<A, D, F>
     where A: Scalar,
           D: Dimension,
-          F: Explicit<D, Scalar = A, Time = A::Real>
+          F: Explicit<D, Scalar = A> + ModelSize<D>
 {
-    type Scalar = A;
     type Buffer = EulerBuffer<A, D>;
 
     fn new_buffer(&self) -> Self::Buffer {
         EulerBuffer { x: Array::zeros(self.f.model_size()) }
     }
+}
+
+impl<A, D, F> TimeEvolution<D> for Euler<A, D, F>
+    where A: Scalar,
+          D: Dimension,
+          F: Explicit<D, Scalar = A> + ModelSize<D>
+{
+    type Scalar = A;
 
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, D>,
@@ -93,12 +100,11 @@ pub struct HeunBuffer<A, D> {
     k1: Array<A, D>,
 }
 
-impl<A, D, F> TimeEvolution<D> for Heun<A, D, F>
+impl<A, D, F> WithBuffer for Heun<A, D, F>
     where A: Scalar,
           D: Dimension,
-          F: Explicit<D, Time = A::Real, Scalar = A>
+          F: Explicit<D, Scalar = A> + ModelSize<D>
 {
-    type Scalar = A;
     type Buffer = HeunBuffer<A, D>;
 
     fn new_buffer(&self) -> Self::Buffer {
@@ -107,6 +113,14 @@ impl<A, D, F> TimeEvolution<D> for Heun<A, D, F>
             k1: Array::zeros(self.f.model_size()),
         }
     }
+}
+
+impl<A, D, F> TimeEvolution<D> for Heun<A, D, F>
+    where A: Scalar,
+          D: Dimension,
+          F: Explicit<D, Scalar = A> + ModelSize<D>
+{
+    type Scalar = A;
 
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, D>,
@@ -139,12 +153,11 @@ pub struct RK4Buffer<A, D> {
     k3: Array<A, D>,
 }
 
-impl<A, D, F> TimeEvolution<D> for RK4<A, D, F>
+impl<A, D, F> WithBuffer for RK4<A, D, F>
     where A: Scalar,
           D: Dimension,
-          F: Explicit<D, Time = A::Real, Scalar = A>
+          F: Explicit<D, Scalar = A> + ModelSize<D>
 {
-    type Scalar = A;
     type Buffer = RK4Buffer<A, D>;
 
     fn new_buffer(&self) -> Self::Buffer {
@@ -155,6 +168,14 @@ impl<A, D, F> TimeEvolution<D> for RK4<A, D, F>
             k3: Array::zeros(self.f.model_size()),
         }
     }
+}
+
+impl<A, D, F> TimeEvolution<D> for RK4<A, D, F>
+    where A: Scalar,
+          D: Dimension,
+          F: Explicit<D, Scalar = A> + ModelSize<D>
+{
+    type Scalar = A;
 
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, D>,

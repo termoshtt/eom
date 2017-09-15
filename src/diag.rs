@@ -71,16 +71,22 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, D> TimeEvolution<D> for Diagonal<A, D>
+impl<A, D> WithBuffer for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
-    type Scalar = A;
     type Buffer = ();
 
     fn new_buffer(&self) -> Self::Buffer {
         ()
     }
+}
+
+impl<A, D> TimeEvolution<D> for Diagonal<A, D>
+    where A: Scalar,
+          D: Dimension
+{
+    type Scalar = A;
 
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, D>,
