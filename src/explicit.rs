@@ -12,6 +12,7 @@ macro_rules! def_explicit {
 pub struct $method<A, D, F> 
 where A: Scalar,
       D: Dimension,
+      F: Explicit<D, Scalar = A, Time = A::Real>
 {
     f: F,
     dt: A::Real,
@@ -21,7 +22,7 @@ where A: Scalar,
 impl<A, D, F> ModelSize<D> for $method<A, D, F>
 where A: Scalar,
       D: Dimension,
-      F: ModelSize<D>
+      F: Explicit<D, Scalar = A, Time = A::Real>
 {
     fn model_size(&self) -> D::Pattern {
         self.f.model_size()
@@ -30,7 +31,8 @@ where A: Scalar,
 
 impl<A, D, F> TimeStep for $method<A, D, F>
 where A: Scalar,
-      D: Dimension
+      D: Dimension,
+      F: Explicit<D, Scalar = A, Time = A::Real>
 {
     type Time = A::Real;
     fn get_dt(&self) -> Self::Time {
@@ -43,7 +45,8 @@ where A: Scalar,
 
 pub fn $constructor<A, D, F>(f: F, dt: A::Real) -> $method<A, D, F>
 where A: Scalar,
-      D: Dimension
+      D: Dimension,
+      F: Explicit<D, Scalar = A, Time = A::Real>
 {
     $method { f: f, dt: dt, phantom: PhantomData }
 }
