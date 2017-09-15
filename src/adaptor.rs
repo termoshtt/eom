@@ -6,37 +6,41 @@ use super::traits::*;
 pub struct TimeSeries<'a, TEO, S, D>
     where S: DataMut,
           D: Dimension,
-          TEO: TimeEvolutionBase<S, D> + 'a
+          TEO: TimeEvolution<D> + 'a
 {
     state: ArrayBase<S, D>,
+    buf: TEO::Buffer,
     teo: &'a TEO,
 }
 
 pub fn time_series<'a, TEO, S, D>(x0: ArrayBase<S, D>, teo: &'a TEO) -> TimeSeries<'a, TEO, S, D>
     where S: DataMut,
           D: Dimension,
-          TEO: TimeEvolutionBase<S, D>
+          TEO: TimeEvolution<D>
 {
     TimeSeries {
         state: x0,
+        buf: teo.new_buffer(),
         teo: teo,
     }
 }
 
-impl<'a, TEO, S, D> TimeSeries<'a, TEO, S, D>
-    where S: DataMut + DataClone,
+impl<'a, TEO, A, S, D> TimeSeries<'a, TEO, S, D>
+    where A: Scalar,
+          S: DataMut<Elem = A> + DataClone,
           D: Dimension,
-          TEO: TimeEvolutionBase<S, D>
+          TEO: TimeEvolution<D, Scalar = A>
 {
     pub fn iterate(&mut self) {
-        self.teo.iterate(&mut self.state);
+        self.teo.iterate(&mut self.state, &mut self.buf);
     }
 }
 
-impl<'a, TEO, S, D> Iterator for TimeSeries<'a, TEO, S, D>
-    where S: DataMut + DataClone,
+impl<'a, TEO, A, S, D> Iterator for TimeSeries<'a, TEO, S, D>
+    where A: Scalar,
+          S: DataMut<Elem = A> + DataClone,
           D: Dimension,
-          TEO: TimeEvolutionBase<S, D>
+          TEO: TimeEvolution<D, Scalar = A>
 {
     type Item = ArrayBase<S, D>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -85,24 +89,26 @@ impl<TEO> TimeStep for NStep<TEO>
     }
 }
 
-impl<TEO, S, D> TimeEvolutionBase<S, D> for NStep<TEO>
-    where TEO: TimeEvolutionBase<S, D>,
-          S: DataMut,
+impl<TEO, D> TimeEvolution<D> for NStep<TEO>
+    where TEO: TimeEvolution<D>,
           D: Dimension
 {
     type Scalar = TEO::Scalar;
+    type Buffer = TEO::Buffer;
 
-    fn iterate<'a>(&self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D> {
+    fn new_buffer(&self) -> Self::Buffer {
+        self.teo.new_buffer()
+    }
+
+    fn iterate<'a, S>(&self,
+                      x: &'a mut ArrayBase<S, D>,
+                      mut buf: &mut Self::Buffer)
+                      -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = TEO::Scalar>
+    {
         for _ in 0..self.n {
-            self.teo.iterate(x);
+            self.teo.iterate(x, buf);
         }
         x
     }
-}
-
-impl<TEO, A, D> TimeEvolution<A, D> for NStep<TEO>
-    where A: Scalar,
-          D: Dimension,
-          TEO: TimeEvolution<A, D>
-{
 }

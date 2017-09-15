@@ -18,10 +18,10 @@ pub fn exponents<A, S, TEO>(teo: TEO,
                             -> Array1<A>
     where A: RealScalar,
           S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<A, Ix1> + TimeEvolutionBase<S, Ix1>
+          TEO: TimeEvolution<Ix1, Scalar = A, Time = A>
 {
     let n = x0.len();
-    let dur: A = AssociatedReal::inject(teo.get_dt() * into_scalar(duration as f64));
+    let dur = teo.get_dt() * into_scalar(duration as f64);
     let ts = time_series(x0, &teo);
     ts.scan(Array::eye(n), |q, x| {
         let q = jacobian(&teo, x.clone(), alpha).op_multi_mut(q);

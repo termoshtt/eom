@@ -11,7 +11,8 @@ fn arr() {
     let eom = model::Lorenz63::default();
     let teo = explicit::euler(eom, dt);
     let mut x: Array1<f64> = arr1(&[1.0, 0.0, 0.0]);
-    teo.iterate(&mut x);
+    let mut buf = teo.new_buffer();
+    teo.iterate(&mut x, &mut buf);
 }
 
 #[test]
@@ -20,7 +21,8 @@ fn rcarr() {
     let eom = model::Lorenz63::default();
     let teo = explicit::euler(eom, dt);
     let mut x: RcArray1<f64> = rcarr1(&[1.0, 0.0, 0.0]);
-    teo.iterate(&mut x);
+    let mut buf = teo.new_buffer();
+    teo.iterate(&mut x, &mut buf);
 }
 
 #[test]
@@ -30,5 +32,6 @@ fn view_mut() {
     let teo = explicit::euler(eom, dt);
     let mut x: Array1<f64> = arr1(&[1.0, 0.0, 0.0]);
     let mut v = &mut x.view_mut();
-    teo.iterate(v);
+    let mut buf = teo.new_buffer();
+    teo.iterate(v, &mut buf);
 }
