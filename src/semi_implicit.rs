@@ -51,6 +51,17 @@ impl<D, NLin, Lin, Time> ModelSize<D> for DiagRK4<NLin, Lin, Time>
     }
 }
 
+impl<NLin, Lin, Time> WithBuffer for DiagRK4<NLin, Lin, Time>
+    where Lin: WithBuffer,
+          Time: RealScalar
+{
+    type Buffer = Lin::Buffer;
+
+    fn new_buffer(&self) -> Self::Buffer {
+        self.lin.new_buffer()
+    }
+}
+
 impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<NLin, Lin, A::Real>
     where A: Scalar,
           D: Dimension,
@@ -58,11 +69,6 @@ impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<NLin, Lin, A::Real>
           Lin: TimeEvolution<D, Scalar = A, Time = A::Real>
 {
     type Scalar = A;
-    type Buffer = Lin::Buffer;
-
-    fn new_buffer(&self) -> Self::Buffer {
-        self.lin.new_buffer()
-    }
 
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, D>,

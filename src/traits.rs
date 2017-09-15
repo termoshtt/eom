@@ -7,6 +7,12 @@ pub trait ModelSize<D: Dimension> {
     fn model_size(&self) -> D::Pattern;
 }
 
+pub trait WithBuffer {
+    type Buffer;
+    /// Generate new calculate buffer
+    fn new_buffer(&self) -> Self::Buffer;
+}
+
 /// Interface for time-step
 pub trait TimeStep {
     type Time: RealScalar;
@@ -32,11 +38,8 @@ pub trait SemiImplicit<D: Dimension>: ModelSize<D> {
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution<D: Dimension>: ModelSize<D> + TimeStep {
+pub trait TimeEvolution<D: Dimension>: ModelSize<D> + TimeStep + WithBuffer {
     type Scalar: Scalar;
-    type Buffer;
-    /// Generate new calculate buffer
-    fn new_buffer(&self) -> Self::Buffer;
     /// calculate next step
     fn iterate<'a, S>(&self, &'a mut ArrayBase<S, D>, &mut Self::Buffer) -> &'a mut ArrayBase<S, D>
         where S: DataMut<Elem = Self::Scalar>;

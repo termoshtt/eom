@@ -89,16 +89,20 @@ impl<TEO> TimeStep for NStep<TEO>
     }
 }
 
+impl<TEO> WithBuffer for NStep<TEO>
+    where TEO: WithBuffer
+{
+    type Buffer = TEO::Buffer;
+    fn new_buffer(&self) -> Self::Buffer {
+        self.teo.new_buffer()
+    }
+}
+
 impl<TEO, D> TimeEvolution<D> for NStep<TEO>
     where TEO: TimeEvolution<D>,
           D: Dimension
 {
     type Scalar = TEO::Scalar;
-    type Buffer = TEO::Buffer;
-
-    fn new_buffer(&self) -> Self::Buffer {
-        self.teo.new_buffer()
-    }
 
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, D>,
