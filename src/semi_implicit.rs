@@ -41,10 +41,10 @@ impl<NLin, Lin> TimeStep for DiagRK4<NLin, Lin>
     }
 }
 
-impl<D, NLin, Lin> ModelSize for DiagRK4<NLin, Lin>
+impl<D, NLin, Lin> ModelSpec for DiagRK4<NLin, Lin>
     where D: Dimension,
-          NLin: ModelSize<Dim = D>,
-          Lin: ModelSize<Dim = D> + TimeStep
+          NLin: ModelSpec<Dim = D>,
+          Lin: ModelSpec<Dim = D> + TimeStep
 {
     type Dim = D;
 
@@ -53,8 +53,8 @@ impl<D, NLin, Lin> ModelSize for DiagRK4<NLin, Lin>
     }
 }
 
-impl<NLin, Lin> WithBuffer for DiagRK4<NLin, Lin>
-    where Lin: WithBuffer + TimeStep
+impl<NLin, Lin> BufferSpec for DiagRK4<NLin, Lin>
+    where Lin: BufferSpec + TimeStep
 {
     type Buffer = Lin::Buffer;
 

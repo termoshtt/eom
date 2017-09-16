@@ -21,7 +21,7 @@ impl Default for Roessler {
     }
 }
 
-impl ModelSize for Roessler {
+impl ModelSpec for Roessler {
     type Dim = Ix1;
     fn model_size(&self) -> usize {
         3

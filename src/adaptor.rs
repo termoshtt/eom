@@ -62,8 +62,8 @@ pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
     NStep { teo, n }
 }
 
-impl<TEO> ModelSize for NStep<TEO>
-    where TEO: ModelSize
+impl<TEO> ModelSpec for NStep<TEO>
+    where TEO: ModelSpec
 {
     type Dim = TEO::Dim;
 
@@ -86,8 +86,8 @@ impl<TEO> TimeStep for NStep<TEO>
     }
 }
 
-impl<TEO> WithBuffer for NStep<TEO>
-    where TEO: WithBuffer
+impl<TEO> BufferSpec for NStep<TEO>
+    where TEO: BufferSpec
 {
     type Buffer = TEO::Buffer;
     fn new_buffer(&self) -> Self::Buffer {

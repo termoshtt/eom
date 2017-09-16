@@ -3,7 +3,7 @@
 use ndarray::*;
 use ndarray_linalg::*;
 
-pub trait ModelSize {
+pub trait ModelSpec {
     type Dim: Dimension;
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
 }
@@ -12,7 +12,7 @@ pub trait ModelSize {
 ///
 /// `&mut self` interface is too limited since it cannot be combined
 /// with other `&self` functions even if re-generate the caluculation buffer.
-pub trait WithBuffer {
+pub trait BufferSpec {
     /// mutable state of caluculation
     type Buffer;
     /// Generate new calculate buffer
@@ -30,7 +30,7 @@ pub trait TimeStep {
 }
 
 /// EoM for explicit schemes
-pub trait Explicit: ModelSize {
+pub trait Explicit: ModelSpec {
     type Scalar: Scalar;
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
@@ -38,7 +38,7 @@ pub trait Explicit: ModelSize {
 }
 
 /// EoM for semi-implicit schemes
-pub trait SemiImplicit: ModelSize {
+pub trait SemiImplicit: ModelSpec {
     type Scalar: Scalar;
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
@@ -46,7 +46,7 @@ pub trait SemiImplicit: ModelSize {
 }
 
 /// EoM for semi-implicit schemes
-pub trait SemiImplicitBuf: ModelSize + WithBuffer {
+pub trait SemiImplicitBuf: ModelSpec + BufferSpec {
     type Scalar: Scalar;
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self,
@@ -57,7 +57,7 @@ pub trait SemiImplicitBuf: ModelSize + WithBuffer {
 }
 
 impl<F> SemiImplicitBuf for F
-    where F: SemiImplicit + WithBuffer<Buffer = NoBuffer>
+    where F: SemiImplicit + BufferSpec<Buffer = NoBuffer>
 {
     type Scalar = F::Scalar;
 
@@ -78,7 +78,7 @@ pub trait StiffDiagonal: SemiImplicit {
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution: WithBuffer + ModelSize {
+pub trait TimeEvolution: BufferSpec + ModelSpec {
     type Scalar: Scalar;
     /// calculate next step
     fn iterate<'a, S>(&self,

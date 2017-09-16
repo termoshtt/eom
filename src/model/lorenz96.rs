@@ -16,7 +16,7 @@ impl Default for Lorenz96 {
     }
 }
 
-impl ModelSize for Lorenz96 {
+impl ModelSpec for Lorenz96 {
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {

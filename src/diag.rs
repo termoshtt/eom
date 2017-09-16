@@ -38,7 +38,7 @@ impl<A, D> TimeStep for Diagonal<A, D>
     }
 }
 
-impl<A, D> ModelSize for Diagonal<A, D>
+impl<A, D> ModelSpec for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
@@ -66,7 +66,7 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, D> WithBuffer for Diagonal<A, D>
+impl<A, D> BufferSpec for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {

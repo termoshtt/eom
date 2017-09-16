@@ -12,7 +12,7 @@ pub struct $method<F: Explicit> {
     dt: <F::Scalar as AssociatedReal>::Real,
 }
 
-impl<D: Dimension, F: Explicit<Dim = D>> ModelSize for $method<F> {
+impl<D: Dimension, F: Explicit<Dim = D>> ModelSpec for $method<F> {
     type Dim = D;
 
     fn model_size(&self) -> D::Pattern {
@@ -47,8 +47,8 @@ pub struct EulerBuffer<A, D> {
     x: Array<A, D>,
 }
 
-impl<F> WithBuffer for Euler<F>
-    where F: Explicit + ModelSize
+impl<F> BufferSpec for Euler<F>
+    where F: Explicit + ModelSpec
 {
     type Buffer = EulerBuffer<F::Scalar, F::Dim>;
 
@@ -58,7 +58,7 @@ impl<F> WithBuffer for Euler<F>
 }
 
 impl<F> TimeEvolution for Euler<F>
-    where F: Explicit + ModelSize
+    where F: Explicit + ModelSpec
 {
     type Scalar = F::Scalar;
 
@@ -82,7 +82,7 @@ pub struct HeunBuffer<A, D> {
     k1: Array<A, D>,
 }
 
-impl<F: Explicit + ModelSize> WithBuffer for Heun<F> {
+impl<F: Explicit + ModelSpec> BufferSpec for Heun<F> {
     type Buffer = HeunBuffer<F::Scalar, F::Dim>;
 
     fn new_buffer(&self) -> Self::Buffer {
@@ -93,7 +93,7 @@ impl<F: Explicit + ModelSize> WithBuffer for Heun<F> {
     }
 }
 
-impl<F: Explicit + ModelSize> TimeEvolution for Heun<F> {
+impl<F: Explicit + ModelSpec> TimeEvolution for Heun<F> {
     type Scalar = F::Scalar;
 
     fn iterate<'a, S>(&self,
@@ -127,7 +127,7 @@ pub struct RK4Buffer<A, D> {
     k3: Array<A, D>,
 }
 
-impl<F: Explicit + ModelSize> WithBuffer for RK4<F> {
+impl<F: Explicit + ModelSpec> BufferSpec for RK4<F> {
     type Buffer = RK4Buffer<F::Scalar, F::Dim>;
 
     fn new_buffer(&self) -> Self::Buffer {
@@ -140,7 +140,7 @@ impl<F: Explicit + ModelSize> WithBuffer for RK4<F> {
     }
 }
 
-impl<F: Explicit + ModelSize> TimeEvolution for RK4<F> {
+impl<F: Explicit + ModelSpec> TimeEvolution for RK4<F> {
     type Scalar = F::Scalar;
 
     fn iterate<'a, S>(&self,
