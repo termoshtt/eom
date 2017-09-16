@@ -19,6 +19,9 @@ pub trait WithBuffer {
     fn new_buffer(&self) -> Self::Buffer;
 }
 
+/// Calculation can be done without buffer
+pub type NoBuffer = ();
+
 /// Interface for time-step
 pub trait TimeStep {
     type Time: RealScalar;
@@ -40,6 +43,32 @@ pub trait SemiImplicit: ModelSize {
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
+}
+
+/// EoM for semi-implicit schemes
+pub trait SemiImplicitBuf: ModelSize + WithBuffer {
+    type Scalar: Scalar;
+    /// non-linear part of stiff equation
+    fn nlin<'a, S>(&self,
+                   &'a mut ArrayBase<S, Self::Dim>,
+                   &mut Self::Buffer)
+                   -> &'a mut ArrayBase<S, Self::Dim>
+        where S: DataMut<Elem = Self::Scalar>;
+}
+
+impl<F> SemiImplicitBuf for F
+    where F: SemiImplicit + WithBuffer<Buffer = NoBuffer>
+{
+    type Scalar = F::Scalar;
+
+    fn nlin<'a, S>(&self,
+                   x: &'a mut ArrayBase<S, Self::Dim>,
+                   _: &mut Self::Buffer)
+                   -> &'a mut ArrayBase<S, Self::Dim>
+        where S: DataMut<Elem = Self::Scalar>
+    {
+        self.nlin(x)
+    }
 }
 
 /// EoM whose stiff linear part is diagonal
