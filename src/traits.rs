@@ -1,4 +1,4 @@
-//! Fundamental traits for ODE
+//! Fundamental traits
 
 use ndarray::*;
 use ndarray_linalg::*;
@@ -8,7 +8,12 @@ pub trait ModelSize {
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
 }
 
+/// Calculate with mutable buffer to keep `&self` interface
+///
+/// `&mut self` interface is too limited since it cannot be combined
+/// with other `&self` functions even if re-generate the caluculation buffer.
 pub trait WithBuffer {
+    /// mutable state of caluculation
     type Buffer;
     /// Generate new calculate buffer
     fn new_buffer(&self) -> Self::Buffer;
@@ -21,7 +26,7 @@ pub trait TimeStep {
     fn set_dt(&mut self, dt: Self::Time);
 }
 
-/// Equation of motion (Explicit)
+/// EoM for explicit schemes
 pub trait Explicit: ModelSize {
     type Scalar: Scalar;
     /// calculate right hand side (rhs) of Explicit from current state
@@ -29,11 +34,18 @@ pub trait Explicit: ModelSize {
         where S: DataMut<Elem = Self::Scalar>;
 }
 
+/// EoM for semi-implicit schemes
 pub trait SemiImplicit: ModelSize {
     type Scalar: Scalar;
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
+}
+
+/// EoM whose stiff linear part is diagonal
+pub trait StiffDiagonal: SemiImplicit {
+    /// diagonal elements of stiff linear part
+    fn diag(&self) -> Array<Self::Scalar, Self::Dim>;
 }
 
 /// Time-evolution operator with buffer

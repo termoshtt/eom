@@ -4,17 +4,10 @@ use ndarray::*;
 use ndarray_linalg::Scalar;
 use super::traits::*;
 
-pub trait StiffDiagonal<A, D>
-    where A: Scalar,
-          D: Dimension
-{
-    fn diag(&self) -> Array<A, D>;
-}
-
 pub fn diagonal<A, D, EOM>(eom: &EOM, dt: A::Real) -> Diagonal<A, D>
     where A: Scalar,
           D: Dimension,
-          EOM: StiffDiagonal<A, D>
+          EOM: StiffDiagonal<Scalar = A, Dim = D>
 {
     Diagonal::new(eom.diag(), dt)
 }

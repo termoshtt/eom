@@ -4,7 +4,6 @@
 use ndarray::*;
 
 use traits::*;
-use diag::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Lorenz63 {
@@ -69,7 +68,7 @@ impl SemiImplicit for Lorenz63 {
     }
 }
 
-impl StiffDiagonal<f64, Ix1> for Lorenz63 {
+impl StiffDiagonal for Lorenz63 {
     fn diag(&self) -> Array<f64, Ix1> {
         Array::from_vec(vec![-self.p, -1.0, -self.b])
     }
