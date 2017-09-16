@@ -4,20 +4,20 @@ use ndarray::*;
 use ndarray_linalg::*;
 
 use super::traits::*;
-use super::diag::{Diagonal, StiffDiagonal, diagonal};
+use super::diag::{Diagonal, diagonal};
 
-pub struct DiagRK4<A, NLin, Lin>
-    where A: Scalar
+pub struct DiagRK4<NLin, Lin>
+    where Lin: TimeStep
 {
     nlin: NLin,
     lin: Lin,
-    dt: A::Real,
+    dt: Lin::Time,
 }
 
-pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<A, EOM, Diagonal<A, D>>
+pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<EOM, Diagonal<A, D>>
     where A: Scalar,
           D: Dimension,
-          EOM: StiffDiagonal<A, D>
+          EOM: StiffDiagonal<Scalar = A, Dim = D>
 {
     let diag = diagonal(&eom, dt / into_scalar(2.0));
     DiagRK4 {
@@ -27,11 +27,10 @@ pub fn diag_rk4<A, D, EOM>(eom: EOM, dt: A::Real) -> DiagRK4<A, EOM, Diagonal<A,
     }
 }
 
-impl<A, NLin, Lin> TimeStep for DiagRK4<A, NLin, Lin>
-    where A: Scalar,
-          Lin: TimeStep<Time = A::Real>
+impl<NLin, Lin> TimeStep for DiagRK4<NLin, Lin>
+    where Lin: TimeStep
 {
-    type Time = A::Real;
+    type Time = Lin::Time;
 
     fn get_dt(&self) -> Self::Time {
         self.dt
@@ -42,20 +41,20 @@ impl<A, NLin, Lin> TimeStep for DiagRK4<A, NLin, Lin>
     }
 }
 
-impl<A, D, NLin, Lin> ModelSize<D> for DiagRK4<A, NLin, Lin>
-    where A: Scalar,
-          D: Dimension,
-          NLin: ModelSize<D>,
-          Lin: ModelSize<D>
+impl<D, NLin, Lin> ModelSize for DiagRK4<NLin, Lin>
+    where D: Dimension,
+          NLin: ModelSize<Dim = D>,
+          Lin: ModelSize<Dim = D> + TimeStep
 {
-    fn model_size(&self) -> D::Pattern {
+    type Dim = D;
+
+    fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
         self.nlin.model_size() // TODO check
     }
 }
 
-impl<A, NLin, Lin> WithBuffer for DiagRK4<A, NLin, Lin>
-    where A: Scalar,
-          Lin: WithBuffer
+impl<NLin, Lin> WithBuffer for DiagRK4<NLin, Lin>
+    where Lin: WithBuffer + TimeStep
 {
     type Buffer = Lin::Buffer;
 
@@ -64,18 +63,18 @@ impl<A, NLin, Lin> WithBuffer for DiagRK4<A, NLin, Lin>
     }
 }
 
-impl<A, D, NLin, Lin> TimeEvolution<D> for DiagRK4<A, NLin, Lin>
+impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<NLin, Lin>
     where A: Scalar,
           D: Dimension,
-          NLin: SemiImplicit<D, Scalar = A>,
-          Lin: TimeEvolution<D, Scalar = A> + TimeStep<Time = A::Real>
+          NLin: SemiImplicit<Scalar = A, Dim = D>,
+          Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
 {
     type Scalar = A;
 
     fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, D>,
+                      x: &'a mut ArrayBase<S, Self::Dim>,
                       mut buf: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, D>
+                      -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = A>
     {
         // constants

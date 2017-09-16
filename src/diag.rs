@@ -4,17 +4,10 @@ use ndarray::*;
 use ndarray_linalg::Scalar;
 use super::traits::*;
 
-pub trait StiffDiagonal<A, D>
-    where A: Scalar,
-          D: Dimension
-{
-    fn diag(&self) -> Array<A, D>;
-}
-
 pub fn diagonal<A, D, EOM>(eom: &EOM, dt: A::Real) -> Diagonal<A, D>
     where A: Scalar,
           D: Dimension,
-          EOM: StiffDiagonal<A, D>
+          EOM: StiffDiagonal<Scalar = A, Dim = D>
 {
     Diagonal::new(eom.diag(), dt)
 }
@@ -45,10 +38,12 @@ impl<A, D> TimeStep for Diagonal<A, D>
     }
 }
 
-impl<A, D> ModelSize<D> for Diagonal<A, D>
+impl<A, D> ModelSize for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
+    type Dim = D;
+
     fn model_size(&self) -> D::Pattern {
         self.diag.dim()
     }
@@ -82,7 +77,7 @@ impl<A, D> WithBuffer for Diagonal<A, D>
     }
 }
 
-impl<A, D> TimeEvolution<D> for Diagonal<A, D>
+impl<A, D> TimeEvolution for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {

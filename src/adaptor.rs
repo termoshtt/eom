@@ -3,20 +3,18 @@ use ndarray::*;
 use ndarray_linalg::*;
 use super::traits::*;
 
-pub struct TimeSeries<'a, TEO, S, D>
+pub struct TimeSeries<'a, TEO, S>
     where S: DataMut,
-          D: Dimension,
-          TEO: TimeEvolution<D> + 'a
+          TEO: TimeEvolution + 'a
 {
-    state: ArrayBase<S, D>,
+    state: ArrayBase<S, TEO::Dim>,
     buf: TEO::Buffer,
     teo: &'a TEO,
 }
 
-pub fn time_series<'a, TEO, S, D>(x0: ArrayBase<S, D>, teo: &'a TEO) -> TimeSeries<'a, TEO, S, D>
+pub fn time_series<'a, TEO, S>(x0: ArrayBase<S, TEO::Dim>, teo: &'a TEO) -> TimeSeries<'a, TEO, S>
     where S: DataMut,
-          D: Dimension,
-          TEO: TimeEvolution<D>
+          TEO: TimeEvolution
 {
     TimeSeries {
         state: x0,
@@ -25,24 +23,22 @@ pub fn time_series<'a, TEO, S, D>(x0: ArrayBase<S, D>, teo: &'a TEO) -> TimeSeri
     }
 }
 
-impl<'a, TEO, A, S, D> TimeSeries<'a, TEO, S, D>
+impl<'a, TEO, A, S> TimeSeries<'a, TEO, S>
     where A: Scalar,
           S: DataMut<Elem = A> + DataClone,
-          D: Dimension,
-          TEO: TimeEvolution<D, Scalar = A>
+          TEO: TimeEvolution<Scalar = A>
 {
     pub fn iterate(&mut self) {
         self.teo.iterate(&mut self.state, &mut self.buf);
     }
 }
 
-impl<'a, TEO, A, S, D> Iterator for TimeSeries<'a, TEO, S, D>
+impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
     where A: Scalar,
           S: DataMut<Elem = A> + DataClone,
-          D: Dimension,
-          TEO: TimeEvolution<D, Scalar = A>
+          TEO: TimeEvolution<Scalar = A>
 {
-    type Item = ArrayBase<S, D>;
+    type Item = ArrayBase<S, TEO::Dim>;
     fn next(&mut self) -> Option<Self::Item> {
         self.iterate();
         Some(self.state.clone())
@@ -66,11 +62,12 @@ pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
     NStep { teo, n }
 }
 
-impl<TEO, D> ModelSize<D> for NStep<TEO>
-    where TEO: ModelSize<D>,
-          D: Dimension
+impl<TEO> ModelSize for NStep<TEO>
+    where TEO: ModelSize
 {
-    fn model_size(&self) -> D::Pattern {
+    type Dim = TEO::Dim;
+
+    fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
         self.teo.model_size()
     }
 }
@@ -98,16 +95,15 @@ impl<TEO> WithBuffer for NStep<TEO>
     }
 }
 
-impl<TEO, D> TimeEvolution<D> for NStep<TEO>
-    where TEO: TimeEvolution<D>,
-          D: Dimension
+impl<TEO> TimeEvolution for NStep<TEO>
+    where TEO: TimeEvolution
 {
     type Scalar = TEO::Scalar;
 
     fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, D>,
+                      x: &'a mut ArrayBase<S, TEO::Dim>,
                       mut buf: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, D>
+                      -> &'a mut ArrayBase<S, TEO::Dim>
         where S: DataMut<Elem = TEO::Scalar>
     {
         for _ in 0..self.n {

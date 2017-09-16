@@ -16,13 +16,15 @@ impl Default for Lorenz96 {
     }
 }
 
-impl ModelSize<Ix1> for Lorenz96 {
+impl ModelSize for Lorenz96 {
+    type Dim = Ix1;
+
     fn model_size(&self) -> usize {
         self.n
     }
 }
 
-impl Explicit<Ix1> for Lorenz96 {
+impl Explicit for Lorenz96 {
     type Scalar = f64;
 
     fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>

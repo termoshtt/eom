@@ -5,7 +5,6 @@ use num_traits::{PrimInt, Zero};
 use num_complex::Complex64 as c64;
 
 use traits::*;
-use diag::*;
 
 #[derive(Clone, Copy, Debug, new)]
 pub struct GoyShell {
@@ -36,13 +35,15 @@ impl Default for GoyShell {
     }
 }
 
-impl ModelSize<Ix1> for GoyShell {
+impl ModelSize for GoyShell {
+    type Dim = Ix1;
+
     fn model_size(&self) -> usize {
         self.size
     }
 }
 
-impl SemiImplicit<Ix1> for GoyShell {
+impl SemiImplicit for GoyShell {
     type Scalar = c64;
 
     fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
@@ -76,7 +77,7 @@ impl SemiImplicit<Ix1> for GoyShell {
     }
 }
 
-impl StiffDiagonal<c64, Ix1> for GoyShell {
+impl StiffDiagonal for GoyShell {
     fn diag(&self) -> Array<c64, Ix1> {
         (0..self.size)
             .map(|n| self.nu * self.k(n) * self.k(n))
