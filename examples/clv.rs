@@ -29,7 +29,7 @@ pub fn clv<A, S, TEO>(teo: &TEO,
                       -> Vec<(ArrayBase<S, Ix1>, Array2<A>, Array1<A::Real>)>
     where A: RealScalar,
           S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<Ix1, Scalar = A>
+          TEO: TimeEvolution<Scalar = A, Dim = Ix1>
 {
     let n = x0.len();
     let ts = time_series(x0, teo);
