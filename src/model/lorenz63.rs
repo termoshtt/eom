@@ -28,11 +28,18 @@ impl Lorenz63 {
     }
 }
 
-impl ModelSize for Lorenz63 {
+impl ModelSpec for Lorenz63 {
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {
         3
+    }
+}
+
+impl BufferSpec for Lorenz63 {
+    type Buffer = NoBuffer;
+    fn new_buffer(&self) -> NoBuffer {
+        ()
     }
 }
 

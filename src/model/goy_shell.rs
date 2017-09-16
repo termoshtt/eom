@@ -35,7 +35,14 @@ impl Default for GoyShell {
     }
 }
 
-impl ModelSize for GoyShell {
+impl BufferSpec for GoyShell {
+    type Buffer = NoBuffer;
+    fn new_buffer(&self) -> NoBuffer {
+        ()
+    }
+}
+
+impl ModelSpec for GoyShell {
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {

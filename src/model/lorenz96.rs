@@ -16,7 +16,14 @@ impl Default for Lorenz96 {
     }
 }
 
-impl ModelSize for Lorenz96 {
+impl BufferSpec for Lorenz96 {
+    type Buffer = NoBuffer;
+    fn new_buffer(&self) -> NoBuffer {
+        ()
+    }
+}
+
+impl ModelSpec for Lorenz96 {
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {

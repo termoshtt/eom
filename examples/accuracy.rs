@@ -21,7 +21,7 @@ fn $name() {
             let teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
             let ts = time_series(rcarr1(&[1.0, 0.0, 0.0]), &teo);
-            (dt, ts.take(t+1).last().unwrap())
+            (dt, ts.take(t).last().unwrap())
         })
         .collect();
 

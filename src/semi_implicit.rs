@@ -41,10 +41,10 @@ impl<NLin, Lin> TimeStep for DiagRK4<NLin, Lin>
     }
 }
 
-impl<D, NLin, Lin> ModelSize for DiagRK4<NLin, Lin>
+impl<D, NLin, Lin> ModelSpec for DiagRK4<NLin, Lin>
     where D: Dimension,
-          NLin: ModelSize<Dim = D>,
-          Lin: ModelSize<Dim = D> + TimeStep
+          NLin: ModelSpec<Dim = D>,
+          Lin: ModelSpec<Dim = D> + TimeStep
 {
     type Dim = D;
 
@@ -53,20 +53,41 @@ impl<D, NLin, Lin> ModelSize for DiagRK4<NLin, Lin>
     }
 }
 
-impl<NLin, Lin> WithBuffer for DiagRK4<NLin, Lin>
-    where Lin: WithBuffer + TimeStep
+pub struct DiagRK4Buffer<NLinBuf, LinBuf, Arr> {
+    nlin: NLinBuf,
+    lin: LinBuf,
+    x: Arr,
+    lx: Arr,
+    k1: Arr,
+    k2: Arr,
+    k3: Arr,
+}
+
+impl<A, D, NLin, Lin> BufferSpec for DiagRK4<NLin, Lin>
+    where A: Scalar,
+          D: Dimension,
+          NLin: SemiImplicitBuf<Scalar = A, Dim = D>,
+          Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep
 {
-    type Buffer = Lin::Buffer;
+    type Buffer = DiagRK4Buffer<NLin::Buffer, Lin::Buffer, Array<A, D>>;
 
     fn new_buffer(&self) -> Self::Buffer {
-        self.lin.new_buffer()
+        DiagRK4Buffer {
+            nlin: self.nlin.new_buffer(),
+            lin: self.lin.new_buffer(),
+            x: Array::zeros(self.lin.model_size()),
+            lx: Array::zeros(self.lin.model_size()),
+            k1: Array::zeros(self.lin.model_size()),
+            k2: Array::zeros(self.lin.model_size()),
+            k3: Array::zeros(self.lin.model_size()),
+        }
     }
 }
 
 impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<NLin, Lin>
     where A: Scalar,
           D: Dimension,
-          NLin: SemiImplicit<Scalar = A, Dim = D>,
+          NLin: SemiImplicitBuf<Scalar = A, Dim = D>,
           Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
 {
     type Scalar = A;
@@ -86,31 +107,36 @@ impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<NLin, Lin>
         let l = &self.lin;
         let f = &self.nlin;
         // calc
-        let mut x_ = x.to_owned();
-        let mut lx = x.to_owned();
-        l.iterate(&mut lx, &mut buf);
-        let mut k1 = f.nlin(x);
-        let k1_ = k1.to_owned();
+        buf.x.zip_mut_with(x, |buf, x| *buf = *x);
+        buf.lx.zip_mut_with(x, |buf, lx| *buf = *lx);
+        l.iterate(&mut buf.lx, &mut buf.lin);
+        let mut k1 = f.nlin(x, &mut buf.nlin);
+        buf.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
         Zip::from(&mut *k1)
-            .and(&x_)
+            .and(&buf.x)
             .apply(|k1, &x_| { *k1 = x_ + k1.mul_real(dt_2); });
-        let mut k2 = f.nlin(l.iterate(k1, &mut buf));
-        let k2_ = k2.to_owned();
+        let mut k2 = f.nlin(l.iterate(k1, &mut buf.lin), &mut buf.nlin);
+        buf.k2.zip_mut_with(k2, |buf, k| *buf = *k);
         Zip::from(&mut *k2)
-            .and(&lx)
+            .and(&buf.lx)
             .apply(|k2, &lx| { *k2 = lx + k2.mul_real(dt_2); });
-        let mut k3 = f.nlin(k2);
-        let k3_ = k3.to_owned();
+        let mut k3 = f.nlin(k2, &mut buf.nlin);
+        buf.k3.zip_mut_with(k3, |buf, k| *buf = *k);
         Zip::from(&mut *k3)
-            .and(&lx)
+            .and(&buf.lx)
             .apply(|k3, &lx| { *k3 = lx + k3.mul_real(dt); });
-        let mut k4 = f.nlin(l.iterate(k3, &mut buf));
-        azip!(mut x_, k1_ in { *x_ = *x_ + k1_.mul_real(dt_6) });
-        l.iterate(&mut x_, &mut buf);
-        azip!(mut x_, k2_, k3_ in { *x_ = *x_ + (k2_ + k3_).mul_real(dt_3) });
-        l.iterate(&mut x_, &mut buf);
+        let mut k4 = f.nlin(l.iterate(k3, &mut buf.lin), &mut buf.nlin);
+        Zip::from(&mut buf.x)
+            .and(&buf.k1)
+            .apply(|x_, k1_| *x_ = *x_ + k1_.mul_real(dt_6));
+        l.iterate(&mut buf.x, &mut buf.lin);
+        Zip::from(&mut buf.x)
+            .and(&buf.k2)
+            .and(&buf.k3)
+            .apply(|x_, &k2_, &k3_| *x_ = *x_ + (k2_ + k3_).mul_real(dt_3));
+        l.iterate(&mut buf.x, &mut buf.lin);
         Zip::from(&mut *k4)
-            .and(&x_)
+            .and(&buf.x)
             .apply(|k4, &x_| { *k4 = x_ + k4.mul_real(dt_6); });
         k4
     }
