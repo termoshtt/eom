@@ -37,6 +37,17 @@ pub trait Explicit: ModelSpec {
         where S: DataMut<Elem = Self::Scalar>;
 }
 
+/// EoM for explicit schemes
+pub trait ExplicitBuf: ModelSpec + BufferSpec {
+    type Scalar: Scalar;
+    /// calculate right hand side (rhs) of Explicit from current state
+    fn rhs<'a, S>(&self,
+                  &'a mut ArrayBase<S, Self::Dim>,
+                  &mut Self::Buffer)
+                  -> &'a mut ArrayBase<S, Self::Dim>
+        where S: DataMut<Elem = Self::Scalar>;
+}
+
 /// EoM for semi-implicit schemes
 pub trait SemiImplicit: ModelSpec {
     type Scalar: Scalar;
@@ -56,21 +67,6 @@ pub trait SemiImplicitBuf: ModelSpec + BufferSpec {
         where S: DataMut<Elem = Self::Scalar>;
 }
 
-impl<F> SemiImplicitBuf for F
-    where F: SemiImplicit + BufferSpec<Buffer = NoBuffer>
-{
-    type Scalar = F::Scalar;
-
-    fn nlin<'a, S>(&self,
-                   x: &'a mut ArrayBase<S, Self::Dim>,
-                   _: &mut Self::Buffer)
-                   -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>
-    {
-        self.nlin(x)
-    }
-}
-
 /// EoM whose stiff linear part is diagonal
 pub trait StiffDiagonal: SemiImplicit {
     /// diagonal elements of stiff linear part
@@ -86,4 +82,34 @@ pub trait TimeEvolution: BufferSpec + ModelSpec {
                       &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
+}
+
+impl<F> ExplicitBuf for F
+    where F: Explicit + BufferSpec<Buffer = NoBuffer>
+{
+    type Scalar = F::Scalar;
+
+    fn rhs<'a, S>(&self,
+                  x: &'a mut ArrayBase<S, Self::Dim>,
+                  _: &mut Self::Buffer)
+                  -> &'a mut ArrayBase<S, Self::Dim>
+        where S: DataMut<Elem = Self::Scalar>
+    {
+        self.rhs(x)
+    }
+}
+
+impl<F> SemiImplicitBuf for F
+    where F: SemiImplicit + BufferSpec<Buffer = NoBuffer>
+{
+    type Scalar = F::Scalar;
+
+    fn nlin<'a, S>(&self,
+                   x: &'a mut ArrayBase<S, Self::Dim>,
+                   _: &mut Self::Buffer)
+                   -> &'a mut ArrayBase<S, Self::Dim>
+        where S: DataMut<Elem = Self::Scalar>
+    {
+        self.nlin(x)
+    }
 }
