@@ -1,12 +1,12 @@
 
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 #[macro_use]
 extern crate ndarray_linalg;
 
 use ndarray::*;
 use ndarray_linalg::*;
-use ndarray_odeint::*;
+use eom::*;
 
 #[test]
 fn jacobian_linearity() {

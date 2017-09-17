@@ -1,9 +1,9 @@
 
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 
 use ndarray::*;
-use ndarray_odeint::*;
+use eom::*;
 
 #[test]
 fn arr() {

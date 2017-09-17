@@ -4,14 +4,14 @@
 
 extern crate num_traits;
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 extern crate ndarray_linalg;
 
 use num_traits::One;
 use std::io::Write;
 use ndarray::*;
 use ndarray_linalg::*;
-use ndarray_odeint::*;
+use eom::*;
 use std::mem::replace;
 
 fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {

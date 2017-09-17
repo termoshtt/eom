@@ -1,11 +1,11 @@
 
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 extern crate num_traits;
 extern crate num_complex;
 
 use ndarray::rcarr1;
-use ndarray_odeint::*;
+use eom::*;
 use num_complex::Complex64 as c64;
 use num_traits::Zero;
 

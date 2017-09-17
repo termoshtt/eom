@@ -1,9 +1,9 @@
 
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 
 use ndarray::*;
-use ndarray_odeint::*;
+use eom::*;
 
 fn main() {
     let dt = 0.01;
