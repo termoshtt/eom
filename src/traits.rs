@@ -113,3 +113,12 @@ impl<F> SemiImplicitBuf for F
         self.nlin(x)
     }
 }
+
+#[macro_export]
+macro_rules! no_buffer {
+    ($name:ident) => {
+impl $crate::traits::BufferSpec for $name {
+    type Buffer = $crate::traits::NoBuffer;
+    fn new_buffer(&self) -> Self::Buffer { () }
+}
+}} // no_buffer!

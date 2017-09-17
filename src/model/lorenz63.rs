@@ -36,12 +36,7 @@ impl ModelSpec for Lorenz63 {
     }
 }
 
-impl BufferSpec for Lorenz63 {
-    type Buffer = NoBuffer;
-    fn new_buffer(&self) -> NoBuffer {
-        ()
-    }
-}
+no_buffer!(Lorenz63);
 
 impl Explicit for Lorenz63 {
     type Scalar = f64;

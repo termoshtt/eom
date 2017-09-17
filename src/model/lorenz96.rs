@@ -16,12 +16,7 @@ impl Default for Lorenz96 {
     }
 }
 
-impl BufferSpec for Lorenz96 {
-    type Buffer = NoBuffer;
-    fn new_buffer(&self) -> NoBuffer {
-        ()
-    }
-}
+no_buffer!(Lorenz96);
 
 impl ModelSpec for Lorenz96 {
     type Dim = Ix1;
