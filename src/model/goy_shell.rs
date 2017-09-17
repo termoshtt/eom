@@ -35,12 +35,7 @@ impl Default for GoyShell {
     }
 }
 
-impl BufferSpec for GoyShell {
-    type Buffer = NoBuffer;
-    fn new_buffer(&self) -> NoBuffer {
-        ()
-    }
-}
+no_buffer!(GoyShell);
 
 impl ModelSpec for GoyShell {
     type Dim = Ix1;

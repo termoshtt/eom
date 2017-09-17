@@ -21,12 +21,7 @@ impl Default for Roessler {
     }
 }
 
-impl BufferSpec for Roessler {
-    type Buffer = NoBuffer;
-    fn new_buffer(&self) -> NoBuffer {
-        ()
-    }
-}
+no_buffer!(Roessler);
 
 impl ModelSpec for Roessler {
     type Dim = Ix1;
