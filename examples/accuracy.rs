@@ -1,13 +1,13 @@
 
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 extern crate ndarray_linalg;
 extern crate num_traits;
 
 use std::fs::*;
 use std::io::Write;
 use ndarray::*;
-use ndarray_odeint::*;
+use eom::*;
 use ndarray_linalg::*;
 use num_traits::int::PrimInt;
 

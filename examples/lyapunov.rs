@@ -1,13 +1,13 @@
 //! Lyapunov Analysis example
 
 extern crate ndarray;
-extern crate ndarray_odeint;
+extern crate eom;
 extern crate ndarray_linalg;
 extern crate num_traits;
 
 use ndarray::*;
 use ndarray_linalg::*;
-use ndarray_odeint::*;
+use eom::*;
 use num_traits::Float;
 
 /// Calculate all Lyapunov exponents

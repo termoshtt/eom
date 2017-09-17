@@ -49,7 +49,7 @@ impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
 /// N-step adaptor
 ///
 /// ```rust
-/// use ndarray_odeint::*;
+/// use eom::*;
 /// let teo = explicit::rk4(model::Lorenz63::default(), 0.01);
 /// let nstep = nstep(teo, 10);
 /// ```
