@@ -1,12 +1,13 @@
 [package]
-name = "ndarray-odeint"
-version = "0.7.0"
+name = "eom"
+version = "0.8.0"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 
-description = "solve ODE using rust-ndarray"
-documentation = "https://docs.rs/ndarray-odeint/"
-repository = "https://github.com/termoshtt/ndarray-odeint"
-keywords = ["ndarray", "ode"]
+description = "Configurable ODE/PDE solver"
+documentation = "https://docs.rs/eom/"
+repository = "https://github.com/termoshtt/eom"
+keywords = ["ndarray", "ode", "pde"]
+categories    = ["algorithms", "science"]
 license = "MIT"
 readme = "README.md"
 
