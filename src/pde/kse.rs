@@ -16,6 +16,17 @@ pub struct KSEBuffer {
     ux_pair: Pair<f64, c64>,
 }
 
+impl KSEBuffer {
+    /// Convert the coefficient to the field value for easy visualization
+    pub fn convert_u(&mut self, u_coef: &[c64]) -> &[f64] {
+        for (c, uc) in self.u_pair.coef.iter_mut().zip(u_coef.iter()) {
+            *c = *uc;
+        }
+        self.u_pair.backward();
+        &self.u_pair.field
+    }
+}
+
 impl ModelSpec for KSE {
     type Scalar = c64;
     type Dim = Ix1;
@@ -72,6 +83,6 @@ impl StiffDiagonal for KSE {
     fn diag(&self) -> Array1<c64> {
         let k2 = &self.k * &self.k;
         let k4 = &k2 * &k2;
-        k2 - k4
+        -k2 - k4
     }
 }
