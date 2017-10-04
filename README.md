@@ -3,6 +3,7 @@ Equation of Motions
 [![Crate](http://meritbadge.herokuapp.com/eom)](https://crates.io/crates/eom)
 [![docs.rs](https://docs.rs/eom/badge.svg)](https://docs.rs/eom)
 [![Build Status](https://travis-ci.org/termoshtt/eom.svg?branch=master)](https://travis-ci.org/termoshtt/eom)
+[![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
 ![Lorenz63 Attractor](lorenz63.png)
 
