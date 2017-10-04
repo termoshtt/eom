@@ -50,7 +50,7 @@ impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
 ///
 /// ```rust
 /// use eom::*;
-/// let teo = explicit::rk4(model::Lorenz63::default(), 0.01);
+/// let teo = explicit::rk4(ode::Lorenz63::default(), 0.01);
 /// let nstep = nstep(teo, 10);
 /// ```
 pub struct NStep<TEO> {
@@ -65,6 +65,7 @@ pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
 impl<TEO> ModelSpec for NStep<TEO>
     where TEO: ModelSpec
 {
+    type Scalar = TEO::Scalar;
     type Dim = TEO::Dim;
 
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
@@ -98,8 +99,6 @@ impl<TEO> BufferSpec for NStep<TEO>
 impl<TEO> TimeEvolution for NStep<TEO>
     where TEO: TimeEvolution
 {
-    type Scalar = TEO::Scalar;
-
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, TEO::Dim>,
                       mut buf: &mut Self::Buffer)

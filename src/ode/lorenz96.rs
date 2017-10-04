@@ -19,6 +19,7 @@ impl Default for Lorenz96 {
 no_buffer!(Lorenz96);
 
 impl ModelSpec for Lorenz96 {
+    type Scalar = f64;
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {
@@ -27,8 +28,6 @@ impl ModelSpec for Lorenz96 {
 }
 
 impl Explicit for Lorenz96 {
-    type Scalar = f64;
-
     fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {

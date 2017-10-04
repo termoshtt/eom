@@ -42,6 +42,7 @@ impl<A, D> ModelSpec for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
+    type Scalar = A;
     type Dim = D;
 
     fn model_size(&self) -> D::Pattern {
@@ -81,8 +82,6 @@ impl<A, D> TimeEvolution for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
-    type Scalar = A;
-
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, D>,
                       _: &mut Self::Buffer)

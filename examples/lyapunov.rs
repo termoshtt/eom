@@ -39,7 +39,7 @@ pub fn exponents<A, S, TEO>(teo: TEO,
 
 fn main() {
     let dt = 0.01;
-    let eom = model::Lorenz63::default();
+    let eom = ode::Lorenz63::default();
     let teo = explicit::rk4(eom, dt);
     let l = exponents(teo, arr1(&[1.0, 0.0, 0.0]), 1e-7, 100000);
     println!("Lyapunov Exponents = {:?}", l);

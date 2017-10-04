@@ -25,6 +25,7 @@ extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate num_complex;
 extern crate num_traits;
+extern crate fftw;
 
 #[macro_use]
 pub mod traits;
@@ -33,7 +34,8 @@ pub mod diag;
 pub mod explicit;
 pub mod lyapunov;
 pub mod semi_implicit;
-pub mod model;
+pub mod ode;
+pub mod pde;
 
 pub use self::traits::*;
 pub use self::adaptor::*;
