@@ -65,6 +65,7 @@ pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
 impl<TEO> ModelSpec for NStep<TEO>
     where TEO: ModelSpec
 {
+    type Scalar = TEO::Scalar;
     type Dim = TEO::Dim;
 
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
@@ -98,8 +99,6 @@ impl<TEO> BufferSpec for NStep<TEO>
 impl<TEO> TimeEvolution for NStep<TEO>
     where TEO: TimeEvolution
 {
-    type Scalar = TEO::Scalar;
-
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, TEO::Dim>,
                       mut buf: &mut Self::Buffer)

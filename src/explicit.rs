@@ -13,6 +13,7 @@ pub struct $method<F: ExplicitBuf> {
 }
 
 impl<D: Dimension, F: ExplicitBuf<Dim = D>> ModelSpec for $method<F> {
+    type Scalar = F::Scalar;
     type Dim = D;
 
     fn model_size(&self) -> D::Pattern {
@@ -64,8 +65,6 @@ impl<F> BufferSpec for Euler<F>
 impl<F> TimeEvolution for Euler<F>
     where F: ExplicitBuf + ModelSpec
 {
-    type Scalar = F::Scalar;
-
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, F::Dim>,
                       mut buf: &mut Self::Buffer)
@@ -100,8 +99,6 @@ impl<F: ExplicitBuf + ModelSpec> BufferSpec for Heun<F> {
 }
 
 impl<F: ExplicitBuf + ModelSpec> TimeEvolution for Heun<F> {
-    type Scalar = F::Scalar;
-
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, F::Dim>,
                       mut buf: &mut Self::Buffer)
@@ -149,8 +146,6 @@ impl<F: ExplicitBuf + ModelSpec> BufferSpec for RK4<F> {
 }
 
 impl<F: ExplicitBuf + ModelSpec> TimeEvolution for RK4<F> {
-    type Scalar = F::Scalar;
-
     fn iterate<'a, S>(&self,
                       mut x: &'a mut ArrayBase<S, F::Dim>,
                       mut buf: &mut Self::Buffer)

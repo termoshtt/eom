@@ -41,11 +41,13 @@ impl<NLin, Lin> TimeStep for DiagRK4<NLin, Lin>
     }
 }
 
-impl<D, NLin, Lin> ModelSpec for DiagRK4<NLin, Lin>
-    where D: Dimension,
-          NLin: ModelSpec<Dim = D>,
-          Lin: ModelSpec<Dim = D> + TimeStep
+impl<A, D, NLin, Lin> ModelSpec for DiagRK4<NLin, Lin>
+    where A: Scalar,
+          D: Dimension,
+          NLin: ModelSpec<Scalar = A, Dim = D>,
+          Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep
 {
+    type Scalar = A;
     type Dim = D;
 
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
@@ -90,8 +92,6 @@ impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<NLin, Lin>
           NLin: SemiImplicitBuf<Scalar = A, Dim = D>,
           Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
 {
-    type Scalar = A;
-
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, Self::Dim>,
                       mut buf: &mut Self::Buffer)

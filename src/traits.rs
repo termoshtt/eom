@@ -4,6 +4,7 @@ use ndarray::*;
 use ndarray_linalg::*;
 
 pub trait ModelSpec {
+    type Scalar: Scalar;
     type Dim: Dimension;
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
 }
@@ -31,7 +32,6 @@ pub trait TimeStep {
 
 /// EoM for explicit schemes
 pub trait Explicit: ModelSpec {
-    type Scalar: Scalar;
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
@@ -39,7 +39,6 @@ pub trait Explicit: ModelSpec {
 
 /// EoM for explicit schemes
 pub trait ExplicitBuf: ModelSpec + BufferSpec {
-    type Scalar: Scalar;
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&self,
                   &'a mut ArrayBase<S, Self::Dim>,
@@ -50,7 +49,6 @@ pub trait ExplicitBuf: ModelSpec + BufferSpec {
 
 /// EoM for semi-implicit schemes
 pub trait SemiImplicit: ModelSpec {
-    type Scalar: Scalar;
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
@@ -58,7 +56,6 @@ pub trait SemiImplicit: ModelSpec {
 
 /// EoM for semi-implicit schemes
 pub trait SemiImplicitBuf: ModelSpec + BufferSpec {
-    type Scalar: Scalar;
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&self,
                    &'a mut ArrayBase<S, Self::Dim>,
@@ -68,14 +65,13 @@ pub trait SemiImplicitBuf: ModelSpec + BufferSpec {
 }
 
 /// EoM whose stiff linear part is diagonal
-pub trait StiffDiagonal: SemiImplicit {
+pub trait StiffDiagonal: ModelSpec {
     /// diagonal elements of stiff linear part
     fn diag(&self) -> Array<Self::Scalar, Self::Dim>;
 }
 
 /// Time-evolution operator with buffer
 pub trait TimeEvolution: BufferSpec + ModelSpec {
-    type Scalar: Scalar;
     /// calculate next step
     fn iterate<'a, S>(&self,
                       &'a mut ArrayBase<S, Self::Dim>,
@@ -87,8 +83,6 @@ pub trait TimeEvolution: BufferSpec + ModelSpec {
 impl<F> ExplicitBuf for F
     where F: Explicit + BufferSpec<Buffer = NoBuffer>
 {
-    type Scalar = F::Scalar;
-
     fn rhs<'a, S>(&self,
                   x: &'a mut ArrayBase<S, Self::Dim>,
                   _: &mut Self::Buffer)
@@ -102,8 +96,6 @@ impl<F> ExplicitBuf for F
 impl<F> SemiImplicitBuf for F
     where F: SemiImplicit + BufferSpec<Buffer = NoBuffer>
 {
-    type Scalar = F::Scalar;
-
     fn nlin<'a, S>(&self,
                    x: &'a mut ArrayBase<S, Self::Dim>,
                    _: &mut Self::Buffer)

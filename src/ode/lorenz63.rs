@@ -29,6 +29,7 @@ impl Lorenz63 {
 }
 
 impl ModelSpec for Lorenz63 {
+    type Scalar = f64;
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {
@@ -39,8 +40,6 @@ impl ModelSpec for Lorenz63 {
 no_buffer!(Lorenz63);
 
 impl Explicit for Lorenz63 {
-    type Scalar = f64;
-
     fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {
@@ -55,8 +54,6 @@ impl Explicit for Lorenz63 {
 }
 
 impl SemiImplicit for Lorenz63 {
-    type Scalar = f64;
-
     fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {

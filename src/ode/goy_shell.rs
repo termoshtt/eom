@@ -38,6 +38,7 @@ impl Default for GoyShell {
 no_buffer!(GoyShell);
 
 impl ModelSpec for GoyShell {
+    type Scalar = c64;
     type Dim = Ix1;
 
     fn model_size(&self) -> usize {
@@ -46,8 +47,6 @@ impl ModelSpec for GoyShell {
 }
 
 impl SemiImplicit for GoyShell {
-    type Scalar = c64;
-
     fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = c64>
     {

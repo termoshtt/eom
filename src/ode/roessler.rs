@@ -24,6 +24,7 @@ impl Default for Roessler {
 no_buffer!(Roessler);
 
 impl ModelSpec for Roessler {
+    type Scalar = f64;
     type Dim = Ix1;
     fn model_size(&self) -> usize {
         3
@@ -37,8 +38,6 @@ impl Roessler {
 }
 
 impl Explicit for Roessler {
-    type Scalar = f64;
-
     fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {
