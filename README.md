@@ -20,7 +20,10 @@ configurable ODE/PDE solver
   - [Lorenz 96 system](https://en.wikipedia.org/wiki/Lorenz_96_model)
   - [Roessler system](https://en.wikipedia.org/wiki/R%C3%B6ssler_attractor)
   - GOY shell model
-- PDE (under construction)
+    - [notebook](GOY.ipynb)
+- PDE
+  - Kuramoto-Sivashinsky equation
+    - [notebook](KSE.ipynb)
 
 Lyapunov analysis
 -----------------
