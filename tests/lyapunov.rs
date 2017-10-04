@@ -10,7 +10,7 @@ use eom::*;
 
 #[test]
 fn jacobian_linearity() {
-    let eom = model::Lorenz63::default();
+    let eom = ode::Lorenz63::default();
     let teo = explicit::rk4(eom, 0.01);
     let x0 = arr1(&[1.0, 0.0, 0.0]);
     let j = jacobian(&teo, x0, 1e-7);
@@ -23,7 +23,7 @@ fn jacobian_linearity() {
 
 #[test]
 fn jacobian_view() {
-    let eom = model::Lorenz63::default();
+    let eom = ode::Lorenz63::default();
     let teo = explicit::rk4(eom, 0.01);
     let x0 = arr1(&[1.0, 0.0, 0.0]);
     let j = jacobian(&teo, x0, 1e-7);
@@ -33,7 +33,7 @@ fn jacobian_view() {
 
 #[test]
 fn jacobian_2d() {
-    let eom = model::Lorenz63::default();
+    let eom = ode::Lorenz63::default();
     let teo = explicit::rk4(eom, 0.01);
     let x0 = arr1(&[1.0, 0.0, 0.0]);
     let j = jacobian(&teo, x0, 1e-7);

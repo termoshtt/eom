@@ -17,7 +17,7 @@ fn $name() {
     let data: Vec<_> = (0..12)
         .map(|n| {
             let dt = 0.1 / 2.pow(n) as f64;
-            let eom = model::Lorenz63::default();
+            let eom = ode::Lorenz63::default();
             let teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
             let ts = time_series(rcarr1(&[1.0, 0.0, 0.0]), &teo);

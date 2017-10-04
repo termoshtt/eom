@@ -33,7 +33,7 @@ pub mod diag;
 pub mod explicit;
 pub mod lyapunov;
 pub mod semi_implicit;
-pub mod model;
+pub mod ode;
 
 pub use self::traits::*;
 pub use self::adaptor::*;

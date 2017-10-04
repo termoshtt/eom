@@ -50,7 +50,7 @@ impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
 ///
 /// ```rust
 /// use eom::*;
-/// let teo = explicit::rk4(model::Lorenz63::default(), 0.01);
+/// let teo = explicit::rk4(ode::Lorenz63::default(), 0.01);
 /// let nstep = nstep(teo, 10);
 /// ```
 pub struct NStep<TEO> {

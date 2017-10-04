@@ -7,7 +7,7 @@ use eom::*;
 
 fn main() {
     let dt = 0.01;
-    let eom = model::Roessler::default();
+    let eom = ode::Roessler::default();
     let teo = explicit::rk4(eom, dt);
     let ts = time_series(rcarr1(&[1.0, 0.0, 0.0]), &teo);
     let end_time = 50000;
