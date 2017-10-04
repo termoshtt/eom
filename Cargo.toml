@@ -1,6 +1,6 @@
 [package]
 name = "eom"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 
 description = "Configurable ODE/PDE solver"
@@ -17,4 +17,4 @@ ndarray-linalg = "0.6"
 num-traits = "0.1"
 num-complex = "0.1"
 derive-new = "0.4"
-fftw = "*"
+fftw = "0.3"
