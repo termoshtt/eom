@@ -35,8 +35,6 @@ impl Default for GoyShell {
     }
 }
 
-no_buffer!(GoyShell);
-
 impl ModelSpec for GoyShell {
     type Scalar = c64;
     type Dim = Ix1;

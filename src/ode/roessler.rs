@@ -21,8 +21,6 @@ impl Default for Roessler {
     }
 }
 
-no_buffer!(Roessler);
-
 impl ModelSpec for Roessler {
     type Scalar = f64;
     type Dim = Ix1;

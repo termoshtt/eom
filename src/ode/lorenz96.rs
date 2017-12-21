@@ -16,8 +16,6 @@ impl Default for Lorenz96 {
     }
 }
 
-no_buffer!(Lorenz96);
-
 impl ModelSpec for Lorenz96 {
     type Scalar = f64;
     type Dim = Ix1;
