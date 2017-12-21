@@ -47,7 +47,7 @@ impl ModelSpec for GoyShell {
 }
 
 impl SemiImplicit for GoyShell {
-    fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+    fn nlin<'a, S>(&self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = c64>
     {
         let mut am2 = c64::zero();

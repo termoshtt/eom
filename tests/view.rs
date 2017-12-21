@@ -31,7 +31,7 @@ fn view_mut() {
     let eom = ode::Lorenz63::default();
     let teo = explicit::euler(eom, dt);
     let mut x: Array1<f64> = arr1(&[1.0, 0.0, 0.0]);
-    let mut v = &mut x.view_mut();
+    let v = &mut x.view_mut();
     let mut buf = teo.new_buffer();
     teo.iterate(v, &mut buf);
 }

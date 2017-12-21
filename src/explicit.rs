@@ -66,13 +66,13 @@ impl<F> TimeEvolution for Euler<F>
     where F: ExplicitBuf + ModelSpec
 {
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, F::Dim>,
-                      mut buf: &mut Self::Buffer)
+                      x: &'a mut ArrayBase<S, F::Dim>,
+                      buf: &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, F::Dim>
         where S: DataMut<Elem = Self::Scalar>
     {
         buf.x.zip_mut_with(x, |buf, x| *buf = *x);
-        let mut fx = self.f.rhs(x, &mut buf.ex);
+        let fx = self.f.rhs(x, &mut buf.ex);
         Zip::from(&mut *fx)
             .and(&buf.x)
             .apply(|vfx, vx| { *vfx = *vx + vfx.mul_real(self.dt); });
@@ -100,8 +100,8 @@ impl<F: ExplicitBuf + ModelSpec> BufferSpec for Heun<F> {
 
 impl<F: ExplicitBuf + ModelSpec> TimeEvolution for Heun<F> {
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, F::Dim>,
-                      mut buf: &mut Self::Buffer)
+                      x: &'a mut ArrayBase<S, F::Dim>,
+                      buf: &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, F::Dim>
         where S: DataMut<Elem = Self::Scalar>
     {
@@ -147,8 +147,8 @@ impl<F: ExplicitBuf + ModelSpec> BufferSpec for RK4<F> {
 
 impl<F: ExplicitBuf + ModelSpec> TimeEvolution for RK4<F> {
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, F::Dim>,
-                      mut buf: &mut Self::Buffer)
+                      x: &'a mut ArrayBase<S, F::Dim>,
+                      buf: &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, F::Dim>
         where S: DataMut<Elem = Self::Scalar>
     {
@@ -158,24 +158,24 @@ impl<F: ExplicitBuf + ModelSpec> TimeEvolution for RK4<F> {
         let dt_6 = self.dt / into_scalar(6.0);
         buf.x.zip_mut_with(x, |buf, x| *buf = *x);
         // k1
-        let mut k1 = self.f.rhs(x, &mut buf.ex);
+        let k1 = self.f.rhs(x, &mut buf.ex);
         buf.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
         Zip::from(&mut *k1)
             .and(&buf.x)
             .apply(|k1, &x| { *k1 = k1.mul_real(dt_2) + x; });
         // k2
-        let mut k2 = self.f.rhs(k1, &mut buf.ex);
+        let k2 = self.f.rhs(k1, &mut buf.ex);
         buf.k2.zip_mut_with(k2, |buf, k| *buf = *k);
         Zip::from(&mut *k2)
             .and(&buf.x)
             .apply(|k2, &x| { *k2 = x + k2.mul_real(dt_2); });
         // k3
-        let mut k3 = self.f.rhs(k2, &mut buf.ex);
+        let k3 = self.f.rhs(k2, &mut buf.ex);
         buf.k3.zip_mut_with(k3, |buf, k| *buf = *k);
         Zip::from(&mut *k3)
             .and(&buf.x)
             .apply(|k3, &x| { *k3 = x + k3.mul_real(dt); });
-        let mut k4 = self.f.rhs(k3, &mut buf.ex);
+        let k4 = self.f.rhs(k3, &mut buf.ex);
         Zip::from(&mut *k4)
             .and(&buf.x)
             .and(&buf.k1)

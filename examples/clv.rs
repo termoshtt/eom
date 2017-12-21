@@ -35,7 +35,7 @@ pub fn clv<A, S, TEO>(teo: &TEO,
     let ts = time_series(x0, teo);
     let qr_series = ts.scan(Array::eye(n), |q, x| {
         let (q_next, r) = jacobian(teo, x.clone(), alpha)
-            .op_multi_mut(q)
+            .op_multi_inplace(q)
             .qr()
             .unwrap();
         let q = replace(q, q_next);

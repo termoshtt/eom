@@ -13,8 +13,8 @@ readme = "README.md"
 
 [dependencies]
 ndarray = "0.10"
-ndarray-linalg = "0.6"
+ndarray-linalg = { version = "0.8", features = ["openblas"] }
 num-traits = "0.1"
 num-complex = "0.1"
-derive-new = "0.4"
+derive-new = "0.5"
 fftw = "0.3"

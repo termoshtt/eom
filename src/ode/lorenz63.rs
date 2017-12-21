@@ -40,7 +40,7 @@ impl ModelSpec for Lorenz63 {
 no_buffer!(Lorenz63);
 
 impl Explicit for Lorenz63 {
-    fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+    fn rhs<'a, S>(&self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {
         let x = v[0];
@@ -54,7 +54,7 @@ impl Explicit for Lorenz63 {
 }
 
 impl SemiImplicit for Lorenz63 {
-    fn nlin<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+    fn nlin<'a, S>(&self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {
         let x = v[0];
