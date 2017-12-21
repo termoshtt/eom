@@ -29,13 +29,15 @@ pub fn jacobian<'a, S, TEO>(f: &'a TEO,
     Jacobian { f, x, fx, alpha }
 }
 
-impl<'j, A, S, Sr, TEO> OperatorMut<Sr, TEO::Dim> for Jacobian<'j, S, TEO>
+impl<'j, A, S, Sr, TEO> OperatorInplace<Sr, TEO::Dim> for Jacobian<'j, S, TEO>
     where A: Scalar,
           S: Data<Elem = A>,
           Sr: DataMut<Elem = A>,
           TEO: TimeEvolution<Scalar = A>
 {
-    fn op_mut<'a>(&self, dx: &'a mut ArrayBase<Sr, TEO::Dim>) -> &'a mut ArrayBase<Sr, TEO::Dim> {
+    fn op_inplace<'a>(&self,
+                      dx: &'a mut ArrayBase<Sr, TEO::Dim>)
+                      -> &'a mut ArrayBase<Sr, TEO::Dim> {
         let dx_nrm = dx.norm_l2().max(self.alpha);
         let n = self.alpha / dx_nrm;
         Zip::from(&mut *dx)
@@ -58,7 +60,7 @@ impl<'j, A, D, S, Sr, TEO> OperatorInto<Sr, D> for Jacobian<'j, S, TEO>
           TEO: TimeEvolution<Scalar = A, Dim = D>
 {
     fn op_into(&self, mut dx: ArrayBase<Sr, D>) -> ArrayBase<Sr, D> {
-        self.op_mut(&mut dx);
+        self.op_inplace(&mut dx);
         dx
     }
 }

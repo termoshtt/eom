@@ -83,7 +83,7 @@ impl<A, D> TimeEvolution for Diagonal<A, D>
           D: Dimension
 {
     fn iterate<'a, S>(&self,
-                      mut x: &'a mut ArrayBase<S, D>,
+                      x: &'a mut ArrayBase<S, D>,
                       _: &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, D>
         where S: DataMut<Elem = A>

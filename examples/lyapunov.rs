@@ -24,7 +24,7 @@ pub fn exponents<A, S, TEO>(teo: TEO,
     let dur = teo.get_dt() * into_scalar(duration as f64);
     let ts = time_series(x0, &teo);
     ts.scan(Array::eye(n), |q, x| {
-        let q = jacobian(&teo, x.clone(), alpha).op_multi_mut(q);
+        let q = jacobian(&teo, x.clone(), alpha).op_multi_inplace(q);
         let (q_next, r) = q.qr().unwrap();
         *q = q_next;
         let d: Array1<A> = r.diag().map(|x| AssociatedReal::inject(x.abs().ln()));

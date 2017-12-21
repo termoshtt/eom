@@ -94,7 +94,7 @@ impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<NLin, Lin>
 {
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, Self::Dim>,
-                      mut buf: &mut Self::Buffer)
+                      buf: &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = A>
     {
@@ -110,22 +110,22 @@ impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<NLin, Lin>
         buf.x.zip_mut_with(x, |buf, x| *buf = *x);
         buf.lx.zip_mut_with(x, |buf, lx| *buf = *lx);
         l.iterate(&mut buf.lx, &mut buf.lin);
-        let mut k1 = f.nlin(x, &mut buf.nlin);
+        let k1 = f.nlin(x, &mut buf.nlin);
         buf.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
         Zip::from(&mut *k1)
             .and(&buf.x)
             .apply(|k1, &x_| { *k1 = x_ + k1.mul_real(dt_2); });
-        let mut k2 = f.nlin(l.iterate(k1, &mut buf.lin), &mut buf.nlin);
+        let k2 = f.nlin(l.iterate(k1, &mut buf.lin), &mut buf.nlin);
         buf.k2.zip_mut_with(k2, |buf, k| *buf = *k);
         Zip::from(&mut *k2)
             .and(&buf.lx)
             .apply(|k2, &lx| { *k2 = lx + k2.mul_real(dt_2); });
-        let mut k3 = f.nlin(k2, &mut buf.nlin);
+        let k3 = f.nlin(k2, &mut buf.nlin);
         buf.k3.zip_mut_with(k3, |buf, k| *buf = *k);
         Zip::from(&mut *k3)
             .and(&buf.lx)
             .apply(|k3, &lx| { *k3 = lx + k3.mul_real(dt); });
-        let mut k4 = f.nlin(l.iterate(k3, &mut buf.lin), &mut buf.nlin);
+        let k4 = f.nlin(l.iterate(k3, &mut buf.lin), &mut buf.nlin);
         Zip::from(&mut buf.x)
             .and(&buf.k1)
             .apply(|x_, k1_| *x_ = *x_ + k1_.mul_real(dt_6));

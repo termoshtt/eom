@@ -28,7 +28,7 @@ fn jacobian_view() {
     let x0 = arr1(&[1.0, 0.0, 0.0]);
     let j = jacobian(&teo, x0, 1e-7);
     let mut v: Array1<f64> = generate::random(3);
-    j.op_mut(&mut v.view_mut());
+    j.op_inplace(&mut v.view_mut());
 }
 
 #[test]

@@ -101,7 +101,7 @@ impl<TEO> TimeEvolution for NStep<TEO>
 {
     fn iterate<'a, S>(&self,
                       x: &'a mut ArrayBase<S, TEO::Dim>,
-                      mut buf: &mut Self::Buffer)
+                      buf: &mut Self::Buffer)
                       -> &'a mut ArrayBase<S, TEO::Dim>
         where S: DataMut<Elem = TEO::Scalar>
     {

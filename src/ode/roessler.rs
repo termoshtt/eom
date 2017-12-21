@@ -38,7 +38,7 @@ impl Roessler {
 }
 
 impl Explicit for Roessler {
-    fn rhs<'a, S>(&self, mut v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+    fn rhs<'a, S>(&self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
         where S: DataMut<Elem = f64>
     {
         let x = v[0];
