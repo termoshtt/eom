@@ -6,45 +6,63 @@ use num_traits::Float;
 use super::traits::*;
 
 /// Jacobian operator using numerical-differentiation
-pub struct Jacobian<'a, S, TEO>
-    where S: Data<Elem = TEO::Scalar>,
-          TEO: 'a + TimeEvolution
-{
-    f: &'a TEO,
-    x: ArrayBase<S, TEO::Dim>,
-    fx: ArrayBase<S, TEO::Dim>,
-    alpha: <TEO::Scalar as AssociatedReal>::Real,
-}
-
-pub fn jacobian<'a, S, TEO>(f: &'a TEO,
-                            x: ArrayBase<S, TEO::Dim>,
-                            alpha: <TEO::Scalar as AssociatedReal>::Real)
-                            -> Jacobian<'a, S, TEO>
-    where S: DataClone<Elem = TEO::Scalar> + DataMut,
-          TEO: TimeEvolution
-{
-    let mut fx = x.clone();
-    let mut buf = f.new_buffer();
-    f.iterate(&mut fx, &mut buf);
-    Jacobian { f, x, fx, alpha }
-}
-
-impl<'j, A, S, Sr, TEO> OperatorInplace<Sr, TEO::Dim> for Jacobian<'j, S, TEO>
+pub struct Jacobian<'jac, A, D, TEO>
     where A: Scalar,
-          S: Data<Elem = A>,
-          Sr: DataMut<Elem = A>,
-          TEO: TimeEvolution<Scalar = A>
+          D: Dimension,
+          TEO: 'jac + TimeEvolution<Scalar = A, Dim = D>
 {
-    fn op_inplace<'a>(&self,
-                      dx: &'a mut ArrayBase<Sr, TEO::Dim>)
-                      -> &'a mut ArrayBase<Sr, TEO::Dim> {
+    f: &'jac mut TEO,
+    x: Array<A, D>,
+    fx: Array<A, D>,
+    alpha: A::Real,
+}
+
+pub trait LinearApprox<A, D, TEO>
+    where A: Scalar,
+          D: Dimension,
+          TEO: TimeEvolution<Scalar = A, Dim = D>
+{
+    fn lin_approx<'jac>(&'jac mut self,
+                        x: Array<A, D>,
+                        alpha: A::Real)
+                        -> Jacobian<'jac, A, D, TEO>
+        where TEO: 'jac;
+}
+
+impl<A, D, TEO> LinearApprox<A, D, TEO> for TEO
+    where A: Scalar,
+          D: Dimension,
+          TEO: TimeEvolution<Scalar = A, Dim = D>
+{
+    fn lin_approx<'jac>(&'jac mut self, x: Array<A, D>, alpha: A::Real) -> Jacobian<'jac, A, D, TEO>
+        where TEO: 'jac
+    {
+        Jacobian::new(self, x, alpha)
+    }
+}
+
+impl<'jac, A, D, TEO> Jacobian<'jac, A, D, TEO>
+    where A: Scalar,
+          D: Dimension,
+          TEO: TimeEvolution<Scalar = A, Dim = D>
+{
+    pub fn new(f: &'jac mut TEO, x: Array<A, D>, alpha: A::Real) -> Jacobian<'jac, A, D, TEO>
+        where TEO: 'jac
+    {
+        let mut fx = x.clone();
+        f.iterate(&mut fx);
+        Jacobian { f, x, fx, alpha }
+    }
+
+    pub fn apply<'a, S>(&mut self, dx: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
+        where S: DataMut<Elem = A>
+    {
         let dx_nrm = dx.norm_l2().max(self.alpha);
         let n = self.alpha / dx_nrm;
         Zip::from(&mut *dx)
             .and(&self.x)
             .apply(|dx, &x| { *dx = x + dx.mul_real(n); });
-        let mut buf = self.f.new_buffer();
-        let x_dx = self.f.iterate(dx, &mut buf);
+        let x_dx = self.f.iterate(dx);
         Zip::from(&mut *x_dx)
             .and(&self.fx)
             .apply(|x_dx, &fx| { *x_dx = (*x_dx - fx).div_real(n); });
@@ -52,28 +70,21 @@ impl<'j, A, S, Sr, TEO> OperatorInplace<Sr, TEO::Dim> for Jacobian<'j, S, TEO>
     }
 }
 
-impl<'j, A, D, S, Sr, TEO> OperatorInto<Sr, D> for Jacobian<'j, S, TEO>
+impl<'jac, A, D, TEO> Jacobian<'jac, A, D, TEO>
     where A: Scalar,
-          D: Dimension,
-          S: Data<Elem = A>,
-          Sr: DataMut<Elem = A>,
-          TEO: TimeEvolution<Scalar = A, Dim = D>
-{
-    fn op_into(&self, mut dx: ArrayBase<Sr, D>) -> ArrayBase<Sr, D> {
-        self.op_inplace(&mut dx);
-        dx
-    }
-}
-
-impl<'j, A, Si, S, D, TEO> Operator<A, Si, D> for Jacobian<'j, S, TEO>
-    where A: Scalar,
-          S: Data<Elem = A>,
-          Si: Data<Elem = A>,
           D: Dimension,
           TEO: TimeEvolution<Scalar = A, Dim = D>
 {
-    fn op(&self, dx: &ArrayBase<Si, D>) -> Array<A, D> {
-        let dx = replicate(dx);
-        self.op_into(dx)
+    pub fn apply_multi<'a, S>(&mut self,
+                              a: &'a mut ArrayBase<S, D::Larger>)
+                              -> &'a mut ArrayBase<S, D::Larger>
+        where S: DataMut<Elem = A>,
+              D::Larger: RemoveAxis + Dimension<Smaller = D>
+    {
+        let n = a.ndim();
+        for mut col in a.axis_iter_mut(Axis(n - 1)) {
+            self.apply(&mut col);
+        }
+        a
     }
 }

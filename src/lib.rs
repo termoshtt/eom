@@ -27,7 +27,6 @@ extern crate num_complex;
 extern crate num_traits;
 extern crate fftw;
 
-#[macro_use]
 pub mod traits;
 pub mod adaptor;
 pub mod diag;
