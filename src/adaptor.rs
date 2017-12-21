@@ -8,17 +8,17 @@ pub struct TimeSeries<'a, TEO, S>
           TEO: TimeEvolution + 'a
 {
     state: ArrayBase<S, TEO::Dim>,
-    buf: TEO::Buffer,
-    teo: &'a TEO,
+    teo: &'a mut TEO,
 }
 
-pub fn time_series<'a, TEO, S>(x0: ArrayBase<S, TEO::Dim>, teo: &'a TEO) -> TimeSeries<'a, TEO, S>
+pub fn time_series<'a, TEO, S>(x0: ArrayBase<S, TEO::Dim>,
+                               teo: &'a mut TEO)
+                               -> TimeSeries<'a, TEO, S>
     where S: DataMut,
           TEO: TimeEvolution
 {
     TimeSeries {
         state: x0,
-        buf: teo.new_buffer(),
         teo: teo,
     }
 }
@@ -29,7 +29,7 @@ impl<'a, TEO, A, S> TimeSeries<'a, TEO, S>
           TEO: TimeEvolution<Scalar = A>
 {
     pub fn iterate(&mut self) {
-        self.teo.iterate(&mut self.state, &mut self.buf);
+        self.teo.iterate(&mut self.state);
     }
 }
 
@@ -87,26 +87,16 @@ impl<TEO> TimeStep for NStep<TEO>
     }
 }
 
-impl<TEO> BufferSpec for NStep<TEO>
-    where TEO: BufferSpec
-{
-    type Buffer = TEO::Buffer;
-    fn new_buffer(&self) -> Self::Buffer {
-        self.teo.new_buffer()
-    }
-}
-
 impl<TEO> TimeEvolution for NStep<TEO>
     where TEO: TimeEvolution
 {
-    fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, TEO::Dim>,
-                      buf: &mut Self::Buffer)
+    fn iterate<'a, S>(&mut self,
+                      x: &'a mut ArrayBase<S, TEO::Dim>)
                       -> &'a mut ArrayBase<S, TEO::Dim>
         where S: DataMut<Elem = TEO::Scalar>
     {
         for _ in 0..self.n {
-            self.teo.iterate(x, buf);
+            self.teo.iterate(x);
         }
         x
     }
