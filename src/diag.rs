@@ -67,25 +67,11 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, D> BufferSpec for Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
-{
-    type Buffer = ();
-
-    fn new_buffer(&self) -> Self::Buffer {
-        ()
-    }
-}
-
 impl<A, D> TimeEvolution for Diagonal<A, D>
     where A: Scalar,
           D: Dimension
 {
-    fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, D>,
-                      _: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, D>
+    fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
         where S: DataMut<Elem = A>
     {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
