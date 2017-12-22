@@ -17,7 +17,7 @@ pub trait TimeStep {
 }
 
 /// EoM for explicit schemes
-pub trait Explicit: ModelSpec {
+pub trait Explicit: ModelSpec + Clone {
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
@@ -25,7 +25,7 @@ pub trait Explicit: ModelSpec {
 
 
 /// EoM for semi-implicit schemes
-pub trait SemiImplicit: ModelSpec {
+pub trait SemiImplicit: ModelSpec + Clone {
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
         where S: DataMut<Elem = Self::Scalar>;
@@ -38,7 +38,7 @@ pub trait StiffDiagonal: ModelSpec {
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution: ModelSpec {
+pub trait TimeEvolution: ModelSpec + Clone {
     /// calculate next step
     fn iterate<'a, S>(&mut self,
                       &'a mut ArrayBase<S, Self::Dim>)

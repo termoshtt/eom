@@ -53,6 +53,7 @@ impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
 /// let teo = explicit::rk4(ode::Lorenz63::default(), 0.01);
 /// let nstep = nstep(teo, 10);
 /// ```
+#[derive(Debug, Clone)]
 pub struct NStep<TEO> {
     teo: TEO,
     n: usize,

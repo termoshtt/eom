@@ -13,6 +13,7 @@ pub fn diagonal<A, D, EOM>(eom: &EOM, dt: A::Real) -> Diagonal<A, D>
 }
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
+#[derive(Clone)]
 pub struct Diagonal<A, D>
     where A: Scalar,
           D: Dimension

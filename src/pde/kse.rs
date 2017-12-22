@@ -5,6 +5,7 @@ use std::f64::consts::PI;
 
 use traits::*;
 
+#[derive(Clone)]
 pub struct KSE {
     n: usize,
     n_coef: usize,

@@ -4,10 +4,23 @@ use ndarray::*;
 use ndarray_linalg::*;
 use super::traits::*;
 
+#[derive(Debug, Clone)]
 pub struct Euler<F: Explicit> {
     f: F,
     dt: <F::Scalar as AssociatedReal>::Real,
     x: Array<F::Scalar, F::Dim>,
+}
+
+impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Euler<F> {
+    type Time = A::Real;
+
+    fn get_dt(&self) -> Self::Time {
+        self.dt
+    }
+
+    fn set_dt(&mut self, dt: Self::Time) {
+        self.dt = dt;
+    }
 }
 
 impl<A: Scalar, F: Explicit<Scalar = A>> Euler<F> {
@@ -38,11 +51,24 @@ impl<F: Explicit + ModelSpec> TimeEvolution for Euler<F> {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Heun<F: Explicit> {
     f: F,
     dt: <F::Scalar as AssociatedReal>::Real,
     x: Array<F::Scalar, F::Dim>,
     k1: Array<F::Scalar, F::Dim>,
+}
+
+impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Heun<F> {
+    type Time = A::Real;
+
+    fn get_dt(&self) -> Self::Time {
+        self.dt
+    }
+
+    fn set_dt(&mut self, dt: Self::Time) {
+        self.dt = dt;
+    }
 }
 
 impl<A: Scalar, F: Explicit<Scalar = A>> Heun<F> {
@@ -83,6 +109,7 @@ impl<F: Explicit + ModelSpec> TimeEvolution for Heun<F> {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct RK4<F: Explicit> {
     f: F,
     dt: <F::Scalar as AssociatedReal>::Real,
@@ -90,6 +117,18 @@ pub struct RK4<F: Explicit> {
     k1: Array<F::Scalar, F::Dim>,
     k2: Array<F::Scalar, F::Dim>,
     k3: Array<F::Scalar, F::Dim>,
+}
+
+impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for RK4<F> {
+    type Time = A::Real;
+
+    fn get_dt(&self) -> Self::Time {
+        self.dt
+    }
+
+    fn set_dt(&mut self, dt: Self::Time) {
+        self.dt = dt;
+    }
 }
 
 impl<A: Scalar, F: Explicit<Scalar = A>> RK4<F> {

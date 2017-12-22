@@ -6,6 +6,7 @@ use ndarray_linalg::*;
 use super::traits::*;
 use super::diag::{Diagonal, diagonal};
 
+#[derive(Debug, Clone)]
 pub struct DiagRK4<A, D, NLin, Lin>
     where A: Scalar,
           D: Dimension,
