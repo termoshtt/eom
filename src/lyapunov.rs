@@ -79,7 +79,7 @@ impl<'jac, A, D, TEO> Jacobian<'jac, A, D, TEO>
           D: Dimension,
           TEO: TimeEvolution<Scalar = A, Dim = D>
 {
-    pub fn apply_multi<S>(&mut self, mut a: Array<A, D::Larger>) -> Array<A, D::Larger>
+    pub fn apply_multi(&mut self, mut a: Array<A, D::Larger>) -> Array<A, D::Larger>
         where D::Larger: RemoveAxis + Dimension<Smaller = D>
     {
         self.apply_multi_inplace(&mut a);
