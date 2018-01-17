@@ -4,14 +4,15 @@ use ndarray::*;
 use ndarray_linalg::*;
 
 use super::traits::*;
-use super::diag::{Diagonal, diagonal};
+use super::diag::{diagonal, Diagonal};
 
 #[derive(Debug, Clone)]
 pub struct DiagRK4<A, D, NLin, Lin>
-    where A: Scalar,
-          D: Dimension,
-          NLin: ModelSpec<Scalar = A, Dim = D>,
-          Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
+where
+    A: Scalar,
+    D: Dimension,
+    NLin: ModelSpec<Scalar = A, Dim = D>,
+    Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
 {
     nlin: NLin,
     lin: Lin,
@@ -24,9 +25,10 @@ pub struct DiagRK4<A, D, NLin, Lin>
 }
 
 pub fn diag_rk4<A, D, NLin>(nlin: NLin, dt: A::Real) -> DiagRK4<A, D, NLin, Diagonal<A, D>>
-    where A: Scalar,
-          D: Dimension,
-          NLin: StiffDiagonal<Scalar = A, Dim = D>
+where
+    A: Scalar,
+    D: Dimension,
+    NLin: StiffDiagonal<Scalar = A, Dim = D>,
 {
     let lin = diagonal(&nlin, dt / into_scalar(2.0));
     let x = Array::zeros(lin.model_size());
@@ -47,10 +49,11 @@ pub fn diag_rk4<A, D, NLin>(nlin: NLin, dt: A::Real) -> DiagRK4<A, D, NLin, Diag
 }
 
 impl<A, D, NLin, Lin> TimeStep for DiagRK4<A, D, NLin, Lin>
-    where A: Scalar,
-          D: Dimension,
-          NLin: ModelSpec<Scalar = A, Dim = D>,
-          Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
+where
+    A: Scalar,
+    D: Dimension,
+    NLin: ModelSpec<Scalar = A, Dim = D>,
+    Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
 {
     type Time = Lin::Time;
 
@@ -64,10 +67,11 @@ impl<A, D, NLin, Lin> TimeStep for DiagRK4<A, D, NLin, Lin>
 }
 
 impl<A, D, NLin, Lin> ModelSpec for DiagRK4<A, D, NLin, Lin>
-    where A: Scalar,
-          D: Dimension,
-          NLin: ModelSpec<Scalar = A, Dim = D>,
-          Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
+where
+    A: Scalar,
+    D: Dimension,
+    NLin: ModelSpec<Scalar = A, Dim = D>,
+    Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
 {
     type Scalar = A;
     type Dim = D;
@@ -78,15 +82,18 @@ impl<A, D, NLin, Lin> ModelSpec for DiagRK4<A, D, NLin, Lin>
 }
 
 impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<A, D, NLin, Lin>
-    where A: Scalar,
-          D: Dimension,
-          NLin: SemiImplicit<Scalar = A, Dim = D>,
-          Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep<Time = A::Real>
+where
+    A: Scalar,
+    D: Dimension,
+    NLin: SemiImplicit<Scalar = A, Dim = D>,
+    Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
 {
-    fn iterate<'a, S>(&mut self,
-                      x: &'a mut ArrayBase<S, Self::Dim>)
-                      -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = A>
+    fn iterate<'a, S>(
+        &mut self,
+        x: &'a mut ArrayBase<S, Self::Dim>,
+    ) -> &'a mut ArrayBase<S, Self::Dim>
+    where
+        S: DataMut<Elem = A>,
     {
         // constants
         let dt = self.dt;
@@ -102,19 +109,19 @@ impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<A, D, NLin, Lin>
         l.iterate(&mut self.lx);
         let k1 = f.nlin(x);
         self.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
-        Zip::from(&mut *k1)
-            .and(&self.x)
-            .apply(|k1, &x_| { *k1 = x_ + k1.mul_real(dt_2); });
+        Zip::from(&mut *k1).and(&self.x).apply(|k1, &x_| {
+            *k1 = x_ + k1.mul_real(dt_2);
+        });
         let k2 = f.nlin(l.iterate(k1));
         self.k2.zip_mut_with(k2, |buf, k| *buf = *k);
-        Zip::from(&mut *k2)
-            .and(&self.lx)
-            .apply(|k2, &lx| { *k2 = lx + k2.mul_real(dt_2); });
+        Zip::from(&mut *k2).and(&self.lx).apply(|k2, &lx| {
+            *k2 = lx + k2.mul_real(dt_2);
+        });
         let k3 = f.nlin(k2);
         self.k3.zip_mut_with(k3, |buf, k| *buf = *k);
-        Zip::from(&mut *k3)
-            .and(&self.lx)
-            .apply(|k3, &lx| { *k3 = lx + k3.mul_real(dt); });
+        Zip::from(&mut *k3).and(&self.lx).apply(|k3, &lx| {
+            *k3 = lx + k3.mul_real(dt);
+        });
         let k4 = f.nlin(l.iterate(k3));
         Zip::from(&mut self.x)
             .and(&self.k1)
@@ -125,9 +132,9 @@ impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<A, D, NLin, Lin>
             .and(&self.k3)
             .apply(|x_, &k2_, &k3_| *x_ = *x_ + (k2_ + k3_).mul_real(dt_3));
         l.iterate(&mut self.x);
-        Zip::from(&mut *k4)
-            .and(&self.x)
-            .apply(|k4, &x_| { *k4 = x_ + k4.mul_real(dt_6); });
+        Zip::from(&mut *k4).and(&self.x).apply(|k4, &x_| {
+            *k4 = x_ + k4.mul_real(dt_6);
+        });
         k4
     }
 }

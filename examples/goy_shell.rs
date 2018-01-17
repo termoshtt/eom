@@ -1,8 +1,7 @@
-
-extern crate ndarray;
 extern crate eom;
-extern crate num_traits;
+extern crate ndarray;
 extern crate num_complex;
+extern crate num_traits;
 
 use ndarray::rcarr1;
 use eom::*;

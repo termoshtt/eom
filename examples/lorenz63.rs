@@ -1,6 +1,5 @@
-
-extern crate ndarray;
 extern crate eom;
+extern crate ndarray;
 
 use ndarray::arr1;
 use eom::*;

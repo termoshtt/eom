@@ -1,6 +1,5 @@
-
-extern crate ndarray;
 extern crate eom;
+extern crate ndarray;
 #[macro_use]
 extern crate ndarray_linalg;
 

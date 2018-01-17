@@ -1,4 +1,3 @@
-
 use fftw::*;
 use ndarray::*;
 use std::f64::consts::PI;
@@ -49,7 +48,8 @@ impl KSE {
 
 impl SemiImplicit for KSE {
     fn nlin<'a, S>(&mut self, u: &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>
+    where
+        S: DataMut<Elem = Self::Scalar>,
     {
         for i in 0..self.n_coef {
             self.u_pair.coef[i] = u[i];

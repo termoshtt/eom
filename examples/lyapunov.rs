@@ -1,7 +1,7 @@
 //! Lyapunov Analysis example
 
-extern crate ndarray;
 extern crate eom;
+extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate num_traits;
 
@@ -11,14 +11,16 @@ use eom::*;
 use num_traits::Float;
 
 /// Calculate all Lyapunov exponents
-pub fn exponents<A, S, TEO>(mut teo: TEO,
-                            x0: ArrayBase<S, Ix1>,
-                            alpha: A::Real,
-                            duration: usize)
-                            -> Array1<A>
-    where A: RealScalar,
-          S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<Scalar = A, Dim = Ix1> + TimeStep<Time = A>
+pub fn exponents<A, S, TEO>(
+    mut teo: TEO,
+    x0: ArrayBase<S, Ix1>,
+    alpha: A::Real,
+    duration: usize,
+) -> Array1<A>
+where
+    A: RealScalar,
+    S: DataMut<Elem = A> + DataClone,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1> + TimeStep<Time = A>,
 {
     let n = x0.len();
     let dur = teo.get_dt() * into_scalar(duration as f64);

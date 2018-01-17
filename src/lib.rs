@@ -21,11 +21,11 @@
 
 #[macro_use]
 extern crate derive_new;
+extern crate fftw;
 extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate num_complex;
 extern crate num_traits;
-extern crate fftw;
 
 pub mod traits;
 pub mod adaptor;

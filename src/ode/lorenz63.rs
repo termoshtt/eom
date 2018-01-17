@@ -39,7 +39,8 @@ impl ModelSpec for Lorenz63 {
 
 impl Explicit for Lorenz63 {
     fn rhs<'a, S>(&mut self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
-        where S: DataMut<Elem = f64>
+    where
+        S: DataMut<Elem = f64>,
     {
         let x = v[0];
         let y = v[1];
@@ -53,7 +54,8 @@ impl Explicit for Lorenz63 {
 
 impl SemiImplicit for Lorenz63 {
     fn nlin<'a, S>(&mut self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
-        where S: DataMut<Elem = f64>
+    where
+        S: DataMut<Elem = f64>,
     {
         let x = v[0];
         let y = v[1];

@@ -2,10 +2,10 @@
 //!
 //! This function consumes much memory since this saves matrices duraing the time evolution.
 
-extern crate num_traits;
-extern crate ndarray;
 extern crate eom;
+extern crate ndarray;
 extern crate ndarray_linalg;
+extern crate num_traits;
 
 use num_traits::One;
 use std::io::Write;
@@ -22,14 +22,16 @@ fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A
     (c, f)
 }
 
-pub fn clv<A, S, TEO>(teo: &mut TEO,
-                      x0: ArrayBase<S, Ix1>,
-                      alpha: A::Real,
-                      duration: usize)
-                      -> Vec<(ArrayBase<S, Ix1>, Array2<A>, Array1<A::Real>)>
-    where A: RealScalar,
-          S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone
+pub fn clv<A, S, TEO>(
+    teo: &mut TEO,
+    x0: ArrayBase<S, Ix1>,
+    alpha: A::Real,
+    duration: usize,
+) -> Vec<(ArrayBase<S, Ix1>, Array2<A>, Array1<A::Real>)>
+where
+    A: RealScalar,
+    S: DataMut<Elem = A> + DataClone,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone,
 {
     let n = x0.len();
     let eom = teo.clone();
@@ -72,8 +74,9 @@ fn main() {
         println!("{}, {}, {}", v0.dot(&v1), v0.dot(&v2), v1.dot(&v2));
         l += &f.map(|x| x.abs().ln());
     }
-    write!(&mut std::io::stderr(),
-           "exponents = {:?}\n",
-           l / (dt * duration as f64))
-        .unwrap();
+    write!(
+        &mut std::io::stderr(),
+        "exponents = {:?}\n",
+        l / (dt * duration as f64)
+    ).unwrap();
 }

@@ -1,6 +1,5 @@
-
-extern crate ndarray;
 extern crate eom;
+extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate num_traits;
 
