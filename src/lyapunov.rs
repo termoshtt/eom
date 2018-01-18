@@ -66,7 +66,7 @@ where
         dx
     }
 
-    pub fn apply_inplace<S>(&mut self, dx: &mut ArrayBase<S, D>)
+    pub fn apply_inplace<'a, S>(&mut self, dx: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
     where
         S: DataMut<Elem = A>,
     {
@@ -79,6 +79,7 @@ where
         Zip::from(&mut *x_dx).and(&self.fx).apply(|x_dx, &fx| {
             *x_dx = (*x_dx - fx).div_real(n);
         });
+        x_dx
     }
 }
 
@@ -96,7 +97,10 @@ where
         a
     }
 
-    pub fn apply_multi_inplace<S>(&mut self, a: &mut ArrayBase<S, D::Larger>)
+    pub fn apply_multi_inplace<'a, S>(
+        &mut self,
+        a: &'a mut ArrayBase<S, D::Larger>,
+    ) -> &'a mut ArrayBase<S, D::Larger>
     where
         S: DataMut<Elem = A>,
         D::Larger: RemoveAxis + Dimension<Smaller = D>,
@@ -105,5 +109,6 @@ where
         for mut col in a.axis_iter_mut(Axis(n - 1)) {
             self.apply_inplace(&mut col);
         }
+        a
     }
 }
