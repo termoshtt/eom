@@ -5,7 +5,9 @@ extern crate ndarray_linalg;
 
 use ndarray::*;
 use ndarray_linalg::*;
+
 use eom::*;
+use eom::jacobian::*;
 
 #[test]
 fn jacobian_linearity() {

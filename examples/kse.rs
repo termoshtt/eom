@@ -5,6 +5,7 @@ extern crate ndarray_linalg;
 use ndarray::*;
 use ndarray_linalg::*;
 use eom::*;
+use eom::traits::*;
 
 fn main() {
     let n = 256;
@@ -18,7 +19,7 @@ fn main() {
 
     let x0: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
 
-    let ts = time_series(x0, &mut teo);
+    let ts = adaptor::time_series(x0, &mut teo);
 
     let end_time = 100_000;
     let interval = 1000;

@@ -81,14 +81,7 @@ where
         });
         x_dx
     }
-}
 
-impl<'jac, A, D, TEO> Jacobian<'jac, A, D, TEO>
-where
-    A: Scalar,
-    D: Dimension,
-    TEO: TimeEvolution<Scalar = A, Dim = D>,
-{
     pub fn apply_multi(&mut self, mut a: Array<A, D::Larger>) -> Array<A, D::Larger>
     where
         D::Larger: RemoveAxis + Dimension<Smaller = D>,

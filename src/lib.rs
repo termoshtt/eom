@@ -31,11 +31,7 @@ pub mod traits;
 pub mod adaptor;
 pub mod diag;
 pub mod explicit;
-pub mod lyapunov;
+pub mod jacobian;
 pub mod semi_implicit;
 pub mod ode;
 pub mod pde;
-
-pub use self::traits::*;
-pub use self::adaptor::*;
-pub use self::lyapunov::*;

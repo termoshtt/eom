@@ -3,6 +3,7 @@ extern crate ndarray;
 
 use ndarray::*;
 use eom::*;
+use eom::traits::*;
 
 #[test]
 fn arr() {

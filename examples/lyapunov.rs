@@ -7,8 +7,11 @@ extern crate num_traits;
 
 use ndarray::*;
 use ndarray_linalg::*;
-use eom::*;
 use num_traits::Float;
+
+use eom::*;
+use eom::traits::*;
+use eom::jacobian::*;
 
 /// Calculate all Lyapunov exponents
 pub fn exponents<A, S, TEO>(
@@ -25,7 +28,7 @@ where
     let n = x0.len();
     let dur = teo.get_dt() * into_scalar(duration as f64);
     let mut teo2 = teo.clone();
-    let ts = time_series(x0, &mut teo);
+    let ts = adaptor::time_series(x0, &mut teo);
     ts.scan(Array::eye(n), |q, x| {
         teo2.lin_approx(x.to_owned(), alpha).apply_multi_inplace(q);
         let (q_next, r) = q.qr().unwrap();
