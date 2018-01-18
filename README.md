@@ -5,10 +5,10 @@ Equation of Motions
 [![Build Status](https://travis-ci.org/termoshtt/eom.svg?branch=master)](https://travis-ci.org/termoshtt/eom)
 [![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
-![Lorenz63 Attractor](lorenz63.png)
+`eom` crate is a configurable ODE/PDE solver
 
-configurable ODE/PDE solver
-----------------------------
+Contents
+---------
 - Algorithms
   - explicit schemes
     - Euler
@@ -33,6 +33,15 @@ Lyapunov analysis
 - [Covarient Lyapunov vector (CLV)](https://arxiv.org/abs/1212.3961)
   - [example](examples/clv.rs) 
   - [notebook](CLV.ipynb)
+
+Gallery
+--------
+
+### Lorenz '63 model
+![Lorenz63](lorenz63.png)
+
+### Kuramoto-Sivashinsky equation
+![KSE](kse.png)
 
 License
 -------
