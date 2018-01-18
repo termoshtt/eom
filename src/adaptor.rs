@@ -54,7 +54,7 @@ where
 /// ```rust
 /// use eom::*;
 /// let teo = explicit::RK4::new(ode::Lorenz63::default(), 0.01);
-/// let nstep = nstep(teo, 10);
+/// let nstep = adaptor::nstep(teo, 10);
 /// ```
 #[derive(Debug, Clone)]
 pub struct NStep<TEO> {

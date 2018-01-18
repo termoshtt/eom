@@ -7,12 +7,15 @@ extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate num_traits;
 
-use num_traits::One;
 use std::io::Write;
+use std::mem::replace;
+use num_traits::One;
 use ndarray::*;
 use ndarray_linalg::*;
+
 use eom::*;
-use std::mem::replace;
+use eom::traits::*;
+use eom::jacobian::*;
 
 fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
     let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
@@ -35,7 +38,7 @@ where
 {
     let n = x0.len();
     let mut eom = teo.clone();
-    let ts = time_series(x0, teo);
+    let ts = adaptor::time_series(x0, teo);
     let qr_series = ts.scan(Array::eye(n), |q, x| {
         let (q_next, r) = eom.lin_approx(x.to_owned(), alpha)
             .apply_multi_inplace(q)

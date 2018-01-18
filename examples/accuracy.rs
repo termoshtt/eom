@@ -19,7 +19,7 @@ fn $name() {
             let eom = ode::Lorenz63::default();
             let mut teo = $method(eom, dt);
             let t = 100 * 2.pow(n);
-            let ts = time_series(rcarr1(&[1.0, 0.0, 0.0]), &mut teo);
+            let ts = adaptor::time_series(rcarr1(&[1.0, 0.0, 0.0]), &mut teo);
             (dt, ts.take(t).last().unwrap())
         })
         .collect();
