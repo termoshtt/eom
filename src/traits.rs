@@ -9,20 +9,6 @@ pub trait ModelSpec {
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
 }
 
-/// Calculate with mutable buffer to keep `&self` interface
-///
-/// `&mut self` interface is too limited since it cannot be combined
-/// with other `&self` functions even if re-generate the caluculation buffer.
-pub trait BufferSpec {
-    /// mutable state of caluculation
-    type Buffer;
-    /// Generate new calculate buffer
-    fn new_buffer(&self) -> Self::Buffer;
-}
-
-/// Calculation can be done without buffer
-pub type NoBuffer = ();
-
 /// Interface for time-step
 pub trait TimeStep {
     type Time: RealScalar;
@@ -31,37 +17,19 @@ pub trait TimeStep {
 }
 
 /// EoM for explicit schemes
-pub trait Explicit: ModelSpec {
+pub trait Explicit: ModelSpec + Clone {
     /// calculate right hand side (rhs) of Explicit from current state
-    fn rhs<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>;
-}
-
-/// EoM for explicit schemes
-pub trait ExplicitBuf: ModelSpec + BufferSpec {
-    /// calculate right hand side (rhs) of Explicit from current state
-    fn rhs<'a, S>(&self,
-                  &'a mut ArrayBase<S, Self::Dim>,
-                  &mut Self::Buffer)
-                  -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>;
+    fn rhs<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
+    where
+        S: DataMut<Elem = Self::Scalar>;
 }
 
 /// EoM for semi-implicit schemes
-pub trait SemiImplicit: ModelSpec {
+pub trait SemiImplicit: ModelSpec + Clone {
     /// non-linear part of stiff equation
-    fn nlin<'a, S>(&self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>;
-}
-
-/// EoM for semi-implicit schemes
-pub trait SemiImplicitBuf: ModelSpec + BufferSpec {
-    /// non-linear part of stiff equation
-    fn nlin<'a, S>(&self,
-                   &'a mut ArrayBase<S, Self::Dim>,
-                   &mut Self::Buffer)
-                   -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>;
+    fn nlin<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
+    where
+        S: DataMut<Elem = Self::Scalar>;
 }
 
 /// EoM whose stiff linear part is diagonal
@@ -71,46 +39,12 @@ pub trait StiffDiagonal: ModelSpec {
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution: BufferSpec + ModelSpec {
+pub trait TimeEvolution: ModelSpec + Clone {
     /// calculate next step
-    fn iterate<'a, S>(&self,
-                      &'a mut ArrayBase<S, Self::Dim>,
-                      &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>;
+    fn iterate<'a, S>(
+        &mut self,
+        &'a mut ArrayBase<S, Self::Dim>,
+    ) -> &'a mut ArrayBase<S, Self::Dim>
+    where
+        S: DataMut<Elem = Self::Scalar>;
 }
-
-impl<F> ExplicitBuf for F
-    where F: Explicit + BufferSpec<Buffer = NoBuffer>
-{
-    fn rhs<'a, S>(&self,
-                  x: &'a mut ArrayBase<S, Self::Dim>,
-                  _: &mut Self::Buffer)
-                  -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>
-    {
-        self.rhs(x)
-    }
-}
-
-impl<F> SemiImplicitBuf for F
-    where F: SemiImplicit + BufferSpec<Buffer = NoBuffer>
-{
-    fn nlin<'a, S>(&self,
-                   x: &'a mut ArrayBase<S, Self::Dim>,
-                   _: &mut Self::Buffer)
-                   -> &'a mut ArrayBase<S, Self::Dim>
-        where S: DataMut<Elem = Self::Scalar>
-    {
-        self.nlin(x)
-    }
-}
-
-#[macro_export]
-macro_rules! no_buffer {
-    ($name:ident) => {
-impl $crate::traits::BufferSpec for $name {
-    type Buffer = $crate::traits::NoBuffer;
-    fn new_buffer(&self) -> Self::Buffer { () }
-}
-}} // no_buffer!

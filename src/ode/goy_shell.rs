@@ -35,8 +35,6 @@ impl Default for GoyShell {
     }
 }
 
-no_buffer!(GoyShell);
-
 impl ModelSpec for GoyShell {
     type Scalar = c64;
     type Dim = Ix1;
@@ -47,8 +45,9 @@ impl ModelSpec for GoyShell {
 }
 
 impl SemiImplicit for GoyShell {
-    fn nlin<'a, S>(&self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
-        where S: DataMut<Elem = c64>
+    fn nlin<'a, S>(&mut self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+    where
+        S: DataMut<Elem = c64>,
     {
         let mut am2 = c64::zero();
         let mut am1 = c64::zero();

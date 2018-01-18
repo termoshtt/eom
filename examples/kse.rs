@@ -1,7 +1,6 @@
-
+extern crate eom;
 extern crate ndarray;
 extern crate ndarray_linalg;
-extern crate eom;
 
 use ndarray::*;
 use ndarray_linalg::*;
@@ -13,13 +12,13 @@ fn main() {
     let dt = 1e-3;
 
     let eom = pde::KSE::new(n, l);
-    let mut buf = eom.new_buffer();
+    let mut eom2 = eom.clone();
     let n_coef = eom.model_size();
-    let teo = semi_implicit::diag_rk4(eom, dt);
+    let mut teo = semi_implicit::diag_rk4(eom, dt);
 
     let x0: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
 
-    let ts = time_series(x0, &teo);
+    let ts = time_series(x0, &mut teo);
 
     let end_time = 100_000;
     let interval = 1000;
@@ -28,7 +27,7 @@ fn main() {
             continue;
         }
         print!("{:e}", dt * t as f64);
-        let u = buf.convert_u(v.as_slice().unwrap());
+        let u = eom2.convert_u(v.as_slice().unwrap());
         for val in u.iter() {
             print!(",{:e}", val);
         }

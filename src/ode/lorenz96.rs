@@ -16,8 +16,6 @@ impl Default for Lorenz96 {
     }
 }
 
-no_buffer!(Lorenz96);
-
 impl ModelSpec for Lorenz96 {
     type Scalar = f64;
     type Dim = Ix1;
@@ -28,8 +26,9 @@ impl ModelSpec for Lorenz96 {
 }
 
 impl Explicit for Lorenz96 {
-    fn rhs<'a, S>(&self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
-        where S: DataMut<Elem = f64>
+    fn rhs<'a, S>(&mut self, v: &'a mut ArrayBase<S, Ix1>) -> &'a mut ArrayBase<S, Ix1>
+    where
+        S: DataMut<Elem = f64>,
     {
         let n = v.len();
         let v0 = v.to_owned();

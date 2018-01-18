@@ -1,6 +1,5 @@
-
-extern crate ndarray;
 extern crate eom;
+extern crate ndarray;
 
 use ndarray::*;
 use eom::*;
@@ -9,29 +8,26 @@ use eom::*;
 fn arr() {
     let dt = 0.01;
     let eom = ode::Lorenz63::default();
-    let teo = explicit::euler(eom, dt);
+    let mut teo = explicit::Euler::new(eom, dt);
     let mut x: Array1<f64> = arr1(&[1.0, 0.0, 0.0]);
-    let mut buf = teo.new_buffer();
-    teo.iterate(&mut x, &mut buf);
+    teo.iterate(&mut x);
 }
 
 #[test]
 fn rcarr() {
     let dt = 0.01;
     let eom = ode::Lorenz63::default();
-    let teo = explicit::euler(eom, dt);
+    let mut teo = explicit::Euler::new(eom, dt);
     let mut x: RcArray1<f64> = rcarr1(&[1.0, 0.0, 0.0]);
-    let mut buf = teo.new_buffer();
-    teo.iterate(&mut x, &mut buf);
+    teo.iterate(&mut x);
 }
 
 #[test]
 fn view_mut() {
     let dt = 0.01;
     let eom = ode::Lorenz63::default();
-    let teo = explicit::euler(eom, dt);
+    let mut teo = explicit::Euler::new(eom, dt);
     let mut x: Array1<f64> = arr1(&[1.0, 0.0, 0.0]);
     let v = &mut x.view_mut();
-    let mut buf = teo.new_buffer();
-    teo.iterate(v, &mut buf);
+    teo.iterate(v);
 }

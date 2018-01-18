@@ -5,17 +5,20 @@ use ndarray_linalg::Scalar;
 use super::traits::*;
 
 pub fn diagonal<A, D, EOM>(eom: &EOM, dt: A::Real) -> Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension,
-          EOM: StiffDiagonal<Scalar = A, Dim = D>
+where
+    A: Scalar,
+    D: Dimension,
+    EOM: StiffDiagonal<Scalar = A, Dim = D>,
 {
     Diagonal::new(eom.diag(), dt)
 }
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
+#[derive(Clone)]
 pub struct Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
+where
+    A: Scalar,
+    D: Dimension,
 {
     diag: Array<A, D>,
     diag_of_matrix: Array<A, D>,
@@ -23,8 +26,9 @@ pub struct Diagonal<A, D>
 }
 
 impl<A, D> TimeStep for Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
+where
+    A: Scalar,
+    D: Dimension,
 {
     type Time = A::Real;
 
@@ -34,13 +38,16 @@ impl<A, D> TimeStep for Diagonal<A, D>
     fn set_dt(&mut self, dt: Self::Time) {
         Zip::from(&mut self.diag)
             .and(&self.diag_of_matrix)
-            .apply(|a, &b| { *a = b.mul_real(dt).exp(); });
+            .apply(|a, &b| {
+                *a = b.mul_real(dt).exp();
+            });
     }
 }
 
 impl<A, D> ModelSpec for Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
+where
+    A: Scalar,
+    D: Dimension,
 {
     type Scalar = A;
     type Dim = D;
@@ -51,8 +58,9 @@ impl<A, D> ModelSpec for Diagonal<A, D>
 }
 
 impl<A, D> Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
+where
+    A: Scalar,
+    D: Dimension,
 {
     pub fn new(diag_of_matrix: Array<A, D>, dt: A::Real) -> Self {
         let mut diag = diag_of_matrix.to_owned();
@@ -67,26 +75,14 @@ impl<A, D> Diagonal<A, D>
     }
 }
 
-impl<A, D> BufferSpec for Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
-{
-    type Buffer = ();
-
-    fn new_buffer(&self) -> Self::Buffer {
-        ()
-    }
-}
-
 impl<A, D> TimeEvolution for Diagonal<A, D>
-    where A: Scalar,
-          D: Dimension
+where
+    A: Scalar,
+    D: Dimension,
 {
-    fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, D>,
-                      _: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, D>
-        where S: DataMut<Elem = A>
+    fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
+    where
+        S: DataMut<Elem = A>,
     {
         for (val, d) in x.iter_mut().zip(self.diag.iter()) {
             *val = *val * *d;

@@ -1,42 +1,46 @@
-
 use ndarray::*;
 use ndarray_linalg::*;
 use super::traits::*;
 
 pub struct TimeSeries<'a, TEO, S>
-    where S: DataMut,
-          TEO: TimeEvolution + 'a
+where
+    S: DataMut,
+    TEO: TimeEvolution + 'a,
 {
     state: ArrayBase<S, TEO::Dim>,
-    buf: TEO::Buffer,
-    teo: &'a TEO,
+    teo: &'a mut TEO,
 }
 
-pub fn time_series<'a, TEO, S>(x0: ArrayBase<S, TEO::Dim>, teo: &'a TEO) -> TimeSeries<'a, TEO, S>
-    where S: DataMut,
-          TEO: TimeEvolution
+pub fn time_series<'a, TEO, S>(
+    x0: ArrayBase<S, TEO::Dim>,
+    teo: &'a mut TEO,
+) -> TimeSeries<'a, TEO, S>
+where
+    S: DataMut,
+    TEO: TimeEvolution,
 {
     TimeSeries {
         state: x0,
-        buf: teo.new_buffer(),
         teo: teo,
     }
 }
 
 impl<'a, TEO, A, S> TimeSeries<'a, TEO, S>
-    where A: Scalar,
-          S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<Scalar = A>
+where
+    A: Scalar,
+    S: DataMut<Elem = A> + DataClone,
+    TEO: TimeEvolution<Scalar = A>,
 {
     pub fn iterate(&mut self) {
-        self.teo.iterate(&mut self.state, &mut self.buf);
+        self.teo.iterate(&mut self.state);
     }
 }
 
 impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
-    where A: Scalar,
-          S: DataMut<Elem = A> + DataClone,
-          TEO: TimeEvolution<Scalar = A>
+where
+    A: Scalar,
+    S: DataMut<Elem = A> + DataClone,
+    TEO: TimeEvolution<Scalar = A>,
 {
     type Item = ArrayBase<S, TEO::Dim>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -45,14 +49,14 @@ impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
     }
 }
 
-
 /// N-step adaptor
 ///
 /// ```rust
 /// use eom::*;
-/// let teo = explicit::rk4(ode::Lorenz63::default(), 0.01);
+/// let teo = explicit::RK4::new(ode::Lorenz63::default(), 0.01);
 /// let nstep = nstep(teo, 10);
 /// ```
+#[derive(Debug, Clone)]
 pub struct NStep<TEO> {
     teo: TEO,
     n: usize,
@@ -63,7 +67,8 @@ pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
 }
 
 impl<TEO> ModelSpec for NStep<TEO>
-    where TEO: ModelSpec
+where
+    TEO: ModelSpec,
 {
     type Scalar = TEO::Scalar;
     type Dim = TEO::Dim;
@@ -74,7 +79,8 @@ impl<TEO> ModelSpec for NStep<TEO>
 }
 
 impl<TEO> TimeStep for NStep<TEO>
-    where TEO: TimeStep
+where
+    TEO: TimeStep,
 {
     type Time = TEO::Time;
 
@@ -87,26 +93,19 @@ impl<TEO> TimeStep for NStep<TEO>
     }
 }
 
-impl<TEO> BufferSpec for NStep<TEO>
-    where TEO: BufferSpec
-{
-    type Buffer = TEO::Buffer;
-    fn new_buffer(&self) -> Self::Buffer {
-        self.teo.new_buffer()
-    }
-}
-
 impl<TEO> TimeEvolution for NStep<TEO>
-    where TEO: TimeEvolution
+where
+    TEO: TimeEvolution,
 {
-    fn iterate<'a, S>(&self,
-                      x: &'a mut ArrayBase<S, TEO::Dim>,
-                      buf: &mut Self::Buffer)
-                      -> &'a mut ArrayBase<S, TEO::Dim>
-        where S: DataMut<Elem = TEO::Scalar>
+    fn iterate<'a, S>(
+        &mut self,
+        x: &'a mut ArrayBase<S, TEO::Dim>,
+    ) -> &'a mut ArrayBase<S, TEO::Dim>
+    where
+        S: DataMut<Elem = TEO::Scalar>,
     {
         for _ in 0..self.n {
-            self.teo.iterate(x, buf);
+            self.teo.iterate(x);
         }
         x
     }
