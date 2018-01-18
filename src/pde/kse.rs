@@ -4,13 +4,19 @@ use std::f64::consts::PI;
 
 use traits::*;
 
-#[derive(Clone)]
 pub struct KSE {
     n: usize,
     n_coef: usize,
+    length: f64,
     k: Array1<c64>,
     u_pair: Pair<f64, c64>,
     ux_pair: Pair<f64, c64>,
+}
+
+impl Clone for KSE {
+    fn clone(&self) -> Self {
+        Self::new(self.n, self.length)
+    }
 }
 
 impl ModelSpec for KSE {
@@ -30,6 +36,7 @@ impl KSE {
         KSE {
             n,
             n_coef,
+            length,
             k,
             u_pair,
             ux_pair,
