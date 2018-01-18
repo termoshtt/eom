@@ -6,6 +6,7 @@ Equation of Motions
 [![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
 ![Lorenz63 Attractor](lorenz63.png)
+![KSE](kse.png)
 
 configurable ODE/PDE solver
 ----------------------------
