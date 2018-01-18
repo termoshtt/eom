@@ -53,7 +53,7 @@ where
 ///
 /// ```rust
 /// use eom::*;
-/// let teo = explicit::rk4(ode::Lorenz63::default(), 0.01);
+/// let teo = explicit::RK4::new(ode::Lorenz63::default(), 0.01);
 /// let nstep = nstep(teo, 10);
 /// ```
 #[derive(Debug, Clone)]

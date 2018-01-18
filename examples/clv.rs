@@ -34,11 +34,11 @@ where
     TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone,
 {
     let n = x0.len();
-    let eom = teo.clone();
+    let mut eom = teo.clone();
     let ts = time_series(x0, teo);
     let qr_series = ts.scan(Array::eye(n), |q, x| {
         let (q_next, r) = eom.lin_approx(x.to_owned(), alpha)
-            .apply_multi(&q)
+            .apply_multi_inplace(q)
             .qr()
             .unwrap();
         let q = replace(q, q_next);
