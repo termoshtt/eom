@@ -14,7 +14,7 @@ where
     let n = teo.model_size();
     let dur = teo.get_dt() * into_scalar(duration as f64);
     Series::new(teo, x, alpha)
-        .map(|(_q, r)| r.diag().map(|x| x.abs().ln()))
+        .map(|(_x, _q, r)| r.diag().map(|x| x.abs().ln()))
         .skip(duration / 10)
         .take(duration)
         .fold(ArrayBase::zeros(n), |mut x, y| {
@@ -50,7 +50,7 @@ where
     A: Scalar,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
 {
-    type Item = (Array2<A>, Array2<A>);
+    type Item = (Array1<A>, Array2<A>, Array2<A>);
 
     fn next(&mut self) -> Option<Self::Item> {
         let q = self.teo
@@ -58,7 +58,7 @@ where
             .apply_multi_inplace(&mut self.q);
         let (q, r) = q.qr_square_inplace().unwrap();
         self.teo.iterate(&mut self.x);
-        Some((q.to_owned(), r))
+        Some((self.x.to_owned(), q.to_owned(), r))
     }
 }
 
@@ -78,7 +78,7 @@ pub fn vectors<A, TEO>(
     x: Array1<A>,
     alpha: A::Real,
     duration: usize,
-) -> Vec<(Array2<A>, Array1<A::Real>)>
+) -> Vec<(Array1<A>, Array2<A>, Array1<A::Real>)>
 where
     A: Scalar,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone,
@@ -91,11 +91,11 @@ where
     let clv_rev = qr_series
         .into_iter()
         .rev()
-        .scan(Array::eye(n), |c, (q, r)| {
+        .scan(Array::eye(n), |c, (x, q, r)| {
             let (c_now, f) = clv_backward(c, &r);
             let v = q.dot(&c_now);
             *c = c_now;
-            Some((v, f))
+            Some((x, v, f))
         })
         .collect::<Vec<_>>();
     clv_rev.into_iter().skip(duration / 10).rev().collect()

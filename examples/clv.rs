@@ -20,7 +20,7 @@ fn main() {
     let ts = lyapunov::vectors(teo, arr1(&[1.0, 0.0, 0.0]), 1e-7, duration);
     let mut l = Array::zeros(3);
     println!("v0v1, v0v2, v1v2");
-    for (v, f) in ts.into_iter().rev() {
+    for (_x, v, f) in ts.into_iter().rev() {
         let v0 = v.axis_iter(Axis(1)).nth(0).unwrap();
         let v1 = v.axis_iter(Axis(1)).nth(1).unwrap();
         let v2 = v.axis_iter(Axis(1)).nth(2).unwrap();
