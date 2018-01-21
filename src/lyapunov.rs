@@ -1,37 +1,102 @@
 use ndarray::*;
 use ndarray_linalg::*;
-use num_traits::Float;
+use num_traits::{Float, One};
 
 use traits::*;
 use jacobian::*;
-use adaptor::time_series;
 
 /// Calculate all Lyapunov exponents
-pub fn exponents<A, S, TEO>(
-    mut teo: TEO,
-    x0: ArrayBase<S, Ix1>,
-    alpha: A::Real,
-    duration: usize,
-) -> Array1<A>
+pub fn exponents<A, TEO>(teo: TEO, x: Array1<A>, alpha: A::Real, duration: usize) -> Array1<A::Real>
 where
-    A: RealScalar,
-    S: DataMut<Elem = A> + DataClone,
-    TEO: TimeEvolution<Scalar = A, Dim = Ix1> + TimeStep<Time = A>,
+    A: Scalar,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1> + TimeStep<Time = A::Real>,
 {
-    let n = x0.len();
+    let n = teo.model_size();
     let dur = teo.get_dt() * into_scalar(duration as f64);
-    let mut teo2 = teo.clone();
-    let ts = time_series(x0, &mut teo);
-    ts.scan(Array::eye(n), |q, x| {
-        teo2.lin_approx(x.to_owned(), alpha).apply_multi_inplace(q);
-        let (q_next, r) = q.qr().unwrap();
-        *q = q_next;
-        let d: Array1<A> = r.diag().map(|x| AssociatedReal::inject(x.abs().ln()));
-        Some(d)
-    }).skip(duration / 10)
+    Series::new(teo, x, alpha)
+        .map(|(_x, _q, r)| r.diag().map(|x| x.abs().ln()))
+        .skip(duration / 10)
         .take(duration)
         .fold(ArrayBase::zeros(n), |mut x, y| {
             azip!(mut x, y in { *x = *x + y/dur } );
             x
         })
+}
+
+pub struct Series<A, TEO>
+where
+    A: Scalar,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
+{
+    teo: TEO,
+    x: Array1<A>,
+    q: Array2<A>,
+    alpha: A::Real,
+}
+
+impl<A, TEO> Series<A, TEO>
+where
+    A: Scalar,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
+{
+    pub fn new(teo: TEO, x: Array1<A>, alpha: A::Real) -> Self {
+        let q = Array::eye(teo.model_size());
+        Series { teo, x, q, alpha }
+    }
+}
+
+impl<A, TEO> Iterator for Series<A, TEO>
+where
+    A: Scalar,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
+{
+    type Item = (Array1<A>, Array2<A>, Array2<A>);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let q = self.teo
+            .lin_approx(self.x.to_owned(), self.alpha)
+            .apply_multi_inplace(&mut self.q);
+        let (q, r) = q.qr_square_inplace().unwrap();
+        self.teo.iterate(&mut self.x);
+        Some((self.x.to_owned(), q.to_owned(), r))
+    }
+}
+
+fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
+    let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
+        .expect("Failed to solve R");
+    let (c, d) = normalize(cd, NormalizeAxis::Column);
+    let f = Array::from_vec(d).mapv_into(|x| A::Real::one() / x);
+    (c, f)
+}
+
+/// Calculate the Covariant Lyapunov Vectors at once
+///
+/// This function saves the time series of QR-decomposition, and consumes many memories.
+pub fn vectors<A, TEO>(
+    teo: TEO,
+    x: Array1<A>,
+    alpha: A::Real,
+    duration: usize,
+) -> Vec<(Array1<A>, Array2<A>, Array1<A::Real>)>
+where
+    A: Scalar,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone,
+{
+    let n = teo.model_size();
+    let qr_series = Series::new(teo, x, alpha)
+        .skip(duration / 10)
+        .take(duration + duration / 10)
+        .collect::<Vec<_>>();
+    let clv_rev = qr_series
+        .into_iter()
+        .rev()
+        .scan(Array::eye(n), |c, (x, q, r)| {
+            let (c_now, f) = clv_backward(c, &r);
+            let v = q.dot(&c_now);
+            *c = c_now;
+            Some((x, v, f))
+        })
+        .collect::<Vec<_>>();
+    clv_rev.into_iter().skip(duration / 10).rev().collect()
 }
