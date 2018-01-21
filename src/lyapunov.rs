@@ -1,6 +1,6 @@
 use ndarray::*;
 use ndarray_linalg::*;
-use num_traits::Float;
+use num_traits::{Float, One};
 
 use traits::*;
 use jacobian::*;
@@ -60,4 +60,43 @@ where
         self.teo.iterate(&mut self.x);
         Some((q.to_owned(), r))
     }
+}
+
+fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
+    let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
+        .expect("Failed to solve R");
+    let (c, d) = normalize(cd, NormalizeAxis::Column);
+    let f = Array::from_vec(d).mapv_into(|x| A::Real::one() / x);
+    (c, f)
+}
+
+/// Calculate the Covariant Lyapunov Vectors at once
+///
+/// This function saves the time series of QR-decomposition, and consumes many memories.
+pub fn vectors<A, TEO>(
+    teo: TEO,
+    x: Array1<A>,
+    alpha: A::Real,
+    duration: usize,
+) -> Vec<(Array2<A>, Array1<A::Real>)>
+where
+    A: Scalar,
+    TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone,
+{
+    let n = teo.model_size();
+    let qr_series = Series::new(teo, x, alpha)
+        .skip(duration / 10)
+        .take(duration + duration / 10)
+        .collect::<Vec<_>>();
+    let clv_rev = qr_series
+        .into_iter()
+        .rev()
+        .scan(Array::eye(n), |c, (q, r)| {
+            let (c_now, f) = clv_backward(c, &r);
+            let v = q.dot(&c_now);
+            *c = c_now;
+            Some((v, f))
+        })
+        .collect::<Vec<_>>();
+    clv_rev.into_iter().skip(duration / 10).rev().collect()
 }
