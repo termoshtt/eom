@@ -65,7 +65,7 @@ where
     }
 }
 
-impl<F: StiffDiagonal> Scheme<F> for Diagonal<F::Scalar, F::Dim> {
+impl<F: SemiImplicit> Scheme<F> for Diagonal<F::Scalar, F::Dim> {
     fn new(f: F, dt: Self::Time) -> Self {
         let diag = f.diag();
         let mut exp_diag = diag.to_owned();
@@ -102,7 +102,7 @@ pub fn diag_rk4<A, D, NLin>(nlin: NLin, dt: A::Real) -> DiagRK4<A, D, NLin, Diag
 where
     A: Scalar,
     D: Dimension,
-    NLin: StiffDiagonal<Scalar = A, Dim = D>,
+    NLin: SemiImplicit<Scalar = A, Dim = D>,
 {
     let lin = Diagonal::new(nlin.clone(), dt / into_scalar(2.0));
     let x = Array::zeros(lin.model_size());

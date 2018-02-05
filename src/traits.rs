@@ -30,10 +30,6 @@ pub trait SemiImplicit: ModelSpec {
     fn nlin<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
-}
-
-/// EoM whose stiff linear part is diagonal
-pub trait StiffDiagonal: ModelSpec {
     /// diagonal elements of stiff linear part
     fn diag(&self) -> Array<Self::Scalar, Self::Dim>;
 }
