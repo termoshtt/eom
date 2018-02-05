@@ -7,6 +7,7 @@ use ndarray::*;
 use ndarray_linalg::*;
 
 use eom::*;
+use eom::traits::*;
 use eom::jacobian::*;
 
 #[test]

@@ -3,6 +3,7 @@ extern crate ndarray;
 
 use ndarray::arr1;
 use eom::*;
+use eom::traits::*;
 
 fn main() {
     let dt = 0.01;

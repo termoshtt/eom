@@ -3,16 +3,18 @@ extern crate ndarray;
 extern crate num_complex;
 extern crate num_traits;
 
-use ndarray::rcarr1;
-use eom::*;
+use ndarray::*;
 use num_complex::Complex64 as c64;
 use num_traits::Zero;
+
+use eom::*;
+use eom::traits::*;
 
 fn main() {
     let dt = 1e-5;
     let eom = ode::GoyShell::default();
-    let mut teo = semi_implicit::diag_rk4(eom, dt);
-    let mut x0 = rcarr1(&vec![c64::zero(); 27]);
+    let mut teo = semi_implicit::DiagRK4::new(eom, dt);
+    let mut x0 = arr1(&vec![c64::zero(); 27]);
     x0[2] = c64::new(1.0, 0.0);
     x0[3] = c64::new(1.0, 0.0);
     x0[4] = c64::new(1.0, 0.0);
