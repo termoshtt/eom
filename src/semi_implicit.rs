@@ -4,7 +4,81 @@ use ndarray::*;
 use ndarray_linalg::*;
 
 use super::traits::*;
-use super::diag::{diagonal, Diagonal};
+
+/// Linear ODE with diagonalized matrix (exactly solvable)
+#[derive(Debug, Clone)]
+pub struct Diagonal<A, D>
+where
+    A: Scalar,
+    D: Dimension,
+{
+    exp_diag: Array<A, D>,
+    diag: Array<A, D>,
+    dt: A::Real,
+}
+
+impl<A, D> TimeStep for Diagonal<A, D>
+where
+    A: Scalar,
+    D: Dimension,
+{
+    type Time = A::Real;
+
+    fn get_dt(&self) -> Self::Time {
+        self.dt
+    }
+    fn set_dt(&mut self, dt: Self::Time) {
+        Zip::from(&mut self.exp_diag)
+            .and(&self.diag)
+            .apply(|a, &b| {
+                *a = b.mul_real(dt).exp();
+            });
+    }
+}
+
+impl<A, D> ModelSpec for Diagonal<A, D>
+where
+    A: Scalar,
+    D: Dimension,
+{
+    type Scalar = A;
+    type Dim = D;
+
+    fn model_size(&self) -> D::Pattern {
+        self.exp_diag.dim()
+    }
+}
+
+impl<A, D> TimeEvolution for Diagonal<A, D>
+where
+    A: Scalar,
+    D: Dimension,
+{
+    fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
+    where
+        S: DataMut<Elem = A>,
+    {
+        for (val, d) in x.iter_mut().zip(self.exp_diag.iter()) {
+            *val = *val * *d;
+        }
+        x
+    }
+}
+
+impl<F: StiffDiagonal> Scheme<F> for Diagonal<F::Scalar, F::Dim> {
+    fn new(f: F, dt: Self::Time) -> Self {
+        let diag = f.diag();
+        let mut exp_diag = diag.to_owned();
+        for v in exp_diag.iter_mut() {
+            *v = v.mul_real(dt).exp();
+        }
+        Diagonal {
+            exp_diag: exp_diag,
+            diag: diag,
+            dt: dt,
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct DiagRK4<A, D, NLin, Lin>
@@ -30,7 +104,7 @@ where
     D: Dimension,
     NLin: StiffDiagonal<Scalar = A, Dim = D>,
 {
-    let lin = diagonal(&nlin, dt / into_scalar(2.0));
+    let lin = Diagonal::new(nlin.clone(), dt / into_scalar(2.0));
     let x = Array::zeros(lin.model_size());
     let lx = Array::zeros(lin.model_size());
     let k1 = Array::zeros(lin.model_size());
