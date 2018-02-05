@@ -39,7 +39,7 @@ pub trait StiffDiagonal: ModelSpec {
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution: ModelSpec + Clone {
+pub trait TimeEvolution: ModelSpec + TimeStep + Clone {
     /// calculate next step
     fn iterate<'a, S>(
         &mut self,
@@ -47,4 +47,9 @@ pub trait TimeEvolution: ModelSpec + Clone {
     ) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
+}
+
+/// Time evolution schemes
+pub trait Scheme<F>: TimeEvolution {
+    fn new(f: F, dt: Self::Time) -> Self;
 }
