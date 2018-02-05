@@ -7,22 +7,14 @@ use super::traits::*;
 
 /// Linear ODE with diagonalized matrix (exactly solvable)
 #[derive(Debug, Clone)]
-pub struct Diagonal<A, D>
-where
-    A: Scalar,
-    D: Dimension,
-{
-    exp_diag: Array<A, D>,
-    diag: Array<A, D>,
-    dt: A::Real,
+pub struct Diagonal<F: SemiImplicit> {
+    exp_diag: Array<F::Scalar, F::Dim>,
+    diag: Array<F::Scalar, F::Dim>,
+    dt: <F::Scalar as AssociatedReal>::Real,
 }
 
-impl<A, D> TimeStep for Diagonal<A, D>
-where
-    A: Scalar,
-    D: Dimension,
-{
-    type Time = A::Real;
+impl<F: SemiImplicit> TimeStep for Diagonal<F> {
+    type Time = <F::Scalar as AssociatedReal>::Real;
 
     fn get_dt(&self) -> Self::Time {
         self.dt
@@ -36,27 +28,22 @@ where
     }
 }
 
-impl<A, D> ModelSpec for Diagonal<A, D>
-where
-    A: Scalar,
-    D: Dimension,
-{
-    type Scalar = A;
-    type Dim = D;
+impl<F: SemiImplicit> ModelSpec for Diagonal<F> {
+    type Scalar = F::Scalar;
+    type Dim = F::Dim;
 
-    fn model_size(&self) -> D::Pattern {
+    fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
         self.exp_diag.dim()
     }
 }
 
-impl<A, D> TimeEvolution for Diagonal<A, D>
-where
-    A: Scalar,
-    D: Dimension,
-{
-    fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, D>) -> &'a mut ArrayBase<S, D>
+impl<F: SemiImplicit> TimeEvolution for Diagonal<F> {
+    fn iterate<'a, S>(
+        &mut self,
+        x: &'a mut ArrayBase<S, Self::Dim>,
+    ) -> &'a mut ArrayBase<S, Self::Dim>
     where
-        S: DataMut<Elem = A>,
+        S: DataMut<Elem = Self::Scalar>,
     {
         for (val, d) in x.iter_mut().zip(self.exp_diag.iter()) {
             *val = *val * *d;
@@ -65,7 +52,7 @@ where
     }
 }
 
-impl<F: SemiImplicit> Scheme<F> for Diagonal<F::Scalar, F::Dim> {
+impl<F: SemiImplicit> Scheme<F> for Diagonal<F> {
     fn new(f: F, dt: Self::Time) -> Self {
         let diag = f.diag();
         let mut exp_diag = diag.to_owned();
@@ -81,55 +68,40 @@ impl<F: SemiImplicit> Scheme<F> for Diagonal<F::Scalar, F::Dim> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DiagRK4<A, D, NLin, Lin>
-where
-    A: Scalar,
-    D: Dimension,
-    NLin: ModelSpec<Scalar = A, Dim = D>,
-    Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
-{
-    nlin: NLin,
-    lin: Lin,
-    dt: Lin::Time,
-    x: Array<A, D>,
-    lx: Array<A, D>,
-    k1: Array<A, D>,
-    k2: Array<A, D>,
-    k3: Array<A, D>,
+pub struct DiagRK4<F: SemiImplicit> {
+    nlin: F,
+    lin: Diagonal<F>,
+    dt: <Diagonal<F> as TimeStep>::Time,
+    x: Array<F::Scalar, F::Dim>,
+    lx: Array<F::Scalar, F::Dim>,
+    k1: Array<F::Scalar, F::Dim>,
+    k2: Array<F::Scalar, F::Dim>,
+    k3: Array<F::Scalar, F::Dim>,
 }
 
-pub fn diag_rk4<A, D, NLin>(nlin: NLin, dt: A::Real) -> DiagRK4<A, D, NLin, Diagonal<A, D>>
-where
-    A: Scalar,
-    D: Dimension,
-    NLin: SemiImplicit<Scalar = A, Dim = D>,
-{
-    let lin = Diagonal::new(nlin.clone(), dt / into_scalar(2.0));
-    let x = Array::zeros(lin.model_size());
-    let lx = Array::zeros(lin.model_size());
-    let k1 = Array::zeros(lin.model_size());
-    let k2 = Array::zeros(lin.model_size());
-    let k3 = Array::zeros(lin.model_size());
-    DiagRK4 {
-        nlin,
-        lin,
-        dt,
-        x,
-        lx,
-        k1,
-        k2,
-        k3,
+impl<F: SemiImplicit> Scheme<F> for DiagRK4<F> {
+    fn new(nlin: F, dt: Self::Time) -> Self {
+        let lin = Diagonal::new(nlin.clone(), dt / into_scalar(2.0));
+        let x = Array::zeros(lin.model_size());
+        let lx = Array::zeros(lin.model_size());
+        let k1 = Array::zeros(lin.model_size());
+        let k2 = Array::zeros(lin.model_size());
+        let k3 = Array::zeros(lin.model_size());
+        DiagRK4 {
+            nlin,
+            lin,
+            dt,
+            x,
+            lx,
+            k1,
+            k2,
+            k3,
+        }
     }
 }
 
-impl<A, D, NLin, Lin> TimeStep for DiagRK4<A, D, NLin, Lin>
-where
-    A: Scalar,
-    D: Dimension,
-    NLin: ModelSpec<Scalar = A, Dim = D>,
-    Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
-{
-    type Time = Lin::Time;
+impl<F: SemiImplicit> TimeStep for DiagRK4<F> {
+    type Time = <Diagonal<F> as TimeStep>::Time;
 
     fn get_dt(&self) -> Self::Time {
         self.dt
@@ -140,34 +112,22 @@ where
     }
 }
 
-impl<A, D, NLin, Lin> ModelSpec for DiagRK4<A, D, NLin, Lin>
-where
-    A: Scalar,
-    D: Dimension,
-    NLin: ModelSpec<Scalar = A, Dim = D>,
-    Lin: ModelSpec<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
-{
-    type Scalar = A;
-    type Dim = D;
+impl<F: SemiImplicit> ModelSpec for DiagRK4<F> {
+    type Scalar = F::Scalar;
+    type Dim = F::Dim;
 
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
         self.nlin.model_size() // TODO check
     }
 }
 
-impl<A, D, NLin, Lin> TimeEvolution for DiagRK4<A, D, NLin, Lin>
-where
-    A: Scalar,
-    D: Dimension,
-    NLin: SemiImplicit<Scalar = A, Dim = D>,
-    Lin: TimeEvolution<Scalar = A, Dim = D> + TimeStep<Time = A::Real>,
-{
+impl<F: SemiImplicit> TimeEvolution for DiagRK4<F> {
     fn iterate<'a, S>(
         &mut self,
         x: &'a mut ArrayBase<S, Self::Dim>,
     ) -> &'a mut ArrayBase<S, Self::Dim>
     where
-        S: DataMut<Elem = A>,
+        S: DataMut<Elem = Self::Scalar>,
     {
         // constants
         let dt = self.dt;
