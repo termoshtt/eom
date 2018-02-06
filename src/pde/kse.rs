@@ -92,9 +92,7 @@ impl SemiImplicit for KSE {
         }
         uf
     }
-}
 
-impl StiffDiagonal for KSE {
     fn diag(&self) -> Array1<c64> {
         let k2 = &self.k * &self.k;
         let k4 = &k2 * &k2;

@@ -53,6 +53,7 @@ where
 ///
 /// ```rust
 /// use eom::*;
+/// use eom::traits::*;
 /// let teo = explicit::RK4::new(ode::Lorenz63::default(), 0.01);
 /// let nstep = adaptor::nstep(teo, 10);
 /// ```

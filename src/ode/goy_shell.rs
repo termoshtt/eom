@@ -75,9 +75,7 @@ impl SemiImplicit for GoyShell {
         v[self.f_idx] = v[self.f_idx] + c64::new(self.f, 0.0);
         v
     }
-}
 
-impl StiffDiagonal for GoyShell {
     fn diag(&self) -> Array<c64, Ix1> {
         (0..self.size)
             .map(|n| self.nu * self.k(n) * self.k(n))

@@ -3,7 +3,7 @@
 use ndarray::*;
 use ndarray_linalg::*;
 
-pub trait ModelSpec {
+pub trait ModelSpec: Clone {
     type Scalar: Scalar;
     type Dim: Dimension;
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
@@ -17,7 +17,7 @@ pub trait TimeStep {
 }
 
 /// EoM for explicit schemes
-pub trait Explicit: ModelSpec + Clone {
+pub trait Explicit: ModelSpec {
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
@@ -25,21 +25,17 @@ pub trait Explicit: ModelSpec + Clone {
 }
 
 /// EoM for semi-implicit schemes
-pub trait SemiImplicit: ModelSpec + Clone {
+pub trait SemiImplicit: ModelSpec {
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
-}
-
-/// EoM whose stiff linear part is diagonal
-pub trait StiffDiagonal: ModelSpec {
     /// diagonal elements of stiff linear part
     fn diag(&self) -> Array<Self::Scalar, Self::Dim>;
 }
 
 /// Time-evolution operator with buffer
-pub trait TimeEvolution: ModelSpec + Clone {
+pub trait TimeEvolution: ModelSpec + TimeStep {
     /// calculate next step
     fn iterate<'a, S>(
         &mut self,
@@ -47,4 +43,9 @@ pub trait TimeEvolution: ModelSpec + Clone {
     ) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
+}
+
+/// Time evolution schemes
+pub trait Scheme<F>: TimeEvolution {
+    fn new(f: F, dt: Self::Time) -> Self;
 }
