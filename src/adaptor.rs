@@ -32,20 +32,20 @@ where
         .collect()
 }
 
-pub fn iterate<TEO, S>(
+pub fn iterate<S, TEO>(
     teo: &mut TEO,
     x0: ArrayBase<S, TEO::Dim>,
     step: usize,
 ) -> ArrayBase<S, TEO::Dim>
 where
-    TEO: TimeEvolution,
     S: DataMut<Elem = TEO::Scalar> + DataClone,
+    TEO: TimeEvolution,
 {
     let mut ts = time_series(x0, teo);
     ts.nth(step - 1).unwrap()
 }
 
-pub struct TimeSeries<'a, TEO, S>
+pub struct TimeSeries<'a, S, TEO>
 where
     S: DataMut<Elem = TEO::Scalar> + DataClone,
     TEO: TimeEvolution + 'a,
@@ -54,10 +54,10 @@ where
     teo: &'a mut TEO,
 }
 
-pub fn time_series<'a, TEO, S>(
+pub fn time_series<'a, S, TEO>(
     x0: ArrayBase<S, TEO::Dim>,
     teo: &'a mut TEO,
-) -> TimeSeries<'a, TEO, S>
+) -> TimeSeries<'a, S, TEO>
 where
     S: DataMut<Elem = TEO::Scalar> + DataClone,
     TEO: TimeEvolution,
@@ -68,22 +68,20 @@ where
     }
 }
 
-impl<'a, TEO, A, S> TimeSeries<'a, TEO, S>
+impl<'a, S, TEO> TimeSeries<'a, S, TEO>
 where
-    A: Scalar,
-    S: DataMut<Elem = A> + DataClone,
-    TEO: TimeEvolution<Scalar = A>,
+    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    TEO: TimeEvolution,
 {
     pub fn iterate(&mut self) {
         self.teo.iterate(&mut self.state);
     }
 }
 
-impl<'a, TEO, A, S> Iterator for TimeSeries<'a, TEO, S>
+impl<'a, S, TEO> Iterator for TimeSeries<'a, S, TEO>
 where
-    A: Scalar,
-    S: DataMut<Elem = A> + DataClone,
-    TEO: TimeEvolution<Scalar = A>,
+    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    TEO: TimeEvolution,
 {
     type Item = ArrayBase<S, TEO::Dim>;
     fn next(&mut self) -> Option<Self::Item> {
