@@ -101,19 +101,16 @@ where
 /// let nstep = adaptor::nstep(teo, 10);
 /// ```
 #[derive(Debug, Clone)]
-pub struct NStep<TEO> {
+pub struct NStep<TEO: TimeEvolution> {
     teo: TEO,
     n: usize,
 }
 
-pub fn nstep<TEO>(teo: TEO, n: usize) -> NStep<TEO> {
+pub fn nstep<TEO: TimeEvolution>(teo: TEO, n: usize) -> NStep<TEO> {
     NStep { teo, n }
 }
 
-impl<TEO> ModelSpec for NStep<TEO>
-where
-    TEO: ModelSpec,
-{
+impl<TEO: TimeEvolution> ModelSpec for NStep<TEO> {
     type Scalar = TEO::Scalar;
     type Dim = TEO::Dim;
 
@@ -122,10 +119,7 @@ where
     }
 }
 
-impl<TEO> TimeStep for NStep<TEO>
-where
-    TEO: TimeStep,
-{
+impl<TEO: TimeEvolution> TimeStep for NStep<TEO> {
     type Time = TEO::Time;
 
     fn get_dt(&self) -> Self::Time {
@@ -137,10 +131,7 @@ where
     }
 }
 
-impl<TEO> TimeEvolution for NStep<TEO>
-where
-    TEO: TimeEvolution,
-{
+impl<TEO: TimeEvolution> TimeEvolution for NStep<TEO> {
     fn iterate<'a, S>(
         &mut self,
         x: &'a mut ArrayBase<S, TEO::Dim>,
