@@ -65,9 +65,7 @@ impl SemiImplicit for Lorenz63 {
         v[2] = x * y;
         v
     }
-}
 
-impl StiffDiagonal for Lorenz63 {
     fn diag(&self) -> Array<f64, Ix1> {
         Array::from_vec(vec![-self.p, -1.0, -self.b])
     }

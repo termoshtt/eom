@@ -23,8 +23,8 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Euler<F> {
     }
 }
 
-impl<A: Scalar, F: Explicit<Scalar = A>> Euler<F> {
-    pub fn new(f: F, dt: A::Real) -> Self {
+impl<F: Explicit> Scheme<F> for Euler<F> {
+    fn new(f: F, dt: Self::Time) -> Self {
         let x = Array::zeros(f.model_size());
         Self { f, dt, x }
     }
@@ -72,8 +72,8 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Heun<F> {
     }
 }
 
-impl<A: Scalar, F: Explicit<Scalar = A>> Heun<F> {
-    pub fn new(f: F, dt: A::Real) -> Self {
+impl<F: Explicit> Scheme<F> for Heun<F> {
+    fn new(f: F, dt: Self::Time) -> Self {
         let x = Array::zeros(f.model_size());
         let k1 = Array::zeros(f.model_size());
         Self { f, dt, x, k1 }
@@ -135,8 +135,8 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for RK4<F> {
     }
 }
 
-impl<A: Scalar, F: Explicit<Scalar = A>> RK4<F> {
-    pub fn new(f: F, dt: A::Real) -> Self {
+impl<F: Explicit> Scheme<F> for RK4<F> {
+    fn new(f: F, dt: Self::Time) -> Self {
         let x = Array::zeros(f.model_size());
         let k1 = Array::zeros(f.model_size());
         let k2 = Array::zeros(f.model_size());

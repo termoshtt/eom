@@ -15,7 +15,7 @@ fn main() {
     let eom = pde::KSE::new(n, l);
     let mut eom2 = eom.clone();
     let n_coef = eom.model_size();
-    let mut teo = semi_implicit::diag_rk4(eom, dt);
+    let mut teo = semi_implicit::DiagRK4::new(eom, dt);
 
     let x0: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
 

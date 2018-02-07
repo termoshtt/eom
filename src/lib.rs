@@ -28,7 +28,6 @@ extern crate num_complex;
 extern crate num_traits;
 
 pub mod adaptor;
-pub mod diag;
 pub mod explicit;
 pub mod jacobian;
 pub mod lyapunov;

@@ -6,42 +6,45 @@ extern crate num_traits;
 use std::fs::*;
 use std::io::Write;
 use ndarray::*;
-use eom::*;
 use ndarray_linalg::*;
-use num_traits::int::PrimInt;
 
-macro_rules! impl_accuracy {
-    ($name:ident, $method:path, $filename:expr) => {
-fn $name() {
-    let data: Vec<_> = (0..12)
-        .map(|n| {
-            let dt = 0.1 / 2.pow(n) as f64;
-            let eom = ode::Lorenz63::default();
-            let mut teo = $method(eom, dt);
-            let t = 100 * 2.pow(n);
-            let ts = adaptor::time_series(rcarr1(&[1.0, 0.0, 0.0]), &mut teo);
-            (dt, ts.take(t).last().unwrap())
-        })
-        .collect();
+use eom::*;
+use eom::traits::*;
 
-    let mut f = File::create($filename).unwrap();
+fn check_accuracy<A, D, F, Sc>(teo: Sc, init: Array<A, D>, fname: &str)
+where
+    A: Scalar<Real = f64>,
+    D: Dimension,
+    Sc: Scheme<F, Scalar = A, Dim = D, Time = f64>,
+{
+    let acc = adaptor::accuracy(teo, init, 0.01, 1000, 12);
+    let mut f = File::create(fname).unwrap();
     write!(&mut f, "dt,dev\n").unwrap();
-    for i in 0..(data.len() - 1) {
-        let dt = data[i].0;
-        let dev = (&data[i + 1].1 - &data[i].1).norm();
-        write!(&mut f, "{},{}\n", dt, dev).unwrap();
+    for &(dt, dev) in acc.iter() {
+        write!(&mut f, "{:.08e},{:.08e}\n", dt, dev).unwrap();
     }
 }
-}} // impl_accuracy_test
-
-impl_accuracy!(euler, explicit::Euler::new, "euler.csv");
-impl_accuracy!(heun, explicit::Heun::new, "heun.csv");
-impl_accuracy!(rk4, explicit::RK4::new, "rk4.csv");
-impl_accuracy!(diag_rk4, semi_implicit::diag_rk4, "diag_rk4.csv");
 
 fn main() {
-    euler();
-    heun();
-    rk4();
-    diag_rk4();
+    let l63 = ode::Lorenz63::default();
+    check_accuracy(
+        explicit::Euler::new(l63.clone(), 1.0),
+        arr1(&[1.0, 0.0, 0.0]),
+        "euler.csv",
+    );
+    check_accuracy(
+        explicit::Heun::new(l63.clone(), 1.0),
+        arr1(&[1.0, 0.0, 0.0]),
+        "heun.csv",
+    );
+    check_accuracy(
+        explicit::RK4::new(l63.clone(), 1.0),
+        arr1(&[1.0, 0.0, 0.0]),
+        "rk4.csv",
+    );
+    check_accuracy(
+        semi_implicit::DiagRK4::new(l63.clone(), 1.0),
+        arr1(&[1.0, 0.0, 0.0]),
+        "diag_rk4.csv",
+    );
 }
