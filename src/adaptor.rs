@@ -20,8 +20,7 @@ where
             let dt = dt_base / into_scalar(rate as f64);
             let t = step_base * rate;
             teo.set_dt(dt);
-            let mut ts = time_series(init.clone(), &mut teo);
-            (dt, ts.nth(t - 1).unwrap())
+            (dt, iterate(&mut teo, init.clone(), t))
         })
         .collect();
     data.windows(2)
@@ -33,9 +32,22 @@ where
         .collect()
 }
 
+pub fn iterate<TEO, S>(
+    teo: &mut TEO,
+    x0: ArrayBase<S, TEO::Dim>,
+    step: usize,
+) -> ArrayBase<S, TEO::Dim>
+where
+    TEO: TimeEvolution,
+    S: DataMut<Elem = TEO::Scalar> + DataClone,
+{
+    let mut ts = time_series(x0, teo);
+    ts.nth(step - 1).unwrap()
+}
+
 pub struct TimeSeries<'a, TEO, S>
 where
-    S: DataMut,
+    S: DataMut<Elem = TEO::Scalar> + DataClone,
     TEO: TimeEvolution + 'a,
 {
     state: ArrayBase<S, TEO::Dim>,
@@ -47,7 +59,7 @@ pub fn time_series<'a, TEO, S>(
     teo: &'a mut TEO,
 ) -> TimeSeries<'a, TEO, S>
 where
-    S: DataMut,
+    S: DataMut<Elem = TEO::Scalar> + DataClone,
     TEO: TimeEvolution,
 {
     TimeSeries {
