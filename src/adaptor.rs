@@ -2,6 +2,37 @@ use ndarray::*;
 use ndarray_linalg::*;
 use super::traits::*;
 
+pub fn accuracy<A, D, F, Sc>(
+    mut teo: Sc,
+    init: Array<A, D>,
+    dt_base: A::Real,
+    step_base: usize,
+    num_scale: u32,
+) -> Vec<(Sc::Time, A::Real)>
+where
+    A: Scalar,
+    D: Dimension,
+    Sc: Scheme<F, Scalar = A, Dim = D, Time = A::Real>,
+{
+    let data: Vec<_> = (0..num_scale)
+        .map(|n| {
+            let rate = 2_usize.pow(n);
+            let dt = dt_base / into_scalar(rate as f64);
+            let t = step_base * rate;
+            teo.set_dt(dt);
+            let mut ts = time_series(init.clone(), &mut teo);
+            (dt, ts.nth(t - 1).unwrap())
+        })
+        .collect();
+    data.windows(2)
+        .map(|w| {
+            let dt = w[0].0;
+            let dev = (&w[1].1 - &w[0].1).norm();
+            (dt, dev)
+        })
+        .collect()
+}
+
 pub struct TimeSeries<'a, TEO, S>
 where
     S: DataMut,
