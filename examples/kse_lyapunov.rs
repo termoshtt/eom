@@ -22,10 +22,9 @@ fn main() {
     let x: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
     let x = adaptor::iterate(&mut teo, x, 100);
 
-    eprint!("Start Lyapunov iteration... ");
     let mut l: Array1<f64> = Array::zeros(n_coef);
     let series = lyapunov::Series::new(teo, x, 1e-7);
-    for (t, (_x, _q, r)) in series.take(100000).enumerate() {
+    for (t, (_x, _q, r)) in series.take(step).enumerate() {
         let d = r.diag().map(|x| x.abs().ln());
         azip!(mut l, d in { *l += d } );
         let nums: Vec<_> = l.iter()
@@ -33,5 +32,4 @@ fn main() {
             .collect();
         println!("{}", nums.join(","));
     }
-    eprintln!("Finished");
 }

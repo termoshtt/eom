@@ -15,7 +15,7 @@ fn main() {
     let step = 1000;
 
     let eom = pde::KSE::new(n, l);
-    let mut eom2 = eom.clone();
+    let mut pair = pde::Pair::new(n);
     let n_coef = eom.model_size();
     let teo = semi_implicit::DiagRK4::new(eom, dt);
     let mut teo = adaptor::nstep(teo, interval);
@@ -27,7 +27,7 @@ fn main() {
     for (t, v) in ts.take(step).enumerate() {
         let time = dt * t as f64;
         print!("{:e},", time);
-        let u = eom2.convert_u(v.as_slice().unwrap());
+        let u = pair.to_r(v.as_slice().unwrap());
         let nums: Vec<_> = u.iter().map(|x| format!("{:e}", x)).collect();
         println!("{}", nums.join(","));
     }
