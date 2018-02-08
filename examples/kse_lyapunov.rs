@@ -11,20 +11,21 @@ fn main() {
     let n = 128;
     let l = 100.0;
     let dt = 1e-3;
+    let interval = 100;
+    let step = 10000;
 
     let eom = pde::KSE::new(n, l);
     let n_coef = eom.model_size();
-    let teo = semi_implicit::diag_rk4(eom, dt);
-    let mut teo = adaptor::nstep(teo, 100); // every t=0.1
+    let teo = semi_implicit::DiagRK4::new(eom, dt);
+    let mut teo = adaptor::nstep(teo, interval);
 
-    eprint!("Initialing... ");
     let x: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
-    let x = adaptor::time_series(x, &mut teo).take(100).last().unwrap(); // drop first 10.0
-    eprintln!("Done!");
+    let x = adaptor::iterate(&mut teo, x, 100);
 
     eprint!("Start Lyapunov iteration... ");
     let mut l: Array1<f64> = Array::zeros(n_coef);
-    for (t, (_x, _q, r)) in lyapunov::Series::new(teo, x, 1e-7).take(100000).enumerate() {
+    let series = lyapunov::Series::new(teo, x, 1e-7);
+    for (t, (_x, _q, r)) in series.take(100000).enumerate() {
         let d = r.diag().map(|x| x.abs().ln());
         azip!(mut l, d in { *l += d } );
         let nums: Vec<_> = l.iter()
