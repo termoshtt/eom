@@ -12,7 +12,7 @@ fn main() {
     let l = 100.0;
     let dt = 1e-3;
     let interval = 1000;
-    let step = 1000;
+    let step = 200;
 
     let eom = pde::KSE::new(n, l);
     let mut pair = pde::Pair::new(n);
