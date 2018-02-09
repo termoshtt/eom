@@ -8,30 +8,27 @@ use eom::*;
 use eom::traits::*;
 
 fn main() {
-    let n = 256;
+    let n = 128;
     let l = 100.0;
     let dt = 1e-3;
+    let interval = 1000;
+    let step = 200;
 
     let eom = pde::KSE::new(n, l);
-    let mut eom2 = eom.clone();
+    let mut pair = pde::Pair::new(n);
     let n_coef = eom.model_size();
-    let mut teo = semi_implicit::DiagRK4::new(eom, dt);
+    let teo = semi_implicit::DiagRK4::new(eom, dt);
+    let mut teo = adaptor::nstep(teo, interval);
 
-    let x0: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
+    let x: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
+    let x = adaptor::iterate(&mut teo, x, 100);
 
-    let ts = adaptor::time_series(x0, &mut teo);
-
-    let end_time = 100_000;
-    let interval = 1000;
-    for (t, v) in ts.take(end_time).enumerate() {
-        if t % interval != 0 {
-            continue;
-        }
-        print!("{:e}", dt * t as f64);
-        let u = eom2.convert_u(v.as_slice().unwrap());
-        for val in u.iter() {
-            print!(",{:e}", val);
-        }
-        println!("");
+    let ts = adaptor::time_series(x, &mut teo);
+    for (t, v) in ts.take(step).enumerate() {
+        let time = dt * t as f64;
+        print!("{:e},", time);
+        let u = pair.to_r(v.as_slice().unwrap());
+        let nums: Vec<_> = u.iter().map(|x| format!("{:e}", x)).collect();
+        println!("{}", nums.join(","));
     }
 }

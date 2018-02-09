@@ -6,6 +6,8 @@ use traits::*;
 use jacobian::*;
 
 /// Calculate all Lyapunov exponents
+///
+/// This is an example usage of `Series` itertor, with which you can write more flexible procedure.
 pub fn exponents<A, TEO>(teo: TEO, x: Array1<A>, alpha: A::Real, duration: usize) -> Array1<A::Real>
 where
     A: Scalar,
@@ -23,6 +25,12 @@ where
         })
 }
 
+/// An iterator for successive QR-decomposition in Lyapunov analysis
+///
+/// This is used both to calculate the Lyapunov exponents and covariant Lyapunov vector (CLV).
+/// The `Item` of the iterator is `(x, Q, R)` where `x` is the state vector.
+/// Be sure that each column of `Q` belongs to the tangent space at `x`,
+/// and `R` is a map from the previous tangent space (i.e. at `F^{-1}(x)`) to the space spand by `Q`.
 pub struct Series<A, TEO>
 where
     A: Scalar,
