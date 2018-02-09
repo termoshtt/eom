@@ -11,11 +11,11 @@ use ndarray_linalg::*;
 use eom::*;
 use eom::traits::*;
 
-fn check_accuracy<A, D, F, Sc>(teo: Sc, init: Array<A, D>, fname: &str)
+fn check_accuracy<A, D, Sc>(teo: Sc, init: Array<A, D>, fname: &str)
 where
     A: Scalar<Real = f64>,
     D: Dimension,
-    Sc: Scheme<F, Scalar = A, Dim = D, Time = f64>,
+    Sc: Scheme<Scalar = A, Dim = D, Time = f64>,
 {
     let acc = adaptor::accuracy(teo, init, 0.01, 1000, 12);
     let mut f = File::create(fname).unwrap();

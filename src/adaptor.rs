@@ -5,7 +5,7 @@ use ndarray_linalg::*;
 use super::traits::*;
 
 /// Test time accuracy of equation of motion
-pub fn accuracy<A, D, F, Sc>(
+pub fn accuracy<A, D, Sc>(
     mut teo: Sc,
     init: Array<A, D>,
     dt_base: A::Real,
@@ -15,7 +15,7 @@ pub fn accuracy<A, D, F, Sc>(
 where
     A: Scalar,
     D: Dimension,
-    Sc: Scheme<F, Scalar = A, Dim = D, Time = A::Real>,
+    Sc: Scheme<Scalar = A, Dim = D, Time = A::Real>,
 {
     let data: Vec<_> = (0..num_scale)
         .map(|n| {

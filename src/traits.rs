@@ -46,6 +46,7 @@ pub trait TimeEvolution: ModelSpec + TimeStep {
 }
 
 /// Time evolution schemes
-pub trait Scheme<F>: TimeEvolution {
-    fn new(f: F, dt: Self::Time) -> Self;
+pub trait Scheme: TimeEvolution {
+    type Core: ModelSpec<Scalar = Self::Scalar, Dim = Self::Dim>;
+    fn new(f: Self::Core, dt: Self::Time) -> Self;
 }
