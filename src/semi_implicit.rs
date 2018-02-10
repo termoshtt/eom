@@ -52,8 +52,8 @@ impl<F: SemiImplicit> TimeEvolution for Diagonal<F> {
     }
 }
 
-impl<F: SemiImplicit> Scheme<F> for Diagonal<F> {
-    fn new(f: F, dt: Self::Time) -> Self {
+impl<F: SemiImplicit> Diagonal<F> {
+    fn new(f: F, dt: <Self as TimeStep>::Time) -> Self {
         let diag = f.diag();
         let mut exp_diag = diag.to_owned();
         for v in exp_diag.iter_mut() {
@@ -79,7 +79,8 @@ pub struct DiagRK4<F: SemiImplicit> {
     k3: Array<F::Scalar, F::Dim>,
 }
 
-impl<F: SemiImplicit> Scheme<F> for DiagRK4<F> {
+impl<F: SemiImplicit> Scheme for DiagRK4<F> {
+    type Core = F;
     fn new(nlin: F, dt: Self::Time) -> Self {
         let lin = Diagonal::new(nlin.clone(), dt / into_scalar(2.0));
         let x = Array::zeros(lin.model_size());
@@ -97,6 +98,12 @@ impl<F: SemiImplicit> Scheme<F> for DiagRK4<F> {
             k2,
             k3,
         }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.nlin
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.nlin
     }
 }
 

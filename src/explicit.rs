@@ -23,10 +23,17 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Euler<F> {
     }
 }
 
-impl<F: Explicit> Scheme<F> for Euler<F> {
+impl<F: Explicit> Scheme for Euler<F> {
+    type Core = F;
     fn new(f: F, dt: Self::Time) -> Self {
         let x = Array::zeros(f.model_size());
         Self { f, dt, x }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.f
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.f
     }
 }
 
@@ -72,11 +79,18 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Heun<F> {
     }
 }
 
-impl<F: Explicit> Scheme<F> for Heun<F> {
+impl<F: Explicit> Scheme for Heun<F> {
+    type Core = F;
     fn new(f: F, dt: Self::Time) -> Self {
         let x = Array::zeros(f.model_size());
         let k1 = Array::zeros(f.model_size());
         Self { f, dt, x, k1 }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.f
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.f
     }
 }
 
@@ -135,7 +149,8 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for RK4<F> {
     }
 }
 
-impl<F: Explicit> Scheme<F> for RK4<F> {
+impl<F: Explicit> Scheme for RK4<F> {
+    type Core = F;
     fn new(f: F, dt: Self::Time) -> Self {
         let x = Array::zeros(f.model_size());
         let k1 = Array::zeros(f.model_size());
@@ -149,6 +164,12 @@ impl<F: Explicit> Scheme<F> for RK4<F> {
             k2,
             k3,
         }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.f
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.f
     }
 }
 
