@@ -38,7 +38,7 @@ where
 /// Iterate equation of motion by `step` at once
 pub fn iterate<S, TEO>(
     teo: &mut TEO,
-    x0: ArrayBase<S, TEO::Dim>,
+    mut x0: ArrayBase<S, TEO::Dim>,
     step: usize,
 ) -> ArrayBase<S, TEO::Dim>
 where

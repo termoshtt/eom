@@ -52,9 +52,8 @@ impl<F: SemiImplicit> TimeEvolution for Diagonal<F> {
     }
 }
 
-impl<F: SemiImplicit> Scheme for Diagonal<F> {
-    type Core = F;
-    fn new(f: F, dt: Self::Time) -> Self {
+impl<F: SemiImplicit> Diagonal<F> {
+    fn new(f: F, dt: <Self as TimeStep>::Time) -> Self {
         let diag = f.diag();
         let mut exp_diag = diag.to_owned();
         for v in exp_diag.iter_mut() {
@@ -65,12 +64,6 @@ impl<F: SemiImplicit> Scheme for Diagonal<F> {
             diag: diag,
             dt: dt,
         }
-    }
-    fn core(&self) -> &Self::Core {
-        &self.nlin
-    }
-    fn core_mut(&mut self) -> &mut Self::Core {
-        &mut self.nlin
     }
 }
 
