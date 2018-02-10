@@ -43,10 +43,27 @@ pub trait TimeEvolution: ModelSpec + TimeStep {
     ) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
+
+    /// calculate next step
+    fn iterate_n<'a, S>(
+        &mut self,
+        a: &'a mut ArrayBase<S, Self::Dim>,
+        n: usize,
+    ) -> &'a mut ArrayBase<S, Self::Dim>
+    where
+        S: DataMut<Elem = Self::Scalar>,
+    {
+        for _ in 0..n {
+            self.iterate(a);
+        }
+        a
+    }
 }
 
 /// Time evolution schemes
 pub trait Scheme: TimeEvolution {
     type Core: ModelSpec<Scalar = Self::Scalar, Dim = Self::Dim>;
     fn new(f: Self::Core, dt: Self::Time) -> Self;
+    fn core(&self) -> &Self::Core;
+    fn core_mut(&mut self) -> &mut Self::Core;
 }

@@ -66,6 +66,12 @@ impl<F: SemiImplicit> Scheme for Diagonal<F> {
             dt: dt,
         }
     }
+    fn core(&self) -> &Self::Core {
+        &self.nlin
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.nlin
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -99,6 +105,12 @@ impl<F: SemiImplicit> Scheme for DiagRK4<F> {
             k2,
             k3,
         }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.nlin
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.nlin
     }
 }
 

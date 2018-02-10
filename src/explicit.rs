@@ -29,6 +29,12 @@ impl<F: Explicit> Scheme for Euler<F> {
         let x = Array::zeros(f.model_size());
         Self { f, dt, x }
     }
+    fn core(&self) -> &Self::Core {
+        &self.f
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.f
+    }
 }
 
 impl<F: Explicit> ModelSpec for Euler<F> {
@@ -79,6 +85,12 @@ impl<F: Explicit> Scheme for Heun<F> {
         let x = Array::zeros(f.model_size());
         let k1 = Array::zeros(f.model_size());
         Self { f, dt, x, k1 }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.f
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.f
     }
 }
 
@@ -152,6 +164,12 @@ impl<F: Explicit> Scheme for RK4<F> {
             k2,
             k3,
         }
+    }
+    fn core(&self) -> &Self::Core {
+        &self.f
+    }
+    fn core_mut(&mut self) -> &mut Self::Core {
+        &mut self.f
     }
 }
 
