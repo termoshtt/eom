@@ -1,3 +1,8 @@
+//! Kuramoto-Sivashinsky equation (KSE)
+//!
+//! KSE is a representative example of spatio-temporal chaos, or phase-turbulence.
+//! See also the book ["Chemical Oscillations, Waves, and Turbulence"](http://www.springer.com/us/book/9783642696916), or related articles.
+
 use fftw::types::c64;
 use ndarray::*;
 use std::f64::consts::PI;
@@ -5,6 +10,7 @@ use std::f64::consts::PI;
 use super::Pair;
 use traits::*;
 
+/// One-dimensional Kuramoto-Sivashinsky equation with spectral-method
 pub struct KSE {
     n: usize,
     nf: usize,
