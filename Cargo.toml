@@ -17,4 +17,4 @@ num-complex = "0.1"
 derive-new = "0.5"
 ndarray = "0.11"
 ndarray-linalg = { version = "0.9", features = ["intel-mkl"] }
-fftw = { version = "0.4", features = ["intel-mkl"] }
+fftw = { version = "0.4", features = ["intel-mkl"], default-features = false }
