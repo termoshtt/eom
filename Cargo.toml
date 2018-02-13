@@ -1,20 +1,25 @@
 [package]
-name = "eom"
+name    = "eom"
 version = "0.9.0"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 
-description = "Configurable ODE/PDE solver"
+description   = "Configurable ODE/PDE solver"
 documentation = "https://docs.rs/eom/"
-repository = "https://github.com/termoshtt/eom"
-keywords = ["ndarray", "ode", "pde"]
+repository    = "https://github.com/termoshtt/eom"
+keywords      = ["ndarray", "ode", "pde"]
 categories    = ["algorithms", "science"]
-license = "MIT"
-readme = "README.md"
+license       = "MIT"
+readme        = "README.md"
+
+[features]
+default   = []
+static    = ["ndarray-linalg/openblas",  "fftw/source"]
+intel-mkl = ["ndarray-linalg/intel-mkl", "fftw/intel-mkl"]
 
 [dependencies]
-num-traits = "0.1"
-num-complex = "0.1"
-derive-new = "0.5"
-ndarray = "0.11"
-ndarray-linalg = { version = "0.9", features = ["intel-mkl"] }
-fftw = { version = "0.4", features = ["intel-mkl"] }
+num-traits     = { version = "0.1",  default-features = false }
+num-complex    = { version = "0.1",  default-features = false }
+derive-new     = { version = "0.5",  default-features = false }
+ndarray        = { version = "0.11", default-features = false }
+ndarray-linalg = { version = "0.9",  default-features = false, optional = true }
+fftw           = { version = "0.4",  default-features = false, optional = true }
