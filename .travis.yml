@@ -1,20 +1,12 @@
 language: rust
 dist: trusty
 sudo: false
+cache: cargo
 
 script:
   - cargo update
   - cargo build --no-default-features --features=$FEATURE
   - cargo test --no-default-features --features=$FEATURE
-
-rust:
-  - stable
-  - beta
-  - nightly
-
-matrix:
-  allow_failures:
-    - rust: nightly
 
 env:
   global:
@@ -29,6 +21,3 @@ jobs:
             - cmake
             - gfortran
     - env: FEATURE=intel-mkl
-
-cache: cargo
-
