@@ -1,4 +1,4 @@
-//! Define explicit schemes
+//! explicit schemes
 
 use ndarray::*;
 use ndarray_linalg::*;

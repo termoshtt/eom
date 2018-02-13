@@ -1,4 +1,4 @@
-//! Define semi-implicit schemes
+//! semi-implicit schemes
 
 use ndarray::*;
 use ndarray_linalg::*;
