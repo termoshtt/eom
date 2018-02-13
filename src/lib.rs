@@ -1,4 +1,4 @@
-//! solve ODE with rust-ndarray
+//! Configurable ODE/PDE solver
 
 #[macro_use]
 extern crate derive_new;
