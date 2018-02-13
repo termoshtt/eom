@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: termoshtt/rust-dev:latest
+    steps:
+      - checkout
+      - run:
+          name: cargo test
+          command: |
+            cargo test
+
+      - run:
+          name: kcov
+          command: |
+            cargo kcov
+            bash <(curl -s https://codecov.io/bash)
