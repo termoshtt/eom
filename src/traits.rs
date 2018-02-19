@@ -1,8 +1,9 @@
-//! Fundamental traits
+//! Fundamental traits for solving EoM
 
 use ndarray::*;
 use ndarray_linalg::*;
 
+/// Model specification
 pub trait ModelSpec: Clone {
     type Scalar: Scalar;
     type Dim: Dimension;
@@ -16,7 +17,7 @@ pub trait TimeStep {
     fn set_dt(&mut self, dt: Self::Time);
 }
 
-/// EoM for explicit schemes
+/// Core implementation for explicit schemes
 pub trait Explicit: ModelSpec {
     /// calculate right hand side (rhs) of Explicit from current state
     fn rhs<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
@@ -24,7 +25,7 @@ pub trait Explicit: ModelSpec {
         S: DataMut<Elem = Self::Scalar>;
 }
 
-/// EoM for semi-implicit schemes
+/// Core implementation for semi-implicit schemes
 pub trait SemiImplicit: ModelSpec {
     /// non-linear part of stiff equation
     fn nlin<'a, S>(&mut self, &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
@@ -34,7 +35,7 @@ pub trait SemiImplicit: ModelSpec {
     fn diag(&self) -> Array<Self::Scalar, Self::Dim>;
 }
 
-/// Time-evolution operator with buffer
+/// Time-evolution operator
 pub trait TimeEvolution: ModelSpec + TimeStep {
     /// calculate next step
     fn iterate<'a, S>(
@@ -44,7 +45,7 @@ pub trait TimeEvolution: ModelSpec + TimeStep {
     where
         S: DataMut<Elem = Self::Scalar>;
 
-    /// calculate next step
+    /// calculate n-step
     fn iterate_n<'a, S>(
         &mut self,
         a: &'a mut ArrayBase<S, Self::Dim>,
@@ -63,7 +64,10 @@ pub trait TimeEvolution: ModelSpec + TimeStep {
 /// Time evolution schemes
 pub trait Scheme: TimeEvolution {
     type Core: ModelSpec<Scalar = Self::Scalar, Dim = Self::Dim>;
+    /// Initialize with a core implementation
     fn new(f: Self::Core, dt: Self::Time) -> Self;
+    /// Get immutable core
     fn core(&self) -> &Self::Core;
+    /// Get mutable core
     fn core_mut(&mut self) -> &mut Self::Core;
 }

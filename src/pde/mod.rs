@@ -1,3 +1,5 @@
+//! Example nonlinear PDEs
+
 pub mod kse;
 pub use self::kse::KSE;
 

@@ -1,4 +1,4 @@
-//! Define explicit schemes
+//! explicit schemes
 
 use ndarray::*;
 use ndarray_linalg::*;
@@ -45,7 +45,7 @@ impl<F: Explicit> ModelSpec for Euler<F> {
     }
 }
 
-impl<F: Explicit + ModelSpec> TimeEvolution for Euler<F> {
+impl<F: Explicit> TimeEvolution for Euler<F> {
     fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, F::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>,
@@ -102,7 +102,7 @@ impl<F: Explicit> ModelSpec for Heun<F> {
     }
 }
 
-impl<F: Explicit + ModelSpec> TimeEvolution for Heun<F> {
+impl<F: Explicit> TimeEvolution for Heun<F> {
     fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, F::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>,
@@ -181,7 +181,7 @@ impl<F: Explicit> ModelSpec for RK4<F> {
     }
 }
 
-impl<F: Explicit + ModelSpec> TimeEvolution for RK4<F> {
+impl<F: Explicit> TimeEvolution for RK4<F> {
     fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, F::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>,

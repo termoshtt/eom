@@ -8,7 +8,7 @@ use ndarray_linalg::*;
 
 use eom::*;
 use eom::traits::*;
-use eom::jacobian::*;
+use eom::lyapunov::*;
 
 #[test]
 fn jacobian_linearity() {
