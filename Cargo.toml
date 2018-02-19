@@ -12,7 +12,7 @@ license       = "MIT"
 readme        = "README.md"
 
 [features]
-default   = []
+default   = ["intel-mkl"]
 static    = ["ndarray-linalg/openblas",  "fftw/source"]
 intel-mkl = ["ndarray-linalg/intel-mkl", "fftw/intel-mkl"]
 
