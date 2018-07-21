@@ -1,9 +1,9 @@
 extern crate eom;
 extern crate ndarray;
 
-use ndarray::arr1;
-use eom::*;
 use eom::traits::*;
+use eom::*;
+use ndarray::arr1;
 
 fn main() {
     let dt = 0.01;

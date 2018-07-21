@@ -6,12 +6,12 @@ extern crate eom;
 extern crate ndarray;
 extern crate ndarray_linalg;
 
-use std::io::Write;
 use ndarray::*;
 use ndarray_linalg::*;
+use std::io::Write;
 
-use eom::*;
 use eom::traits::*;
+use eom::*;
 
 fn main() {
     let dt = 0.01;

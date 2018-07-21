@@ -1,8 +1,8 @@
 //! Utilities for adopting to Rust fashon
 
+use super::traits::*;
 use ndarray::*;
 use ndarray_linalg::*;
-use super::traits::*;
 
 /// Test time accuracy of equation of motion
 pub fn accuracy<A, D, Sc>(

@@ -7,8 +7,8 @@ use ndarray::*;
 use num_complex::Complex64 as c64;
 use num_traits::Zero;
 
-use eom::*;
 use eom::traits::*;
+use eom::*;
 
 fn main() {
     let dt = 1e-5;

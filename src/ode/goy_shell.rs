@@ -1,8 +1,8 @@
 //! GOY-shell model
 
 use ndarray::*;
-use num_traits::{PrimInt, Zero};
 use num_complex::Complex64 as c64;
+use num_traits::{PrimInt, Zero};
 
 use traits::*;
 

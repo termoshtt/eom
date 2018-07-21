@@ -164,7 +164,8 @@ where
     type Item = (Array1<A>, Array2<A>, Array2<A>);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let q = self.teo
+        let q = self
+            .teo
             .lin_approx(self.x.to_owned(), self.alpha)
             .apply_multi_inplace(&mut self.q);
         let (q, r) = q.qr_square_inplace().unwrap();
@@ -174,7 +175,8 @@ where
 }
 
 fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
-    let cd = r.solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
+    let cd = r
+        .solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
         .expect("Failed to solve R");
     let (c, d) = normalize(cd, NormalizeAxis::Column);
     let f = Array::from_vec(d).mapv_into(|x| A::Real::one() / x);

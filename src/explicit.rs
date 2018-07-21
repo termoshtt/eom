@@ -1,8 +1,8 @@
 //! explicit schemes
 
+use super::traits::*;
 use ndarray::*;
 use ndarray_linalg::*;
-use super::traits::*;
 
 #[derive(Debug, Clone)]
 pub struct Euler<F: Explicit> {

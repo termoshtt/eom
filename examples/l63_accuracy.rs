@@ -3,13 +3,13 @@ extern crate ndarray;
 extern crate ndarray_linalg;
 extern crate num_traits;
 
-use std::fs::*;
-use std::io::Write;
 use ndarray::*;
 use ndarray_linalg::*;
+use std::fs::*;
+use std::io::Write;
 
-use eom::*;
 use eom::traits::*;
+use eom::*;
 
 fn check_accuracy<A, D, Sc>(teo: Sc, init: Array<A, D>, fname: &str)
 where
