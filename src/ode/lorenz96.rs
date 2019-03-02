@@ -1,10 +1,10 @@
 //! Lorenz 96 model
 //! https://en.wikipedia.org/wiki/Lorenz_96_model
 
+use crate::traits::*;
 use ndarray::*;
-use traits::*;
 
-#[derive(Clone, Copy, Debug, new)]
+#[derive(Clone, Copy, Debug)]
 pub struct Lorenz96 {
     pub f: f64,
     pub n: usize,

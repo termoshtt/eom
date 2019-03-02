@@ -4,7 +4,7 @@ use ndarray::*;
 use ndarray_linalg::*;
 use num_traits::{Float, One};
 
-use traits::*;
+use crate::traits::*;
 
 /// Jacobian operator using numerical-differentiation
 pub struct Jacobian<'jac, A, D, TEO>
