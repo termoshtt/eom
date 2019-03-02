@@ -2,6 +2,7 @@
 name    = "eom"
 version = "0.10.1-alpha.0"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
+edition = "2018"
 
 description   = "Configurable ODE/PDE solver"
 documentation = "https://docs.rs/eom/"
