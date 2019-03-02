@@ -1,6 +1,7 @@
 Equation of Motions
 ====================
 [![Crate](http://meritbadge.herokuapp.com/eom)](https://crates.io/crates/eom)
+[![CircleCI](https://circleci.com/gh/termoshtt/eom/tree/master.svg?style=shield)](https://circleci.com/gh/termoshtt/eom/tree/master)
 [![docs.rs](https://docs.rs/eom/badge.svg)](https://docs.rs/eom)
 [![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
