@@ -1,8 +1,8 @@
 Equation of Motions
 ====================
 [![Crate](http://meritbadge.herokuapp.com/eom)](https://crates.io/crates/eom)
+[![CircleCI](https://circleci.com/gh/termoshtt/eom/tree/master.svg?style=shield)](https://circleci.com/gh/termoshtt/eom/tree/master)
 [![docs.rs](https://docs.rs/eom/badge.svg)](https://docs.rs/eom)
-[![wercker status](https://app.wercker.com/status/e0dcece7b0ed4eb8d8c0e7101a449f02/s/master "wercker status")](https://app.wercker.com/project/byKey/e0dcece7b0ed4eb8d8c0e7101a449f02)
 [![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
 `eom` crate is a configurable ODE/PDE solver
