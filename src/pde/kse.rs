@@ -8,7 +8,7 @@ use ndarray::*;
 use std::f64::consts::PI;
 
 use super::Pair;
-use traits::*;
+use crate::traits::*;
 
 /// One-dimensional Kuramoto-Sivashinsky equation with spectral-method
 pub struct KSE {

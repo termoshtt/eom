@@ -4,9 +4,9 @@ use ndarray::*;
 use num_complex::Complex64 as c64;
 use num_traits::{PrimInt, Zero};
 
-use traits::*;
+use crate::traits::*;
 
-#[derive(Clone, Copy, Debug, new)]
+#[derive(Clone, Copy, Debug)]
 pub struct GoyShell {
     size: usize,
     nu: f64,

@@ -3,7 +3,7 @@
 
 use ndarray::*;
 
-use traits::*;
+use crate::traits::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Lorenz63 {

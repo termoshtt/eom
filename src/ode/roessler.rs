@@ -1,8 +1,8 @@
 //! Roessler system
 //! https://en.wikipedia.org/wiki/Lorenz_syste://en.wikipedia.org/wiki/R%C3%B6ssler_attractor
 
+use crate::traits::*;
 use ndarray::*;
-use traits::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Roessler {
