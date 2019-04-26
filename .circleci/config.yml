@@ -25,9 +25,19 @@ jobs:
           command: |
             cargo test --no-default-features --features=intel-mkl
 
+  run-benchmark:
+    <<: *rust_cfg
+    steps:
+      - checkout
+      - run:
+          name: Check benchmark works
+          command: |
+            cargo bench --no-default-features --features=intel-mkl
+
 workflows:
   version: 2
   tests:
     jobs:
       - test-static
       - test-intel-mkl
+      - run-benchmark
