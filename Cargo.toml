@@ -24,3 +24,10 @@ derive-new     = { version = "0.5",  default-features = false }
 ndarray        = { version = "0.11", default-features = false }
 ndarray-linalg = { version = "0.9",  default-features = false, optional = true }
 fftw           = { version = "0.4",  default-features = false, optional = true }
+
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "ode"
+harness = false
