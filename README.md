@@ -5,7 +5,7 @@ Equation of Motions
 [![docs.rs](https://docs.rs/eom/badge.svg)](https://docs.rs/eom)
 [![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
-`eom` crate is a configurable ODE/PDE solver
+Configurable ODE/PDE solver
 
 Contents
 ---------
