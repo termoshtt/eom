@@ -4,18 +4,15 @@ extern crate ndarray_linalg;
 extern crate num_traits;
 
 use ndarray::*;
-use ndarray_linalg::*;
 use std::fs::*;
 use std::io::Write;
 
 use eom::traits::*;
 use eom::*;
 
-fn check_accuracy<A, D, Sc>(teo: Sc, init: Array<A, D>, fname: &str)
+fn check_accuracy<Sc>(teo: Sc, init: Array1<f64>, fname: &str)
 where
-    A: Scalar<Real = f64>,
-    D: Dimension,
-    Sc: Scheme<Scalar = A, Dim = D, Time = f64>,
+    Sc: Scheme<Scalar = f64, Dim = Ix1, Time = f64>,
 {
     let acc = adaptor::accuracy(teo, init, 0.01, 1000, 12);
     let mut f = File::create(fname).unwrap();
