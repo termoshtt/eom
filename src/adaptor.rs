@@ -3,6 +3,7 @@
 use super::traits::*;
 use ndarray::*;
 use ndarray_linalg::*;
+use num_traits::FromPrimitive;
 
 /// Test time accuracy of equation of motion
 pub fn accuracy<A, D, Sc>(
@@ -13,14 +14,14 @@ pub fn accuracy<A, D, Sc>(
     num_scale: u32,
 ) -> Vec<(Sc::Time, A::Real)>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     D: Dimension,
     Sc: Scheme<Scalar = A, Dim = D, Time = A::Real>,
 {
     let data: Vec<_> = (0..num_scale)
         .map(|n| {
             let rate = 2_usize.pow(n);
-            let dt = dt_base / into_scalar(rate as f64);
+            let dt = dt_base / A::real(rate as f64);
             let t = step_base * rate;
             teo.set_dt(dt);
             (dt, iterate(&mut teo, init.clone(), t))
@@ -158,11 +159,11 @@ impl<TEO: TimeEvolution> TimeStep for NStep<TEO> {
     type Time = TEO::Time;
 
     fn get_dt(&self) -> Self::Time {
-        self.teo.get_dt() * into_scalar(self.n as f64)
+        self.teo.get_dt() * TEO::Time::from_usize(self.n).unwrap()
     }
 
     fn set_dt(&mut self, dt: Self::Time) {
-        self.teo.set_dt(dt / into_scalar(self.n as f64));
+        self.teo.set_dt(dt / TEO::Time::from_usize(self.n).unwrap());
     }
 }
 

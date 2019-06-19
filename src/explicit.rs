@@ -7,7 +7,7 @@ use ndarray_linalg::*;
 #[derive(Debug, Clone)]
 pub struct Euler<F: Explicit> {
     f: F,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
     x: Array<F::Scalar, F::Dim>,
 }
 
@@ -62,7 +62,7 @@ impl<F: Explicit> TimeEvolution for Euler<F> {
 #[derive(Debug, Clone)]
 pub struct Heun<F: Explicit> {
     f: F,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
     x: Array<F::Scalar, F::Dim>,
     k1: Array<F::Scalar, F::Dim>,
 }
@@ -108,7 +108,7 @@ impl<F: Explicit> TimeEvolution for Heun<F> {
         S: DataMut<Elem = Self::Scalar>,
     {
         let dt = self.dt;
-        let dt_2 = self.dt * into_scalar(0.5);
+        let dt_2 = self.dt * F::Scalar::real(0.5);
         // calc
         self.x.zip_mut_with(x, |buf, x| *buf = *x);
         let k1 = self.f.rhs(x);
@@ -130,7 +130,7 @@ impl<F: Explicit> TimeEvolution for Heun<F> {
 #[derive(Debug, Clone)]
 pub struct RK4<F: Explicit> {
     f: F,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
     x: Array<F::Scalar, F::Dim>,
     k1: Array<F::Scalar, F::Dim>,
     k2: Array<F::Scalar, F::Dim>,
@@ -186,10 +186,10 @@ impl<F: Explicit> TimeEvolution for RK4<F> {
     where
         S: DataMut<Elem = Self::Scalar>,
     {
-        let two = into_scalar(2.0);
+        let two = F::Scalar::real(2.0);
         let dt = self.dt;
-        let dt_2 = self.dt * into_scalar(0.5);
-        let dt_6 = self.dt / into_scalar(6.0);
+        let dt_2 = self.dt * F::Scalar::real(0.5);
+        let dt_6 = self.dt / F::Scalar::real(6.0);
         self.x.zip_mut_with(x, |buf, x| *buf = *x);
         // k1
         let k1 = self.f.rhs(x);
