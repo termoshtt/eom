@@ -31,9 +31,10 @@ impl ModelSpec for SWE {
 }
 
 impl SWE {
-    pub fn new(n: usize, length: f64, r: f64, qc: f64) -> Self {
+    pub fn new(n: usize, length: f64, r: f64, lc: f64) -> Self {
         let nf = n / 2 + 1;
         let k0 = 2.0 * PI / length;
+        let qc = 2.0 * PI / lc;
         SWE {
             n,
             nf,
@@ -62,7 +63,7 @@ impl SemiImplicit for SWE {
         });
         self.u.c2r();
         azip!(mut u(self.u.real_view_mut()) in {
-            *u = c2 * *u * *u + c3 * *u * *u * *u;
+            *u = c2 * *u * *u - c3 * *u * *u * *u;
         });
         self.u.r2c();
         uf.as_slice_mut().unwrap().copy_from_slice(&self.u.c);
@@ -73,7 +74,7 @@ impl SemiImplicit for SWE {
         let r = c64::new(self.r, 0.0);
         let qc2 = c64::new(self.qc.powi(2), 0.0);
         let k2 = &self.k * &self.k;
-        let d = qc2 - &k2;
+        let d = qc2 + &k2;
         r - &d * &d
     }
 }

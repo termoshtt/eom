@@ -12,18 +12,24 @@ fn main() {
     let l = 100.0;
     let dt = 1e-3;
     let interval = 100;
-    let step = 100;
+    let step = 1000;
 
-    let eom = pde::SWE::new(n, l, 0.1, 1.0);
+    let eom = pde::SWE::new(n, l, 1.0, 6.0);
     let mut pair = pde::Pair::new(n);
     let n_coef = eom.model_size();
     let teo = semi_implicit::DiagRK4::new(eom, dt);
     let mut teo = adaptor::nstep(teo, interval);
 
-    let x: Array1<c64> = c64::new(0.01, 0.0) * random(n_coef);
-    let x = adaptor::iterate(&mut teo, x, 100);
-
+    let x: Array1<c64> = c64::new(0.1, 0.0) * random(n_coef);
     let ts = adaptor::time_series(x, &mut teo);
+
+    // output CSV header
+    print!("time");
+    for i in 0..n {
+        print!(",x{}", i);
+    }
+    println!("");
+
     for (t, v) in ts.take(step).enumerate() {
         let time = dt * t as f64;
         print!("{:e},", time);
