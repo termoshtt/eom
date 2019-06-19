@@ -14,7 +14,7 @@ pub fn accuracy<A, D, Sc>(
     num_scale: u32,
 ) -> Vec<(Sc::Time, A::Real)>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     D: Dimension,
     Sc: Scheme<Scalar = A, Dim = D, Time = A::Real>,
 {

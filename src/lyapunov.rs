@@ -9,7 +9,7 @@ use crate::traits::*;
 /// Jacobian operator using numerical-differentiation
 pub struct Jacobian<'jac, A, D, TEO>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     D: Dimension,
     TEO: 'jac + TimeEvolution<Scalar = A, Dim = D>,
 {
@@ -21,7 +21,7 @@ where
 
 pub trait LinearApprox<A, D, TEO>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     D: Dimension,
     TEO: TimeEvolution<Scalar = A, Dim = D>,
 {
@@ -36,7 +36,7 @@ where
 
 impl<A, D, TEO> LinearApprox<A, D, TEO> for TEO
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     D: Dimension,
     TEO: TimeEvolution<Scalar = A, Dim = D>,
 {
@@ -50,7 +50,7 @@ where
 
 impl<'jac, A, D, TEO> Jacobian<'jac, A, D, TEO>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     D: Dimension,
     TEO: TimeEvolution<Scalar = A, Dim = D>,
 {
@@ -113,7 +113,7 @@ where
 /// This is an example usage of `Series` itertor, with which you can write more flexible procedure.
 pub fn exponents<A, TEO>(teo: TEO, x: Array1<A>, alpha: A::Real, duration: usize) -> Array1<A::Real>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1> + TimeStep<Time = A::Real>,
 {
     let n = teo.model_size();
@@ -136,7 +136,7 @@ where
 /// and `R` is a map from the previous tangent space (i.e. at `F^{-1}(x)`) to the space spand by `Q`.
 pub struct Series<A, TEO>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
 {
     teo: TEO,
@@ -147,7 +147,7 @@ where
 
 impl<A, TEO> Series<A, TEO>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
 {
     pub fn new(teo: TEO, x: Array1<A>, alpha: A::Real) -> Self {
@@ -158,7 +158,7 @@ where
 
 impl<A, TEO> Iterator for Series<A, TEO>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1>,
 {
     type Item = (Array1<A>, Array2<A>, Array2<A>);
@@ -174,7 +174,7 @@ where
     }
 }
 
-fn clv_backward<A: Scalar>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
+fn clv_backward<A: Scalar + Lapack>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>, Array1<A::Real>) {
     let cd = r
         .solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
         .expect("Failed to solve R");
@@ -193,7 +193,7 @@ pub fn vectors<A, TEO>(
     duration: usize,
 ) -> Vec<(Array1<A>, Array2<A>, Array1<A::Real>)>
 where
-    A: Scalar,
+    A: Scalar + Lapack,
     TEO: TimeEvolution<Scalar = A, Dim = Ix1> + Clone,
 {
     let n = teo.model_size();
