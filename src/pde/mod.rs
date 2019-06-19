@@ -6,6 +6,7 @@ pub use self::kse::KSE;
 use fftw::array::*;
 use fftw::plan::*;
 use fftw::types::*;
+use ndarray::*;
 
 /// Pair of one-dimensional Real/Complex aligned arrays
 pub struct Pair {
@@ -36,7 +37,6 @@ impl Pair {
     pub fn c2r(&mut self) {
         self.c2r.c2r(&mut self.c, &mut self.r).unwrap();
     }
-
     pub fn to_r<'a, 'b>(&'a mut self, c: &'b [c64]) -> &'a [f64] {
         self.c.copy_from_slice(c);
         self.c2r();
@@ -47,6 +47,22 @@ impl Pair {
         self.r.copy_from_slice(r);
         self.r2c();
         &self.c
+    }
+
+    pub fn real_view(&self) -> ArrayView1<f64> {
+        ArrayView::from_shape(self.r.len(), &self.r).unwrap()
+    }
+
+    pub fn coeff_view(&self) -> ArrayView1<c64> {
+        ArrayView::from_shape(self.c.len(), &self.c).unwrap()
+    }
+
+    pub fn real_view_mut(&mut self) -> ArrayViewMut1<f64> {
+        ArrayViewMut::from_shape(self.r.len(), &mut self.r).unwrap()
+    }
+
+    pub fn coeff_view_mut(&mut self) -> ArrayViewMut1<c64> {
+        ArrayViewMut::from_shape(self.c.len(), &mut self.c).unwrap()
     }
 }
 

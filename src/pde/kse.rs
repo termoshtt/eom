@@ -57,15 +57,15 @@ impl SemiImplicit for KSE {
     where
         S: DataMut<Elem = Self::Scalar>,
     {
-        for i in 0..self.nf {
-            self.u.c[i] = uf[i];
-            self.ux.c[i] = self.k[i] * uf[i];
-        }
+        azip!(mut u(self.u.coeff_view_mut()), mut ux(self.ux.coeff_view_mut()), k(&self.k), uf(&*uf) in {
+            *u = uf;
+            *ux = k * uf;
+        });
         self.u.c2r();
         self.ux.c2r();
-        for (u, ux) in self.u.r.iter_mut().zip(self.ux.r.iter()) {
-            *u = -*u * *ux;
-        }
+        azip!(mut u(self.u.real_view_mut()), ux(self.ux.real_view()) in {
+            *u = -*u * ux;
+        });
         self.u.r2c();
         uf.as_slice_mut().unwrap().copy_from_slice(&self.u.c);
         uf
