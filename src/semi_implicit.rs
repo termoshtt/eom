@@ -10,11 +10,11 @@ use super::traits::*;
 pub struct Diagonal<F: SemiImplicit> {
     exp_diag: Array<F::Scalar, F::Dim>,
     diag: Array<F::Scalar, F::Dim>,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
 }
 
 impl<F: SemiImplicit> TimeStep for Diagonal<F> {
-    type Time = <F::Scalar as AssociatedReal>::Real;
+    type Time = <F::Scalar as Scalar>::Real;
 
     fn get_dt(&self) -> Self::Time {
         self.dt

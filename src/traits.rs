@@ -2,6 +2,7 @@
 
 use ndarray::*;
 use ndarray_linalg::*;
+use num_traits::Float;
 
 /// Model specification
 pub trait ModelSpec: Clone {
@@ -12,7 +13,7 @@ pub trait ModelSpec: Clone {
 
 /// Interface for time-step
 pub trait TimeStep {
-    type Time: RealScalar;
+    type Time: Scalar + Float;
     fn get_dt(&self) -> Self::Time;
     fn set_dt(&mut self, dt: Self::Time);
 }

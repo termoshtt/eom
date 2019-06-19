@@ -7,7 +7,7 @@ use ndarray_linalg::*;
 #[derive(Debug, Clone)]
 pub struct Euler<F: Explicit> {
     f: F,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
     x: Array<F::Scalar, F::Dim>,
 }
 
@@ -62,7 +62,7 @@ impl<F: Explicit> TimeEvolution for Euler<F> {
 #[derive(Debug, Clone)]
 pub struct Heun<F: Explicit> {
     f: F,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
     x: Array<F::Scalar, F::Dim>,
     k1: Array<F::Scalar, F::Dim>,
 }
@@ -130,7 +130,7 @@ impl<F: Explicit> TimeEvolution for Heun<F> {
 #[derive(Debug, Clone)]
 pub struct RK4<F: Explicit> {
     f: F,
-    dt: <F::Scalar as AssociatedReal>::Real,
+    dt: <F::Scalar as Scalar>::Real,
     x: Array<F::Scalar, F::Dim>,
     k1: Array<F::Scalar, F::Dim>,
     k2: Array<F::Scalar, F::Dim>,
