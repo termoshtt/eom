@@ -1,8 +1,3 @@
-//! Kuramoto-Sivashinsky equation (KSE)
-//!
-//! KSE is a representative example of spatio-temporal chaos, or phase-turbulence.
-//! See also the book ["Chemical Oscillations, Waves, and Turbulence"](http://www.springer.com/us/book/9783642696916), or related articles.
-
 use fftw::types::c64;
 use ndarray::*;
 use std::f64::consts::PI;
@@ -10,23 +5,24 @@ use std::f64::consts::PI;
 use super::Pair;
 use crate::traits::*;
 
-/// One-dimensional Kuramoto-Sivashinsky equation with spectral-method
-pub struct KSE {
+/// One-dimensional Swift-Hohenberg equation with spectral-method
+#[derive(Clone)]
+pub struct SWE {
     n: usize,
     nf: usize,
+
+    /// System size (length of entire periodic domain)
     length: f64,
+    /// Parameter for linear stablity
+    r: f64,
+    /// Length scale of instablity
+    qc: f64,
+
     k: Array1<c64>,
     u: Pair,
-    ux: Pair,
 }
 
-impl Clone for KSE {
-    fn clone(&self) -> Self {
-        Self::new(self.n, self.length)
-    }
-}
-
-impl ModelSpec for KSE {
+impl ModelSpec for SWE {
     type Scalar = c64;
     type Dim = Ix1;
     fn model_size(&self) -> usize {
@@ -34,22 +30,24 @@ impl ModelSpec for KSE {
     }
 }
 
-impl KSE {
-    pub fn new(n: usize, length: f64) -> Self {
+impl SWE {
+    pub fn new(n: usize, length: f64, r: f64, lc: f64) -> Self {
         let nf = n / 2 + 1;
         let k0 = 2.0 * PI / length;
-        KSE {
+        let qc = 2.0 * PI / lc;
+        SWE {
             n,
             nf,
             length,
+            r,
+            qc,
             k: Array::from_iter((0..nf).map(|i| c64::new(0.0, k0 * i as f64))),
             u: Pair::new(n),
-            ux: Pair::new(n),
         }
     }
 }
 
-impl SemiImplicit for KSE {
+impl SemiImplicit for SWE {
     fn nlin<'a, S>(
         &mut self,
         uf: &'a mut ArrayBase<S, Self::Dim>,
@@ -57,14 +55,15 @@ impl SemiImplicit for KSE {
     where
         S: DataMut<Elem = Self::Scalar>,
     {
-        azip!(mut u(self.u.coeff_view_mut()), mut ux(self.ux.coeff_view_mut()), k(&self.k), uf(&*uf) in {
+        let c2 = 1.64;
+        let c3 = 1.0;
+
+        azip!(mut u(self.u.coeff_view_mut()), uf(&*uf) in {
             *u = uf;
-            *ux = k * uf;
         });
         self.u.c2r();
-        self.ux.c2r();
-        azip!(mut u(self.u.real_view_mut()), ux(self.ux.real_view()) in {
-            *u = -*u * ux;
+        azip!(mut u(self.u.real_view_mut()) in {
+            *u = c2 * *u * *u - c3 * *u * *u * *u;
         });
         self.u.r2c();
         uf.as_slice_mut().unwrap().copy_from_slice(&self.u.c);
@@ -72,8 +71,10 @@ impl SemiImplicit for KSE {
     }
 
     fn diag(&self) -> Array1<c64> {
+        let r = c64::new(self.r, 0.0);
+        let qc2 = c64::new(self.qc.powi(2), 0.0);
         let k2 = &self.k * &self.k;
-        let k4 = &k2 * &k2;
-        -k2 - k4
+        let d = qc2 + &k2;
+        r - &d * &d
     }
 }
