@@ -108,7 +108,7 @@ impl<F: Explicit> TimeEvolution for Heun<F> {
         S: DataMut<Elem = Self::Scalar>,
     {
         let dt = self.dt;
-        let dt_2 = self.dt * into_scalar(0.5);
+        let dt_2 = self.dt * F::Scalar::real(0.5);
         // calc
         self.x.zip_mut_with(x, |buf, x| *buf = *x);
         let k1 = self.f.rhs(x);
@@ -186,10 +186,10 @@ impl<F: Explicit> TimeEvolution for RK4<F> {
     where
         S: DataMut<Elem = Self::Scalar>,
     {
-        let two = into_scalar(2.0);
+        let two = F::Scalar::real(2.0);
         let dt = self.dt;
-        let dt_2 = self.dt * into_scalar(0.5);
-        let dt_6 = self.dt / into_scalar(6.0);
+        let dt_2 = self.dt * F::Scalar::real(0.5);
+        let dt_6 = self.dt / F::Scalar::real(6.0);
         self.x.zip_mut_with(x, |buf, x| *buf = *x);
         // k1
         let k1 = self.f.rhs(x);

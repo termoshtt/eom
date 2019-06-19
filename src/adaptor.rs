@@ -20,7 +20,7 @@ where
     let data: Vec<_> = (0..num_scale)
         .map(|n| {
             let rate = 2_usize.pow(n);
-            let dt = dt_base / into_scalar(rate as f64);
+            let dt = dt_base / A::real(rate as f64);
             let t = step_base * rate;
             teo.set_dt(dt);
             (dt, iterate(&mut teo, init.clone(), t))

@@ -82,7 +82,7 @@ pub struct DiagRK4<F: SemiImplicit> {
 impl<F: SemiImplicit> Scheme for DiagRK4<F> {
     type Core = F;
     fn new(nlin: F, dt: Self::Time) -> Self {
-        let lin = Diagonal::new(nlin.clone(), dt / into_scalar(2.0));
+        let lin = Diagonal::new(nlin.clone(), dt / F::Scalar::real(2.0));
         let x = Array::zeros(lin.model_size());
         let lx = Array::zeros(lin.model_size());
         let k1 = Array::zeros(lin.model_size());
@@ -115,7 +115,7 @@ impl<F: SemiImplicit> TimeStep for DiagRK4<F> {
     }
 
     fn set_dt(&mut self, dt: Self::Time) {
-        self.lin.set_dt(dt / into_scalar(2.0));
+        self.lin.set_dt(dt / F::Scalar::real(2.0));
     }
 }
 
@@ -138,9 +138,9 @@ impl<F: SemiImplicit> TimeEvolution for DiagRK4<F> {
     {
         // constants
         let dt = self.dt;
-        let dt_2 = self.dt / into_scalar(2.0);
-        let dt_3 = self.dt / into_scalar(3.0);
-        let dt_6 = self.dt / into_scalar(6.0);
+        let dt_2 = self.dt / F::Scalar::real(2.0);
+        let dt_3 = self.dt / F::Scalar::real(3.0);
+        let dt_6 = self.dt / F::Scalar::real(6.0);
         // operators
         let l = &mut self.lin;
         let f = &mut self.nlin;
