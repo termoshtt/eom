@@ -25,6 +25,8 @@ Contents
 - PDE
   - Kuramoto-Sivashinsky equation
     - [notebook](KSE.ipynb)
+  - Swift-Hohenberg equation
+    - [notebook](Swift-Hohenberg.ipynb)
 
 Lyapunov analysis
 -----------------
@@ -42,6 +44,9 @@ Gallery
 
 ### Kuramoto-Sivashinsky equation
 ![KSE](kse.png)
+
+### Swift-Hohenberg equation
+![SWE](swe.png)
 
 License
 -------
