@@ -2,7 +2,7 @@
 
 use ndarray::*;
 use ndarray_linalg::*;
-use num_traits::{Float, One};
+use num_traits::{Float, FromPrimitive, One};
 
 use crate::traits::*;
 
@@ -117,7 +117,7 @@ where
     TEO: TimeEvolution<Scalar = A, Dim = Ix1> + TimeStep<Time = A::Real>,
 {
     let n = teo.model_size();
-    let dur = teo.get_dt() * into_scalar(duration as f64);
+    let dur = teo.get_dt() * TEO::Time::from_usize(duration).unwrap();
     Series::new(teo, x, alpha)
         .map(|(_x, _q, r)| r.diag().map(|x| x.abs().ln()))
         .skip(duration / 10)
