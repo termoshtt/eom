@@ -1,10 +1,10 @@
 //! Example nonlinear PDEs
 
 pub mod kse;
-pub mod swe;
+pub mod she;
 
 pub use self::kse::KSE;
-pub use self::swe::SWE;
+pub use self::she::SWE;
 
 use fftw::array::*;
 use fftw::plan::*;

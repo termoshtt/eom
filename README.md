@@ -26,7 +26,7 @@ Contents
   - Kuramoto-Sivashinsky equation
     - [notebook](KSE.ipynb)
   - Swift-Hohenberg equation
-    - [notebook](Swift-Hohenberg.ipynb)
+    - [notebook](SHE.ipynb)
 
 Lyapunov analysis
 -----------------
@@ -46,7 +46,7 @@ Gallery
 ![KSE](kse.png)
 
 ### Swift-Hohenberg equation
-![SWE](swe.png)
+![SHE](she.png)
 
 License
 -------
