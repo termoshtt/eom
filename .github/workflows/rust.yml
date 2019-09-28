@@ -1,0 +1,23 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  test-static:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: apt
+      run:
+       - apt update
+       - apt install -y gfortran
+    - name: Build
+      run: cargo test --features=static --no-default-features
+
+
+  test-intel-mkl:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: cargo test --features=intel-mkl --no-default-features
