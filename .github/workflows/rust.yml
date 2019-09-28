@@ -9,12 +9,16 @@ jobs:
     - uses: actions/checkout@v1
     - name: apt
       run: sudo apt update && sudo apt install -y gfortran
-    - name: Build
-      run: cargo test --features=static --no-default-features
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --features=static --no-default-features
 
   test-intel-mkl:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Build
-      run: cargo test --features=intel-mkl --no-default-features
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --features=intel-mkl --no-default-features
