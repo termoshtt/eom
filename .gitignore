@@ -16,3 +16,6 @@ Cargo.lock
 
 # perf
 perf.*
+
+# flamegraph
+flamegraph.svg
