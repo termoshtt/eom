@@ -1,6 +1,7 @@
 use ndarray::*;
 use ndarray_linalg::*;
 use std::f64::consts::PI;
+use std::iter::FromIterator;
 
 use eom::pde::*;
 
