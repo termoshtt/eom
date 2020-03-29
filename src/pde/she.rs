@@ -59,11 +59,11 @@ impl SemiImplicit for SWE {
         let c2 = 1.64;
         let c3 = 1.0;
 
-        azip!(mut u(self.u.coeff_view_mut()), uf(&*uf) in {
+        azip!((u in &mut self.u.coeff_view_mut(), &uf in &*uf) {
             *u = uf;
         });
         self.u.c2r();
-        azip!(mut u(self.u.real_view_mut()) in {
+        azip!((u in &mut self.u.real_view_mut()) {
             *u = c2 * *u * *u - c3 * *u * *u * *u;
         });
         self.u.r2c();

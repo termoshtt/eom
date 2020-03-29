@@ -123,7 +123,7 @@ where
         .skip(duration / 10)
         .take(duration)
         .fold(ArrayBase::zeros(n), |mut x, y| {
-            azip!(mut x, y in { *x = *x + y/dur } );
+            azip!((x in &mut x, &y in &y) *x = *x + y/dur );
             x
         })
 }
