@@ -1,6 +1,7 @@
 use fftw::types::c64;
 use ndarray::*;
 use std::f64::consts::PI;
+use std::iter::FromIterator;
 
 use super::Pair;
 use crate::traits::*;
