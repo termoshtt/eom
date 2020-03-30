@@ -6,6 +6,7 @@
 use fftw::types::c64;
 use ndarray::*;
 use std::f64::consts::PI;
+use std::iter::FromIterator;
 
 use super::Pair;
 use crate::traits::*;
@@ -57,13 +58,13 @@ impl SemiImplicit for KSE {
     where
         S: DataMut<Elem = Self::Scalar>,
     {
-        azip!(mut u(self.u.coeff_view_mut()), mut ux(self.ux.coeff_view_mut()), k(&self.k), uf(&*uf) in {
+        azip!((u in &mut self.u.coeff_view_mut(), ux in &mut self.ux.coeff_view_mut(), &k in &self.k, &uf in &*uf) {
             *u = uf;
             *ux = k * uf;
         });
         self.u.c2r();
         self.ux.c2r();
-        azip!(mut u(self.u.real_view_mut()), ux(self.ux.real_view()) in {
+        azip!((u in &mut self.u.real_view_mut(), &ux in &self.ux.real_view()) {
             *u = -*u * ux;
         });
         self.u.r2c();
