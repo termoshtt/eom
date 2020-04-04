@@ -19,7 +19,7 @@ fn rcarr() {
     let dt = 0.01;
     let eom = ode::Lorenz63::default();
     let mut teo = explicit::Euler::new(eom, dt);
-    let mut x: RcArray1<f64> = rcarr1(&[1.0, 0.0, 0.0]);
+    let mut x: ArcArray<f64, Ix1> = rcarr1(&[1.0, 0.0, 0.0]);
     teo.iterate(&mut x);
 }
 

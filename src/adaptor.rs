@@ -43,7 +43,7 @@ pub fn iterate<S, TEO>(
     step: usize,
 ) -> ArrayBase<S, TEO::Dim>
 where
-    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    S: DataMut<Elem = TEO::Scalar> + Data + RawDataClone,
     TEO: TimeEvolution,
 {
     teo.iterate_n(&mut x0, step);
@@ -55,7 +55,7 @@ where
 /// [time_series]: fn.time_series.html
 pub struct TimeSeries<'a, S, TEO>
 where
-    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    S: DataMut<Elem = TEO::Scalar> + Data + RawDataClone,
     TEO: TimeEvolution + 'a,
 {
     state: ArrayBase<S, TEO::Dim>,
@@ -94,7 +94,7 @@ pub fn time_series<'a, S, TEO>(
     teo: &'a mut TEO,
 ) -> TimeSeries<'a, S, TEO>
 where
-    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    S: DataMut<Elem = TEO::Scalar> + Data + RawDataClone,
     TEO: TimeEvolution,
 {
     TimeSeries {
@@ -105,7 +105,7 @@ where
 
 impl<'a, S, TEO> TimeSeries<'a, S, TEO>
 where
-    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    S: DataMut<Elem = TEO::Scalar> + Data + RawDataClone,
     TEO: TimeEvolution,
 {
     pub fn iterate(&mut self) {
@@ -115,7 +115,7 @@ where
 
 impl<'a, S, TEO> Iterator for TimeSeries<'a, S, TEO>
 where
-    S: DataMut<Elem = TEO::Scalar> + DataClone,
+    S: DataMut<Elem = TEO::Scalar> + Data + RawDataClone,
     TEO: TimeEvolution,
 {
     type Item = ArrayBase<S, TEO::Dim>;

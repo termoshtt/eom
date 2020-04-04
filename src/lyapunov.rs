@@ -123,7 +123,7 @@ where
         .skip(duration / 10)
         .take(duration)
         .fold(ArrayBase::zeros(n), |mut x, y| {
-            azip!(mut x, y in { *x = *x + y/dur } );
+            azip!((x in &mut x, &y in &y) *x = *x + y/dur );
             x
         })
 }
@@ -179,7 +179,7 @@ fn clv_backward<A: Scalar + Lapack>(c: &Array2<A>, r: &Array2<A>) -> (Array2<A>,
         .solve_triangular(UPLO::Upper, ::ndarray_linalg::Diag::NonUnit, c)
         .expect("Failed to solve R");
     let (c, d) = normalize(cd, NormalizeAxis::Column);
-    let f = Array::from_vec(d).mapv_into(|x| A::Real::one() / x);
+    let f = Array::from(d).mapv_into(|x| A::Real::one() / x);
     (c, f)
 }
 
