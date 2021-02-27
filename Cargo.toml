@@ -14,23 +14,22 @@ readme        = "README.md"
 
 [features]
 default   = []
-static    = ["ndarray-linalg/openblas-static",  "fftw/source"]
-intel-mkl = ["ndarray-linalg/intel-mkl", "fftw/intel-mkl"]
+oss       = ["ndarray-linalg/openblas-static",  "fftw/source"]
+intel-mkl = ["ndarray-linalg/intel-mkl-static", "fftw/intel-mkl"]
 
 [dependencies]
-num-traits  = { version = "0.2.11",  default-features = false }
-num-complex = { version = "0.2.4",  default-features = false }
-derive-new  = { version = "0.5",  default-features = false }
-ndarray     = { version = "0.13", default-features = false }
-fftw        = { version = "0.6",  default-features = false }
+num-traits  = { version = "0.2.14", default-features = false }
+num-complex = { version = "0.3.1", default-features = false }
+derive-new  = { version = "0.5.9", default-features = false }
+ndarray     = { version = "0.14.0", default-features = false }
+fftw        = { version = "0.7.0", default-features = false }
 
 [dependencies.ndarray-linalg]
-version = "0.12"
-git = "https://github.com/rust-ndarray/ndarray-linalg"
+version = "0.13.0"
 default-features = false
 
 [dev-dependencies]
-criterion = "0.2"
+criterion = "0.3.4"
 
 [[bench]]
 name = "ode"
