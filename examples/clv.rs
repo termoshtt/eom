@@ -31,5 +31,6 @@ fn main() {
         &mut std::io::stderr(),
         "exponents = {:?}\n",
         l / (dt * duration as f64)
-    ).unwrap();
+    )
+    .unwrap();
 }
