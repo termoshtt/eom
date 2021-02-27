@@ -24,8 +24,8 @@ impl Pair {
         let nf = n / 2 + 1;
         let mut r = AlignedVec::new(n);
         let mut c = AlignedVec::new(nf);
-        let r2c = R2CPlan::new(&[n], &mut r, &mut c, Flag::Measure).unwrap();
-        let c2r = C2RPlan::new(&[n], &mut c, &mut r, Flag::Measure).unwrap();
+        let r2c = R2CPlan::new(&[n], &mut r, &mut c, Flag::MEASURE).unwrap();
+        let c2r = C2RPlan::new(&[n], &mut c, &mut r, Flag::MEASURE).unwrap();
         Pair { r, c, r2c, c2r }
     }
 
