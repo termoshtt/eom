@@ -1,9 +1,13 @@
 name: Rust
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
 
 jobs:
-  test-static:
+  test-oss:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -12,7 +16,7 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --features=static --no-default-features
+        args: --features=oss --no-default-features
 
   test-intel-mkl:
     runs-on: ubuntu-latest

@@ -7,7 +7,6 @@ extern crate ndarray;
 extern crate ndarray_linalg;
 
 use ndarray::*;
-use ndarray_linalg::*;
 use std::io::Write;
 
 use eom::traits::*;
@@ -32,5 +31,6 @@ fn main() {
         &mut std::io::stderr(),
         "exponents = {:?}\n",
         l / (dt * duration as f64)
-    ).unwrap();
+    )
+    .unwrap();
 }

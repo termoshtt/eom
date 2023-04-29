@@ -119,7 +119,7 @@ where
     let n = teo.model_size();
     let dur = teo.get_dt() * TEO::Time::from_usize(duration).unwrap();
     Series::new(teo, x, alpha)
-        .map(|(_x, _q, r)| r.diag().map(|x| x.abs().ln()))
+        .map(|(_x, _q, r)| r.diag().map(|x| Scalar::ln(x.abs())))
         .skip(duration / 10)
         .take(duration)
         .fold(ArrayBase::zeros(n), |mut x, y| {
