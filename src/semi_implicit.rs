@@ -59,11 +59,7 @@ impl<F: SemiImplicit> Diagonal<F> {
         for v in exp_diag.iter_mut() {
             *v = v.mul_real(dt).exp();
         }
-        Diagonal {
-            exp_diag,
-            diag,
-            dt,
-        }
+        Diagonal { exp_diag, diag, dt }
     }
 }
 
