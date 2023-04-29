@@ -46,7 +46,7 @@ impl<F: SemiImplicit> TimeEvolution for Diagonal<F> {
         S: DataMut<Elem = Self::Scalar>,
     {
         for (val, d) in x.iter_mut().zip(self.exp_diag.iter()) {
-            *val = *val * *d;
+            *val *= *d;
         }
         x
     }
@@ -60,9 +60,9 @@ impl<F: SemiImplicit> Diagonal<F> {
             *v = v.mul_real(dt).exp();
         }
         Diagonal {
-            exp_diag: exp_diag,
-            diag: diag,
-            dt: dt,
+            exp_diag,
+            diag,
+            dt,
         }
     }
 }
@@ -166,12 +166,12 @@ impl<F: SemiImplicit> TimeEvolution for DiagRK4<F> {
         let k4 = f.nlin(l.iterate(k3));
         Zip::from(&mut self.x)
             .and(&self.k1)
-            .apply(|x_, k1_| *x_ = *x_ + k1_.mul_real(dt_6));
+            .apply(|x_, k1_| *x_ += k1_.mul_real(dt_6));
         l.iterate(&mut self.x);
         Zip::from(&mut self.x)
             .and(&self.k2)
             .and(&self.k3)
-            .apply(|x_, &k2_, &k3_| *x_ = *x_ + (k2_ + k3_).mul_real(dt_3));
+            .apply(|x_, &k2_, &k3_| *x_ += (k2_ + k3_).mul_real(dt_3));
         l.iterate(&mut self.x);
         Zip::from(&mut *k4).and(&self.x).apply(|k4, &x_| {
             *k4 = x_ + k4.mul_real(dt_6);

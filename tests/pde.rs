@@ -10,7 +10,7 @@ fn pair_r2c2r() {
     let n = 128;
     let a: Array1<f64> = random(n);
     let mut p = Pair::new(n);
-    p.r.copy_from_slice(&a.as_slice().unwrap());
+    p.r.copy_from_slice(a.as_slice().unwrap());
     p.r2c();
     p.c2r();
     let b: Array1<f64> = Array::from_iter(p.r.iter().cloned());

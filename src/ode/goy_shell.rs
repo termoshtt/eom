@@ -72,7 +72,7 @@ impl SemiImplicit for GoyShell {
             }
         }
 
-        v[self.f_idx] = v[self.f_idx] + c64::new(self.f, 0.0);
+        v[self.f_idx] += c64::new(self.f, 0.0);
         v
     }
 

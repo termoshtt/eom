@@ -16,31 +16,31 @@ where
 {
     let acc = adaptor::accuracy(teo, init, 0.01, 1000, 12);
     let mut f = File::create(fname).unwrap();
-    write!(&mut f, "dt,dev\n").unwrap();
+    writeln!(&mut f, "dt,dev").unwrap();
     for &(dt, dev) in acc.iter() {
-        write!(&mut f, "{:.08e},{:.08e}\n", dt, dev).unwrap();
+        writeln!(&mut f, "{:.08e},{:.08e}", dt, dev).unwrap();
     }
 }
 
 fn main() {
     let l63 = ode::Lorenz63::default();
     check_accuracy(
-        explicit::Euler::new(l63.clone(), 1.0),
+        explicit::Euler::new(l63, 1.0),
         arr1(&[1.0, 0.0, 0.0]),
         "euler.csv",
     );
     check_accuracy(
-        explicit::Heun::new(l63.clone(), 1.0),
+        explicit::Heun::new(l63, 1.0),
         arr1(&[1.0, 0.0, 0.0]),
         "heun.csv",
     );
     check_accuracy(
-        explicit::RK4::new(l63.clone(), 1.0),
+        explicit::RK4::new(l63, 1.0),
         arr1(&[1.0, 0.0, 0.0]),
         "rk4.csv",
     );
     check_accuracy(
-        semi_implicit::DiagRK4::new(l63.clone(), 1.0),
+        semi_implicit::DiagRK4::new(l63, 1.0),
         arr1(&[1.0, 0.0, 0.0]),
         "diag_rk4.csv",
     );

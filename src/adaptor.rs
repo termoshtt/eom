@@ -89,17 +89,17 @@ where
 /// }
 /// # }
 /// ```
-pub fn time_series<'a, S, TEO>(
+pub fn time_series<S, TEO>(
     x0: ArrayBase<S, TEO::Dim>,
-    teo: &'a mut TEO,
-) -> TimeSeries<'a, S, TEO>
+    teo: &mut TEO,
+) -> TimeSeries<'_, S, TEO>
 where
     S: DataMut<Elem = TEO::Scalar> + Data + RawDataClone,
     TEO: TimeEvolution,
 {
     TimeSeries {
         state: x0,
-        teo: teo,
+        teo,
     }
 }
 

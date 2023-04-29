@@ -31,7 +31,7 @@ impl ModelSpec for Roessler {
 
 impl Roessler {
     pub fn new(a: f64, b: f64, c: f64) -> Self {
-        Roessler { a: a, b: b, c: c }
+        Roessler { a, b, c }
     }
 }
 

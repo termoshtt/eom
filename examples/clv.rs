@@ -21,15 +21,15 @@ fn main() {
     let mut l = Array::zeros(3);
     println!("v0v1, v0v2, v1v2");
     for (_x, v, f) in ts.into_iter().rev() {
-        let v0 = v.axis_iter(Axis(1)).nth(0).unwrap();
+        let v0 = v.axis_iter(Axis(1)).next().unwrap();
         let v1 = v.axis_iter(Axis(1)).nth(1).unwrap();
         let v2 = v.axis_iter(Axis(1)).nth(2).unwrap();
         println!("{}, {}, {}", v0.dot(&v1), v0.dot(&v2), v1.dot(&v2));
         l += &f.map(|x| x.abs().ln());
     }
-    write!(
+    writeln!(
         &mut std::io::stderr(),
-        "exponents = {:?}\n",
+        "exponents = {:?}",
         l / (dt * duration as f64)
     )
     .unwrap();
