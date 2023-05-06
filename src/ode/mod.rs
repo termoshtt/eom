@@ -1,9 +1,9 @@
 //! Example nonlinear ODEs
 
-pub mod goy_shell;
-pub mod lorenz63;
-pub mod lorenz96;
-pub mod roessler;
+mod goy_shell;
+mod lorenz63;
+mod lorenz96;
+mod roessler;
 
 pub use self::goy_shell::GoyShell;
 pub use self::lorenz63::Lorenz63;
