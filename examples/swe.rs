@@ -28,7 +28,7 @@ fn main() {
     for i in 0..n {
         print!(",x{}", i);
     }
-    println!("");
+    println!();
 
     for (t, v) in ts.take(step).enumerate() {
         let time = dt * t as f64;

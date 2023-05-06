@@ -22,7 +22,7 @@ impl<F: SemiImplicit> TimeStep for Diagonal<F> {
     fn set_dt(&mut self, dt: Self::Time) {
         Zip::from(&mut self.exp_diag)
             .and(&self.diag)
-            .apply(|a, &b| {
+            .for_each(|a, &b| {
                 *a = b.mul_real(dt).exp();
             });
     }
@@ -46,7 +46,7 @@ impl<F: SemiImplicit> TimeEvolution for Diagonal<F> {
         S: DataMut<Elem = Self::Scalar>,
     {
         for (val, d) in x.iter_mut().zip(self.exp_diag.iter()) {
-            *val = *val * *d;
+            *val *= *d;
         }
         x
     }
@@ -59,11 +59,7 @@ impl<F: SemiImplicit> Diagonal<F> {
         for v in exp_diag.iter_mut() {
             *v = v.mul_real(dt).exp();
         }
-        Diagonal {
-            exp_diag: exp_diag,
-            diag: diag,
-            dt: dt,
-        }
+        Diagonal { exp_diag, diag, dt }
     }
 }
 
@@ -150,30 +146,30 @@ impl<F: SemiImplicit> TimeEvolution for DiagRK4<F> {
         l.iterate(&mut self.lx);
         let k1 = f.nlin(x);
         self.k1.zip_mut_with(k1, |buf, k1| *buf = *k1);
-        Zip::from(&mut *k1).and(&self.x).apply(|k1, &x_| {
+        Zip::from(&mut *k1).and(&self.x).for_each(|k1, &x_| {
             *k1 = x_ + k1.mul_real(dt_2);
         });
         let k2 = f.nlin(l.iterate(k1));
         self.k2.zip_mut_with(k2, |buf, k| *buf = *k);
-        Zip::from(&mut *k2).and(&self.lx).apply(|k2, &lx| {
+        Zip::from(&mut *k2).and(&self.lx).for_each(|k2, &lx| {
             *k2 = lx + k2.mul_real(dt_2);
         });
         let k3 = f.nlin(k2);
         self.k3.zip_mut_with(k3, |buf, k| *buf = *k);
-        Zip::from(&mut *k3).and(&self.lx).apply(|k3, &lx| {
+        Zip::from(&mut *k3).and(&self.lx).for_each(|k3, &lx| {
             *k3 = lx + k3.mul_real(dt);
         });
         let k4 = f.nlin(l.iterate(k3));
         Zip::from(&mut self.x)
             .and(&self.k1)
-            .apply(|x_, k1_| *x_ = *x_ + k1_.mul_real(dt_6));
+            .for_each(|x_, k1_| *x_ += k1_.mul_real(dt_6));
         l.iterate(&mut self.x);
         Zip::from(&mut self.x)
             .and(&self.k2)
             .and(&self.k3)
-            .apply(|x_, &k2_, &k3_| *x_ = *x_ + (k2_ + k3_).mul_real(dt_3));
+            .for_each(|x_, &k2_, &k3_| *x_ += (k2_ + k3_).mul_real(dt_3));
         l.iterate(&mut self.x);
-        Zip::from(&mut *k4).and(&self.x).apply(|k4, &x_| {
+        Zip::from(&mut *k4).and(&self.x).for_each(|k4, &x_| {
             *k4 = x_ + k4.mul_real(dt_6);
         });
         k4

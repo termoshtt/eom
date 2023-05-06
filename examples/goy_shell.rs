@@ -27,7 +27,7 @@ fn main() {
     for i in 0..27 {
         print!(",r{},c{}", i, i);
     }
-    println!("");
+    println!();
     for (t, v) in ts.take(end_time).enumerate() {
         if t % interval != 0 {
             continue;
@@ -36,6 +36,6 @@ fn main() {
         for c in v.iter() {
             print!(",{:e},{:e}", c.re, c.im);
         }
-        println!("");
+        println!();
     }
 }

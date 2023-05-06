@@ -24,7 +24,7 @@ impl Default for Lorenz63 {
 
 impl Lorenz63 {
     pub fn new(p: f64, r: f64, b: f64) -> Self {
-        Lorenz63 { p: p, r: r, b: b }
+        Lorenz63 { p, r, b }
     }
 }
 

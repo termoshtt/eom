@@ -40,13 +40,13 @@ impl Pair {
     pub fn c2r(&mut self) {
         self.c2r.c2r(&mut self.c, &mut self.r).unwrap();
     }
-    pub fn to_r<'a, 'b>(&'a mut self, c: &'b [c64]) -> &'a [f64] {
+    pub fn to_r<'a>(&'a mut self, c: &[c64]) -> &'a [f64] {
         self.c.copy_from_slice(c);
         self.c2r();
         &self.r
     }
 
-    pub fn to_c<'a, 'b>(&'a mut self, r: &'b [f64]) -> &'a [c64] {
+    pub fn to_c<'a>(&'a mut self, r: &[f64]) -> &'a [c64] {
         self.r.copy_from_slice(r);
         self.r2c();
         &self.c

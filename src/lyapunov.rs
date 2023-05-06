@@ -74,11 +74,11 @@ where
     {
         let dx_nrm = dx.norm_l2().max(self.alpha);
         let n = self.alpha / dx_nrm;
-        Zip::from(&mut *dx).and(&self.x).apply(|dx, &x| {
+        Zip::from(&mut *dx).and(&self.x).for_each(|dx, &x| {
             *dx = x + dx.mul_real(n);
         });
         let x_dx = self.f.iterate(dx);
-        Zip::from(&mut *x_dx).and(&self.fx).apply(|x_dx, &fx| {
+        Zip::from(&mut *x_dx).and(&self.fx).for_each(|x_dx, &fx| {
             *x_dx = (*x_dx - fx).div_real(n);
         });
         x_dx
@@ -123,7 +123,7 @@ where
         .skip(duration / 10)
         .take(duration)
         .fold(ArrayBase::zeros(n), |mut x, y| {
-            azip!((x in &mut x, &y in &y) *x = *x + y/dur );
+            azip!((x in &mut x, &y in &y) *x += y/dur );
             x
         })
 }
