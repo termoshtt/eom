@@ -1,10 +1,10 @@
-//! Example nonlinear PDEs
+//! Example nonlinear PDEs with spectral (Fourier-Galerkin) method
 
-pub mod kse;
-pub mod she;
+mod kse;
+mod she;
 
 pub use self::kse::KSE;
-pub use self::she::SWE;
+pub use self::she::SHE;
 
 use fftw::array::*;
 use fftw::plan::*;
