@@ -14,7 +14,7 @@ readme        = "README.md"
 
 [features]
 default   = []
-oss       = ["ndarray-linalg/openblas-static",  "fftw/source"]
+oss       = ["ndarray-linalg/openblas-static", "fftw/source"]
 intel-mkl = ["ndarray-linalg/intel-mkl-static", "fftw/intel-mkl"]
 
 [dependencies]
@@ -23,6 +23,8 @@ num-complex = { version = "0.4.3", default-features = false }
 derive-new  = { version = "0.5.9", default-features = false }
 ndarray     = { version = "0.15.6", default-features = false }
 fftw        = { version = "0.8.0", default-features = false }
+
+katexit = "0.1.4"
 
 [dependencies.ndarray-linalg]
 version = "0.16.0"
