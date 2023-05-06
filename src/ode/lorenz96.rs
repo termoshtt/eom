@@ -2,7 +2,8 @@ use crate::traits::*;
 use ndarray::*;
 
 #[cfg_attr(doc, katexit::katexit)]
-/// Lorenz 96 model, frequently used on [Data Assimilation](https://en.wikipedia.org/wiki/Data_assimilation) community.
+/// Lorenz 96 model, frequently used on [data assimilation](https://en.wikipedia.org/wiki/Data_assimilation) community.
+///
 /// $$
 /// \frac{dx_i}{dt} = (x_{i+1}-x_{i-2}) x_{i-1} - x_{i} + F
 /// $$

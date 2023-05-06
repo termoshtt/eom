@@ -1,10 +1,22 @@
-//! Lorenz three-variables system
-//! <https://en.wikipedia.org/wiki/Lorenz_system>
-
 use ndarray::*;
 
 use crate::traits::*;
 
+#[cfg_attr(doc, katexit::katexit)]
+/// Lorenz three-variables system, "The chaotic attractor"
+///
+/// $$
+/// \begin{align*}
+///   \frac{dx}{dt} &= r(y-x) \\\\
+///   \frac{dy}{dt} &= x(p-z) -y \\\\
+///   \frac{dz}{dt} &= xy - bz
+/// \end{align*}
+/// $$
+/// $(p, r, b)= (10, 28, 8/3)$ is original and commonly used parameter.
+///
+/// Links
+/// ------
+/// - Wikipedia <https://en.wikipedia.org/wiki/Lorenz_system>
 #[derive(Clone, Copy, Debug)]
 pub struct Lorenz63 {
     pub p: f64,
