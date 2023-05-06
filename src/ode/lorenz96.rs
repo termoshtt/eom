@@ -1,12 +1,23 @@
-//! Lorenz 96 model
-//! https://en.wikipedia.org/wiki/Lorenz_96_model
-
 use crate::traits::*;
 use ndarray::*;
 
+#[cfg_attr(doc, katexit::katexit)]
+/// Lorenz 96 model, frequently used on [data assimilation](https://en.wikipedia.org/wiki/Data_assimilation) community.
+///
+/// $$
+/// \frac{dx_i}{dt} = (x_{i+1}-x_{i-2}) x_{i-1} - x_{i} + F
+/// $$
+/// where $i \in [0, n-1]$ and cyclic boundary condition, i.e. $x_{n + i} = x_i$ is used.
+/// $F = 8$ is used commonly to produce chaotic behavior.
+///
+/// Links
+/// ------
+/// - Wikipedia <https://en.wikipedia.org/wiki/Lorenz_96_model>
 #[derive(Clone, Copy, Debug)]
 pub struct Lorenz96 {
+    /// $F$ in the equation, default is $8.0$
     pub f: f64,
+    /// Number of elements, default is $40$
     pub n: usize,
 }
 
