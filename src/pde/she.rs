@@ -5,14 +5,11 @@ use std::f64::consts::PI;
 use super::Pair;
 use crate::traits::*;
 
-/// One-dimensional Swift-Hohenberg equation with spectral-method
+/// One-dimensional Swift-Hohenberg equation
 #[derive(Clone)]
-pub struct SWE {
-    n: usize,
+pub struct SHE {
     nf: usize,
 
-    /// System size (length of entire periodic domain)
-    length: f64,
     /// Parameter for linear stablity
     r: f64,
     /// Length scale of instablity
@@ -22,7 +19,7 @@ pub struct SWE {
     u: Pair,
 }
 
-impl ModelSpec for SWE {
+impl ModelSpec for SHE {
     type Scalar = c64;
     type Dim = Ix1;
     fn model_size(&self) -> usize {
@@ -30,15 +27,13 @@ impl ModelSpec for SWE {
     }
 }
 
-impl SWE {
+impl SHE {
     pub fn new(n: usize, length: f64, r: f64, lc: f64) -> Self {
         let nf = n / 2 + 1;
         let k0 = 2.0 * PI / length;
         let qc = 2.0 * PI / lc;
-        SWE {
-            n,
+        SHE {
             nf,
-            length,
             r,
             qc,
             k: Array::from_iter((0..nf).map(|i| c64::new(0.0, k0 * i as f64))),
@@ -47,7 +42,7 @@ impl SWE {
     }
 }
 
-impl SemiImplicit for SWE {
+impl SemiImplicit for SHE {
     fn nlin<'a, S>(
         &mut self,
         uf: &'a mut ArrayBase<S, Self::Dim>,
