@@ -4,10 +4,18 @@ use ndarray::*;
 use ndarray_linalg::*;
 use num_traits::Float;
 
+#[cfg(doc)]
+use crate::{explicit::*, ode::*};
+
 /// Model specification
+///
+/// To describe equations of motion,
+/// we first have to specify the variable to describe the system state.
+///
 pub trait ModelSpec: Clone {
     type Scalar: Scalar;
     type Dim: Dimension;
+    /// Number of scalars to describe the system state.
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
 }
 
@@ -18,9 +26,28 @@ pub trait TimeStep {
     fn set_dt(&mut self, dt: Self::Time);
 }
 
-/// Core implementation for explicit schemes
+#[cfg_attr(doc, katexit::katexit)]
+/// Explicit scheme for autonomous systems
+///
+/// Consider equation of motion of an autonomous system
+/// described as an initial value problem of ODE:
+/// $$
+/// \frac{dx}{dt} = f(x),\space x(0) = x_0
+/// $$
+/// where $x = x(t)$ describes the system state specified by [ModelSpec] trait at a time $t$.
+/// This trait specifies $f$ itself, i.e. this trait will be implemented for structs corresponds to
+/// equations like [Lorenz63],
+/// and used while implementing integrate algorithms like [Euler],
+/// [Heun], and [RK4] algorithms.
+/// Since these algorithms are independent from the detail of $f$,
+/// this trait abstracts this part.
+///
 pub trait Explicit: ModelSpec {
-    /// calculate right hand side (rhs) of Explicit from current state
+    /// Evaluate $f(x)$ for a given state $x$
+    ///
+    /// This requires `&mut self` because evaluating $f$ may require
+    /// additional internal memory allocated in `Self`.
+    ///
     fn rhs<'a, S>(&mut self, x: &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
