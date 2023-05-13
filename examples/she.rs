@@ -1,8 +1,3 @@
-extern crate eom;
-extern crate ndarray;
-extern crate ndarray_linalg;
-
-use eom::traits::*;
 use eom::*;
 use ndarray::*;
 use ndarray_linalg::*;

@@ -1,13 +1,7 @@
-extern crate eom;
-extern crate ndarray;
-extern crate num_complex;
-extern crate num_traits;
-
 use ndarray::*;
 use num_complex::Complex64 as c64;
 use num_traits::Zero;
 
-use eom::traits::*;
 use eom::*;
 
 fn main() {

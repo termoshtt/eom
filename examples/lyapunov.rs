@@ -1,12 +1,7 @@
 //! Lyapunov Analysis example
 
-extern crate eom;
-extern crate ndarray;
-
-use ndarray::*;
-
-use eom::traits::*;
 use eom::*;
+use ndarray::*;
 
 fn main() {
     let dt = 0.01;

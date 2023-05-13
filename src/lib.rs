@@ -6,4 +6,6 @@ pub mod lyapunov;
 pub mod ode;
 pub mod pde;
 pub mod semi_implicit;
-pub mod traits;
+
+mod traits;
+pub use traits::*;

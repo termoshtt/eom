@@ -2,7 +2,6 @@ use ndarray::*;
 use ndarray_linalg::*;
 
 use eom::lyapunov::*;
-use eom::traits::*;
 use eom::*;
 
 #[test]

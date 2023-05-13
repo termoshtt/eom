@@ -1,13 +1,7 @@
-extern crate eom;
-extern crate ndarray;
-extern crate ndarray_linalg;
-extern crate num_traits;
-
 use ndarray::*;
 use std::fs::*;
 use std::io::Write;
 
-use eom::traits::*;
 use eom::*;
 
 fn check_accuracy<Sc>(teo: Sc, init: Array1<f64>, fname: &str)

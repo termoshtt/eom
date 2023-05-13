@@ -2,14 +2,9 @@
 //!
 //! This function consumes much memory since this saves matrices duraing the time evolution.
 
-extern crate eom;
-extern crate ndarray;
-extern crate ndarray_linalg;
-
 use ndarray::*;
 use std::io::Write;
 
-use eom::traits::*;
 use eom::*;
 
 fn main() {

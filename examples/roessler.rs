@@ -1,7 +1,3 @@
-extern crate eom;
-extern crate ndarray;
-
-use eom::traits::*;
 use eom::*;
 use ndarray::arr1;
 
