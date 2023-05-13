@@ -14,7 +14,7 @@ fn main() {
     let interval = 100;
     let step = 1000;
 
-    let eom = pde::SWE::new(n, l, 1.0, 6.0);
+    let eom = pde::SHE::new(n, l, 1.0, 6.0);
     let mut pair = pde::Pair::new(n);
     let n_coef = eom.model_size();
     let teo = semi_implicit::DiagRK4::new(eom, dt);

@@ -5,14 +5,27 @@ use std::f64::consts::PI;
 use super::Pair;
 use crate::traits::*;
 
-/// One-dimensional Swift-Hohenberg equation with spectral-method
+#[cfg_attr(doc, katexit::katexit)]
+/// One-dimensional Swift-Hohenberg equation with spectral method
+///
+/// $$
+/// \frac{\partial u}{\partial t} =
+/// ru - \left(\partial_x^2 + q_c^2 \right)^2 u + u^2 - u^3
+/// $$
+///
+/// where $u = u(x, t)$ is real value field defined on $x \in [0, L]$
+/// with cyclic boundary condition $u(x, t) = u(x + L, t)$.
+/// The nonlinear term $u^2 - u^3$ has several variation,
+/// and sometimes called generalized Swift-Hohenberg equation for this case.
+///
+/// Links
+/// -----
+/// - ["Localized states in the generalized Swift-Hohenberg equation", J. Burke and E. Knobloch, PRE 73, 056211 (2006)](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.73.056211)
+///
 #[derive(Clone)]
-pub struct SWE {
-    n: usize,
+pub struct SHE {
     nf: usize,
 
-    /// System size (length of entire periodic domain)
-    length: f64,
     /// Parameter for linear stablity
     r: f64,
     /// Length scale of instablity
@@ -22,7 +35,7 @@ pub struct SWE {
     u: Pair,
 }
 
-impl ModelSpec for SWE {
+impl ModelSpec for SHE {
     type Scalar = c64;
     type Dim = Ix1;
     fn model_size(&self) -> usize {
@@ -30,15 +43,17 @@ impl ModelSpec for SWE {
     }
 }
 
-impl SWE {
+impl SHE {
+    /// - `n`: Number of Fourier coefficients to be computed
+    /// - `length`: System size $L$
+    /// - `r`: Stability parameter $r$
+    /// - `lc`: Length scale of instablity, i.e. $q_c = 2\pi / l_c$
     pub fn new(n: usize, length: f64, r: f64, lc: f64) -> Self {
         let nf = n / 2 + 1;
         let k0 = 2.0 * PI / length;
         let qc = 2.0 * PI / lc;
-        SWE {
-            n,
+        SHE {
             nf,
-            length,
             r,
             qc,
             k: Array::from_iter((0..nf).map(|i| c64::new(0.0, k0 * i as f64))),
@@ -47,7 +62,7 @@ impl SWE {
     }
 }
 
-impl SemiImplicit for SWE {
+impl SemiImplicit for SHE {
     fn nlin<'a, S>(
         &mut self,
         uf: &'a mut ArrayBase<S, Self::Dim>,
