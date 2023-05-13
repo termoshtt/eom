@@ -72,12 +72,9 @@ where
 /// ---------
 ///
 /// ```rust
-/// # extern crate eom;
-/// # extern crate ndarray;
-/// # use ndarray::arr1;
-/// # use eom::*;
-/// # use eom::traits::*;
-/// # fn main() {
+/// use ndarray::arr1;
+/// use eom::*;
+///
 /// let dt = 0.01;
 /// let eom = ode::Lorenz63::default();
 /// let mut teo = explicit::RK4::new(eom, dt);
@@ -87,7 +84,6 @@ where
 /// for (t, v) in ts.take(end_time).enumerate() {
 ///     println!("{},{},{},{}", t as f64 * dt, v[0], v[1], v[2]);
 /// }
-/// # }
 /// ```
 pub fn time_series<S, TEO>(x0: ArrayBase<S, TEO::Dim>, teo: &mut TEO) -> TimeSeries<'_, S, TEO>
 where
@@ -132,7 +128,7 @@ pub struct NStep<TEO: TimeEvolution> {
 ///
 /// ```rust
 /// use eom::*;
-/// use eom::traits::*;
+///
 /// let teo = explicit::RK4::new(ode::Lorenz63::default(), 0.01);
 /// let nstep = adaptor::nstep(teo, 10);
 /// ```
