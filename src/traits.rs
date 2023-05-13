@@ -5,7 +5,7 @@ use ndarray_linalg::*;
 use num_traits::Float;
 
 #[cfg(doc)]
-use crate::{explicit::*, ode::*};
+use crate::{explicit::*, ode::*, semi_implicit::*};
 
 /// Model specification
 ///
@@ -27,7 +27,7 @@ pub trait TimeStep {
 }
 
 #[cfg_attr(doc, katexit::katexit)]
-/// Explicit scheme for autonomous systems
+/// Abstraction for implementing explicit schemes
 ///
 /// Consider equation of motion of an autonomous system
 /// described as an initial value problem of ODE:
@@ -53,16 +53,48 @@ pub trait Explicit: ModelSpec {
         S: DataMut<Elem = Self::Scalar>;
 }
 
-/// Core implementation for semi-implicit schemes
+#[cfg_attr(doc, katexit::katexit)]
+/// Abstraction for implementing semi-implicit schemes for stiff equations
+///
+/// Consider equation of motion of a stiff autonomous system
+/// described as an initial value problem of ODE:
+/// $$
+/// \frac{dx}{dt} = Ax + f(x),\space x(0) = x_0
+/// $$
+/// where $x = x(t)$ describes the system state specified by [ModelSpec] trait.
+/// We split the right hand side of the equation
+/// as the linear part $Ax$ to be stiff and the nonlinear part $f(x)$ not to be stiff.
+/// In addition, we assume $A$ is diagonalizable,
+/// and $x$ is selected to make $A$ diagonal.
+/// Similar to [Explicit], this trait abstracts the pair $(A, f)$ to implement
+/// semi-implicit schemes like [DiagRK4].
+///
+/// Stiff equations and semi-implicit schemes
+/// -------------------------------------------
+/// The stiffness causes numerical instabilities.
+/// For example, consider solving one-dimensional ODE $dx/dt = -\lambda x$
+/// with large $\lambda$ using explicit Euler scheme.
+/// Apparently, the solution is $x(t) = x(0)e^{-\lambda t}$,
+/// which converges to $0$ very quickly.
+/// However, to capture this process using explicit scheme like Euler scheme,
+/// we need as small $\Delta t$ as $\lambda^{-1}$.
+/// Such small $\Delta t$ is usually unacceptable,
+/// and implicit schemes are used for stiff equations,
+/// but full implicit schemes require solving fixed point problem like
+/// $1 + \lambda f(x) = 0$, which makes another instabilities.
+/// Semi-implicit schemes has been introduced to resolve this situation,
+/// i.e. use implicit scheme only for stiff linear part $Ax$
+/// and use explicit schemes on non-stiff part $f(x)$.
+///
 pub trait SemiImplicit: ModelSpec {
-    /// non-linear part of stiff equation
+    /// Non-stiff part $f(x)$
     fn nlin<'a, S>(
         &mut self,
         x: &'a mut ArrayBase<S, Self::Dim>,
     ) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>;
-    /// diagonal elements of stiff linear part
+    /// Diagonal elements of stiff linear part of $A$
     fn diag(&self) -> Array<Self::Scalar, Self::Dim>;
 }
 
