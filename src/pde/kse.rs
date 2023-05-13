@@ -18,7 +18,7 @@ use crate::traits::*;
 ///
 /// Links
 /// -----
-/// - ["Chemical Oscillations, Waves, and Turbulence"](http://www.springer.com/us/book/9783642696916)
+/// - ["Chemical Oscillations, Waves, and Turbulence", Y. Kuramoto, Springer](http://www.springer.com/us/book/9783642696916)
 ///
 pub struct KSE {
     n: usize,
