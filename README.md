@@ -1,7 +1,8 @@
 Equation of Motions
 ====================
-[![Crate](http://meritbadge.herokuapp.com/eom)](https://crates.io/crates/eom)
+[![Crate](https://img.shields.io/crates/v/eom.svg)](https://crates.io/crates/eom)
 [![docs.rs](https://docs.rs/eom/badge.svg)](https://docs.rs/eom)
+[![master](https://img.shields.io/badge/docs-master-blue)](https://termoshtt.github.io/eom/eom/index.html)
 [![DOI](https://zenodo.org/badge/68349467.svg)](https://zenodo.org/badge/latestdoi/68349467)
 
 Configurable ODE/PDE solver
