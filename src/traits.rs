@@ -1,5 +1,3 @@
-//! Fundamental traits for solving EoM
-
 use ndarray::*;
 use ndarray_linalg::*;
 use num_traits::Float;
@@ -7,10 +5,14 @@ use num_traits::Float;
 #[cfg(doc)]
 use crate::{explicit::*, ode::*, semi_implicit::*};
 
-/// Model specification
+#[cfg_attr(doc, katexit::katexit)]
+/// Model space, the linear space where the system state is represented.
 ///
-/// To describe equations of motion,
-/// we first have to specify the variable to describe the system state.
+/// For an ODE in a form $dx/dt = f(x)$, the linear space where $x$ belongs to
+/// is the model space.
+/// It is usually $\mathbb{R}^n$ or $\mathbb{C}^n$,
+/// but this crate allows it in multi-dimensional e.g. $\mathbb{C}^{N_x \times N_y}$
+/// to support spectral methods for PDE whose state space is Fourier coefficients.
 ///
 pub trait ModelSpec: Clone {
     type Scalar: Scalar;
@@ -19,7 +21,7 @@ pub trait ModelSpec: Clone {
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern;
 }
 
-/// Interface for time-step
+/// Interface for set/get time step for integration
 pub trait TimeStep {
     type Time: Scalar + Float;
     fn get_dt(&self) -> Self::Time;
